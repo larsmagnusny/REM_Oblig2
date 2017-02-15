@@ -2,6 +2,7 @@
 Obligatorisk oppgave 2 i programmering II, prototype av spillet der vi beviser gameplay.
 
 #Prototype Breakdown
+https://docs.google.com/document/d/1aIMjEL5PPkkIj1dKvpaKNuv06nIOuNOG6U1XHyYwIoc/edit
 #Level Design - Hvordan skal det se ut, hva skal være der
 #Character
 	- Can click on the ground to move to that location.
