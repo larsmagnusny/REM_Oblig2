@@ -1,26 +1,24 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "InteractableObject.h"
 #include "InteractableComponent.h"
+#include "Inventory.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
-/**
- * 
- */
+struct InteractableObject
+{
+	AActor* OwningActor = nullptr; // The object that owns the component. If It's an AInteractableObject, then OwningActor and AInteractableObject is the same.
+	UInteractableComponent* ScriptComponent = nullptr;	// Pointer to the attached class to the owning actor.
+	AInteractableObject* StaticMeshInstance = nullptr;	// Same class as OwningActor if it is set.
+};
+
 UCLASS()
 class REMOBLIG2_API AREM_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 public:
-	struct InteractableObject
-	{
-		AActor* OwningActor = nullptr; // The object that owns the component. If It's an AInteractableObject, then OwningActor and AInteractableObject is the same.
-		UInteractableComponent* ScriptComponent = nullptr;	// Pointer to the attached class to the owning actor.
-		AInteractableObject* StaticMeshInstance = nullptr;	// Same class as OwningActor if it is set.
-	};
 
 	// Constructor
 	AREM_GameMode();
