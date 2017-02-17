@@ -85,4 +85,6 @@ private:
 
 	// Player Inventory
 	Inventory* PlayerInventory = nullptr;
+
+	float lastDistance = 0.0f;
 };
