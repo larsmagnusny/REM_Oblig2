@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "ClimbableObject.h"
+#include "REM_GameMode.h"
 
 AClimbableObject::AClimbableObject()
 {

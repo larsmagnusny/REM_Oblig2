@@ -80,6 +80,8 @@ void AMainCharacter::BeginPlay()
 
 	// Make the gamemode aware that we exist:
 	GameMode->SetMainCharacter(this);
+
+	NavSys = GetWorld()->GetNavigationSystem();
 }
 
 // Called every frame
@@ -90,22 +92,36 @@ void AMainCharacter::Tick(float DeltaTime)
 	// If the player clicked on the screen somewhere...
 	if (MouseMove)
 	{
-		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
+		
 
 		// 2D distance to target...
 		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
 		if (Distance == lastDistance)
-			MouseMove = false;
+			MoveTo = GetActorLocation();
 		lastDistance = Distance;
 
 
 		if (NavSys && (Distance > 25.0f))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Moving!"));
 			NavSys->SimpleMoveToLocation(Controller, MoveTo);
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Stopped Moving!"));
 			MouseMove = false;
+
+			if (DelayClimb)
+			{
+				DelayClimb = false;
+				UCapsuleComponent* OurCapsule = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
+				float CapsuleHeight = OurCapsule->GetScaledCapsuleHalfHeight()*2.0f;
+				FHitResult ObjectAbove;
+				GetWorld()->LineTraceSingleByChannel(ObjectAbove, GetActorLocation(), GetActorLocation() + FVector::UpVector*CapsuleHeight * 3, ECollisionChannel::ECC_Visibility);
+
+				if (!ObjectAbove.GetActor())
+					SetActorLocation(ClimbTo, false, nullptr, ETeleportType::TeleportPhysics);
+			}
 
 			if (DelayActivate)
 			{
@@ -199,8 +215,65 @@ void AMainCharacter::MouseLeftClick()
 
 		}
 
-		MoveTo = Hit.ImpactPoint;
-		MouseMove = true;
+		FVector PathStart = GetActorLocation();
+
+		FPathFindingQuery NavParams;
+		NavParams.EndLocation = Hit.ImpactPoint;
+		NavParams.StartLocation = GetActorLocation();
+		ANavigationData* navData = GetWorld()->GetNavigationSystem()->MainNavData;
+		NavParams.QueryFilter = UNavigationQueryFilter::GetQueryFilter<ANavigationData>(*navData);
+		NavParams.NavData = navData;
+
+		FPathFindingResult NavPath = NavSys->FindPathSync(NavParams);
+
+		
+		// We should check if we can climb the object here!
+		UCapsuleComponent* OurCapsule = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
+		float CapsuleHeight = OurCapsule->GetScaledCapsuleHalfHeight();
+
+		if (NavPath.IsSuccessful())
+		{
+			if (NavPath.IsPartial())
+			{
+				if (!HitActor->IsA(AClimbableObject::StaticClass()))
+				{
+					FVector OurLocation = GetActorLocation();
+					FVector TeleportLocation = Hit.ImpactPoint;
+					TeleportLocation += FVector::UpVector*OurCapsule->GetScaledCapsuleHalfHeight();
+
+					FVector Direction = TeleportLocation - OurLocation;
+
+					float Zabs = FMath::Abs(Direction.Z);
+					float Z = Direction.Z;
+
+					DelayClimb = true;
+					ClimbTo = TeleportLocation;
+				}
+				else {
+					FVector Origin;
+					FVector Extents;
+
+					HitActor->GetActorBounds(false, Origin, Extents);
+
+					FVector OurLocation = GetActorLocation();
+					FVector TeleportLocation = HitActor->GetActorLocation();
+					TeleportLocation += FVector::UpVector*Extents.Z;
+					TeleportLocation += FVector::UpVector*CapsuleHeight;
+
+					FVector Direction = OurLocation - TeleportLocation;
+					Direction.Z = 0;
+					Direction.Normalize();
+
+					TeleportLocation += Direction*Extents.Z*0.7;
+
+					DelayClimb = true;
+					ClimbTo = TeleportLocation;
+				}
+			}
+
+			MoveTo = Hit.ImpactPoint;
+			MouseMove = true;
+		}
 	}
 }
 

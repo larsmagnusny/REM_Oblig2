@@ -4,6 +4,7 @@
 #include "InteractableObject.h"
 #include "InteractableComponent.h"
 #include "Inventory.h"
+#include "ClimbableObject.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -54,7 +55,7 @@ private:
 	UCameraComponent* MainCamera = nullptr;
 
 	// Keep track of items we are able to highlight with our mouse cursor
-	TArray<InteractableObject*> InteractableObjects;
+	TArray<InteractableObject> InteractableObjects;
 
 	// Last component we highlighted
 	InteractableObject* LastComponent = nullptr;
