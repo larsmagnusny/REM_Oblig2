@@ -16,9 +16,9 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -38,30 +38,30 @@ public:
 
 	// Blueprint Callable Functions!
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	FString GetInventoryTextureAt(int32 SlotNum);
+		FString GetInventoryTextureAt(int32 SlotNum);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	int32 GetInventorySize();
+		int32 GetInventorySize();
 
 	UFUNCTION(BlueprintCallable, Category = "Character Raycast")
-	void SetCanRayCast(bool val);
+		void SetCanRayCast(bool val);
 
 	// Mouse Input 
 	void MouseLeftClick();
 	void MouseRightClick();
 
 	UPROPERTY(EditAnywhere)
-	UClass* AnimClass = nullptr;
+		UClass* AnimClass = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* SkeletalMeshComponent = nullptr;
+		USkeletalMeshComponent* SkeletalMeshComponent = nullptr;
 
 	// Camera Boom:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* TopDownCameraComponent = nullptr;
+		class UCameraComponent* TopDownCameraComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom = nullptr;
+		class USpringArmComponent* CameraBoom = nullptr;
 
 	float Mass = 0.0f;
 private:
@@ -76,7 +76,7 @@ private:
 	InteractableObject DelayActivateObject;
 
 	FVector MoveTo = FVector(0.f, 0.f, 0.f);
-	
+
 	// For checking if we need to change highlighting
 	UStaticMeshComponent* LastComponentMousedOver = nullptr;
 
@@ -85,4 +85,6 @@ private:
 
 	// Player Inventory
 	Inventory* PlayerInventory = nullptr;
+
+	float lastDistance = 0.0f;
 };

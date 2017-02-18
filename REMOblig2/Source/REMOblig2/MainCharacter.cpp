@@ -7,8 +7,11 @@
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Initialize the player inventory:
+	PlayerInventory = new Inventory(4);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -44,6 +47,7 @@ AMainCharacter::AMainCharacter()
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
 			SkeletalMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -85.0f));
+			SkeletalMeshComponent->SetRelativeRotation(FRotator(0, -90, 0));
 
 			if (!AnimClass)
 			{
@@ -64,14 +68,61 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Set the viewtarget of this camera to look at the Main Character
 	GetWorld()->GetFirstPlayerController()->SetViewTarget(this);
+
+	// Setup inputs for the character ( mouse for the moment )
+	SetupPlayerInputComponent(GetWorld()->GetFirstPlayerController()->InputComponent);
+
+	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	GameMode->SetMainCamera(TopDownCameraComponent);
+
+	// Make the gamemode aware that we exist:
+	GameMode->SetMainCharacter(this);
 }
 
 // Called every frame
-void AMainCharacter::Tick( float DeltaTime )
+void AMainCharacter::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
+	Super::Tick(DeltaTime);
 
+	// If the player clicked on the screen somewhere...
+	if (MouseMove)
+	{
+		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
+
+		// 2D distance to target...
+		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
+		if (Distance == lastDistance)
+			MouseMove = false;
+		lastDistance = Distance;
+
+
+		if (NavSys && (Distance > 25.0f))
+		{
+			NavSys->SimpleMoveToLocation(Controller, MoveTo);
+		}
+		else
+		{
+			MouseMove = false;
+
+			if (DelayActivate)
+			{
+				if (DelayActivateObject.OwningActor)
+				{
+					if (DelayActivateObject.ScriptComponent)
+					{
+						DelayActivateObject.ScriptComponent->ActivateObject();
+					}
+					if (DelayActivateObject.StaticMeshInstance)
+					{
+						DelayActivateObject.StaticMeshInstance->ActivateObject(this);
+					}
+				}
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -133,7 +184,24 @@ void AMainCharacter::SetCanRayCast(bool val)
 
 void AMainCharacter::MouseLeftClick()
 {
+	if (!CanClickRayCast)
+		return;
 
+	FHitResult Hit;
+	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+
+	AActor* HitActor = Hit.GetActor();
+
+	if (HitActor)
+	{
+		if (GameMode->IsInteractble(HitActor))
+		{
+
+		}
+
+		MoveTo = Hit.ImpactPoint;
+		MouseMove = true;
+	}
 }
 
 void AMainCharacter::MouseRightClick()
