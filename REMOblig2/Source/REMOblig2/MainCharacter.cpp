@@ -182,6 +182,12 @@ void AMainCharacter::DiscardItem(InventoryItem* item)
 
 }
 
+void AMainCharacter::ChangeCameraView(FVector Vector)
+{
+	FRotator rotation = FRotator::MakeFromEuler(Vector);
+	CameraBoom->SetRelativeRotation(rotation.Quaternion());
+}
+
 // Blueprint Callable Functions!
 FString AMainCharacter::GetInventoryTextureAt(int32 SlotNum)
 {

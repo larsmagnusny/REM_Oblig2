@@ -36,6 +36,10 @@ public:
 	void DiscardItem(int32 SlotNum);
 	void DiscardItem(InventoryItem* item);
 
+	// Change camera view
+	void ChangeCameraView(FVector Vector);
+
+
 	// Blueprint Callable Functions!
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	FString GetInventoryTextureAt(int32 SlotNum);
