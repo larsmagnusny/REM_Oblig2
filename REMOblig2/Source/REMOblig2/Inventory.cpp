@@ -66,3 +66,17 @@ InventoryItem* Inventory::GetItem(int32 SlotNum)
 {
 	return nullptr;
 }
+
+InventoryItem* Inventory::GetItemById(int32 ID)
+{
+	for (int32 i = 0; i < InventorySize; i++)
+	{
+		if (InventoryStorage[i])
+		{
+			if (InventoryStorage[i]->ITEM_ID == ID)
+				return InventoryStorage[i];
+		}
+	}
+
+	return nullptr;
+}

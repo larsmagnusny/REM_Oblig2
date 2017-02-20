@@ -175,6 +175,7 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			if (DelayActivate)
 			{
+				DelayActivate = false;
 				if (DelayActivateObject.OwningActor)
 				{
 					if (DelayActivateObject.ScriptComponent)
@@ -185,6 +186,10 @@ void AMainCharacter::Tick(float DeltaTime)
 					{
 						DelayActivateObject.StaticMeshInstance->ActivateObject(this);
 					}
+
+					DelayActivateObject.OwningActor = nullptr;
+					DelayActivateObject.ScriptComponent = nullptr;
+					DelayActivateObject.StaticMeshInstance = nullptr;
 				}
 			}
 		}
