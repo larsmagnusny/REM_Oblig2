@@ -103,6 +103,8 @@ void AMainCharacter::Tick(float DeltaTime)
 			AInteractableObject* InteractableObj = GameMode->GetStaticMeshInteractor(Hit.GetActor());
 
 			UStaticMeshComponent* MeshComponent = nullptr;
+			USkeletalMeshComponent* TSkeletalMeshComponent = nullptr;
+
 
 			if (!InteractableComponent && InteractableObj)
 			{
@@ -111,9 +113,10 @@ void AMainCharacter::Tick(float DeltaTime)
 			if (!InteractableObj && InteractableComponent)
 			{
 				MeshComponent = InteractableComponent->GetStaticMeshComponent();
+				TSkeletalMeshComponent = InteractableComponent->GetSkeletalMeshComponent();
 			}
 
-			if (MeshComponent)
+			if (MeshComponent && !TSkeletalMeshComponent)
 			{
 				if (MeshComponent != LastComponentMousedOver)
 				{
@@ -127,11 +130,29 @@ void AMainCharacter::Tick(float DeltaTime)
 					LastComponentMousedOver = MeshComponent;
 				}
 			}
+			if (!MeshComponent && TSkeletalMeshComponent)
+			{
+				if (TSkeletalMeshComponent != LastSkeletalMeshComponentMousedOver)
+				{
+					if (LastSkeletalMeshComponentMousedOver)
+						LastSkeletalMeshComponentMousedOver->SetRenderCustomDepth(false);
+				}
+
+				if (!TSkeletalMeshComponent->bRenderCustomDepth)
+				{
+					TSkeletalMeshComponent->SetRenderCustomDepth(true);
+					LastSkeletalMeshComponentMousedOver = TSkeletalMeshComponent;
+				}
+			}
 		}
 		else
 		{
 			if (LastComponentMousedOver)
 				LastComponentMousedOver->SetRenderCustomDepth(false);
+			if (LastSkeletalMeshComponentMousedOver)
+				LastSkeletalMeshComponentMousedOver->SetRenderCustomDepth(false);
+
+			LastSkeletalMeshComponentMousedOver = nullptr;
 			LastComponentMousedOver = nullptr;
 		}
 	}
@@ -139,6 +160,11 @@ void AMainCharacter::Tick(float DeltaTime)
 	{
 		if (LastComponentMousedOver)
 			LastComponentMousedOver->SetRenderCustomDepth(false);
+
+		if (LastSkeletalMeshComponentMousedOver)
+			LastSkeletalMeshComponentMousedOver->SetRenderCustomDepth(false);
+
+		LastSkeletalMeshComponentMousedOver = nullptr;
 		LastComponentMousedOver = nullptr;
 	}
 

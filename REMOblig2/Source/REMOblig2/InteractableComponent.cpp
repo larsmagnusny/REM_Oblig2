@@ -19,3 +19,8 @@ UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()
 {
 	return Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 }
+
+USkeletalMeshComponent* UInteractableComponent::GetSkeletalMeshComponent()
+{
+	return Cast<USkeletalMeshComponent>(GetOwner()->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+}

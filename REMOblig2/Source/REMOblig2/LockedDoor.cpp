@@ -1,4 +1,5 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
+#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White,text)
 
 #include "REMOblig2.h"
 #include "LockedDoor.h"
@@ -70,6 +71,18 @@ void ULockedDoor::ActivateObject()
 			CloseDoor();
 		else
 			OpenDoor();
+	}
+	if (DoorOpenCondition == OpenCondition::OPEN_KEY)
+	{
+		print("The door is locked. There must be a key somewhere.");
+	}
+	if (DoorOpenCondition == OpenCondition::OPEN_COMPLETE_PUZZLE)
+	{
+		print("The door is locked, there's no keyhole.");
+	}
+	if (DoorOpenCondition == OpenCondition::OPEN_TRIGGER)
+	{
+		print("There seems to be wires connected to the door, it leads to the pressurepad.");
 	}
 }
 

@@ -20,4 +20,5 @@ public:
 	virtual void ActivateObject();
 
 	UStaticMeshComponent* GetStaticMeshComponent();
+	USkeletalMeshComponent* GetSkeletalMeshComponent();
 };
