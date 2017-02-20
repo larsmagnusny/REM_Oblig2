@@ -12,8 +12,4 @@ UCLASS()
 class REMOBLIG2_API AREM_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
-	
-	
-	
 };

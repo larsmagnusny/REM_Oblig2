@@ -1,0 +1,148 @@
+// REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
+
+#include "REMOblig2.h"
+#include "MainCharacter.h"
+
+
+// Sets default values
+AMainCharacter::AMainCharacter()
+{
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// Create a camera boom...
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->bAbsoluteRotation = true; // Don't want arm to rotate when character does
+	CameraBoom->TargetArmLength = 1500.f;
+	CameraBoom->RelativeRotation = FRotator(-60.f, 0.f, 0.f);
+	CameraBoom->bDoCollisionTest = true; // Don't want to pull camera in when it collides with level
+
+										 // Create a camera...
+	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
+	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+
+}
+
+// Called when the game starts or when spawned
+void AMainCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Switchto the cameracomponent attatched to this player
+	GetWorld()->GetFirstPlayerController()->SetViewTarget(this);
+	SetupPlayerInputComponent(GetWorld()->GetFirstPlayerController()->InputComponent);
+
+	SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+
+	// Get a pointer to the gamemodeclass so we can set the camera
+	// GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	GameMode->SetMainCamera(TopDownCameraComponent);
+
+
+}
+
+// Called every frame
+void AMainCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Mouse Controlled character
+	if (MouseControlled)
+	{
+		// Raycast under the mouse so we can highlight the objects
+		FHitResult Hit;
+		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+
+		// If we hit an actor
+		if (Hit.GetActor())
+		{
+			// If the actor is a AStaticMeshActor
+			if (Hit.GetActor()->IsA(AStaticMeshActor::StaticClass()))
+			{
+				// Get a pointer to the actor and MeshComponent
+				AStaticMeshActor* OurActor = Cast<AStaticMeshActor>(Hit.GetActor());
+				UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(OurActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+
+				// Check if didn't already highligh it last frame
+				if (MeshComponent != LastComponentMousedOver)
+				{
+					// If it has not been set dont do anything
+					if (LastComponentMousedOver)
+						LastComponentMousedOver->SetRenderCustomDepth(false);
+				}
+
+				// Tell the gamemodeclass to check if this actor is interactable
+				if (GameMode->IsInteractible(Hit.GetActor()))
+				{
+					// If it is, set a highlight over it
+					MeshComponent->SetRenderCustomDepth(true);
+
+					// Remember this for the next frame
+					LastComponentMousedOver = MeshComponent;
+				}
+			}
+		}
+		else {
+			// If we are not mousing over an interactable object
+			if (LastComponentMousedOver)
+				LastComponentMousedOver->SetRenderCustomDepth(false);
+			LastComponentMousedOver = nullptr;
+		}
+
+		// If the player has clicked somewhere on the screen to move
+		if (MouseMove)
+		{
+			// Get a pointer to the built in navigation system in Unreal 4
+			UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
+
+			// Get the distance to the destination
+			float const Distance = FVector::Dist(MoveTo, GetActorLocation());
+
+			// If we are not within 80 cm of the destination we should move towards it 
+			if (NavSys && (Distance > 80.0f))
+			{
+				NavSys->SimpleMoveToLocation(Controller, MoveTo);
+			}
+			else {
+				// If we are at the destination
+				MouseMove = false;
+
+				// Activate the object if we clicked on an interactable object earlier
+				/*
+				
+				if (DelayActivate)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Got interactor, sending activate command..."));
+					if (DelayActivateObject)
+					{
+						DelayActivateObject->ActivateObject();
+						DelayActivateObject = nullptr;
+					}
+					if (DelayActivateStaticMeshObject)
+					{
+						DelayActivateStaticMeshObject->ActivateObject(Cast<AActor>(this));
+						DelayActivateStaticMeshObject = nullptr;
+					}
+					DelayActivate = false;
+				}
+			}
+		}
+		*/
+}
+
+}
+
+// Called to bind functionality to input
+void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}

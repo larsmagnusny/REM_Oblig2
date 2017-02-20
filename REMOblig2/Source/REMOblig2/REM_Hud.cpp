@@ -2,7 +2,3 @@
 
 #include "REMOblig2.h"
 #include "REM_Hud.h"
-
-
-
-
