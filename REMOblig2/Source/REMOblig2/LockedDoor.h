@@ -19,7 +19,7 @@ enum class OpenCondition : uint8
 	OPEN_NORMAL UMETA(DisplayName = "Door Opens no matter what")
 };
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS()
 class REMOBLIG2_API ULockedDoor : public UInteractableComponent
 {
 	GENERATED_BODY()
