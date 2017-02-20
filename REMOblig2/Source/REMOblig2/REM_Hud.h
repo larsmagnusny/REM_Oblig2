@@ -12,9 +12,14 @@ UCLASS()
 class REMOBLIG2_API AREM_Hud : public AHUD
 {
 	GENERATED_BODY()
+<<<<<<< HEAD
 	
 public:
 	AREM_Hud();
 
 	virtual void BeginPlay() override;
+=======
+
+	
+>>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
 };

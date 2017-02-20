@@ -19,6 +19,7 @@ UCLASS()
 class REMOBLIG2_API AREM_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+<<<<<<< HEAD
 public:
 
 	// Constructor
@@ -64,4 +65,6 @@ private:
 
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
+=======
+>>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
 };

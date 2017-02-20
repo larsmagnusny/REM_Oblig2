@@ -9,6 +9,7 @@ AREM_GameMode::AREM_GameMode()
 	PrimaryActorTick.bCanEverTick = true;	// Tell Unreal that this class can use the tick function every frame.
 	DefaultPawnClass = nullptr;				// Not using the default pawn this game
 
+<<<<<<< HEAD
 	// We are using our custom class to control our HUD
 	HUDClass = AREM_Hud::StaticClass();
 }
@@ -105,3 +106,5 @@ ACharacter* AREM_GameMode::GetMainCharacter()
 {
 	return MainCharacter;
 }
+=======
+>>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb

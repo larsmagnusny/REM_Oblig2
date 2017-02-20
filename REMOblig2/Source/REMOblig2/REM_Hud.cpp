@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "REM_Hud.h"
+<<<<<<< HEAD
 
 
 
@@ -19,3 +20,5 @@ void AREM_Hud::BeginPlay()
 	MyController->bEnableClickEvents = true;
 	MyController->bEnableMouseOverEvents = true;
 }
+=======
+>>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
