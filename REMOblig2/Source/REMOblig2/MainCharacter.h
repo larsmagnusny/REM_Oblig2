@@ -83,6 +83,7 @@ private:
 
 	// For checking if we need to change highlighting
 	UStaticMeshComponent* LastComponentMousedOver = nullptr;
+	USkeletalMeshComponent* LastSkeletalMeshComponentMousedOver = nullptr;
 
 	// Pointers to other class instances we need in this script
 	AREM_GameMode* GameMode = nullptr;

@@ -10,4 +10,6 @@ class REMOBLIG2_API InventoryItem
 public:
 	InventoryItem();
 	~InventoryItem();
+
+	int ITEM_ID = 0;
 };

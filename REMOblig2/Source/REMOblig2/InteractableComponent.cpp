@@ -7,14 +7,20 @@
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	
 }
 
 void UInteractableComponent::ActivateObject()
 {
 
+}
+
+UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()
+{
+	return Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+}
+
+USkeletalMeshComponent* UInteractableComponent::GetSkeletalMeshComponent()
+{
+	return Cast<USkeletalMeshComponent>(GetOwner()->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 }

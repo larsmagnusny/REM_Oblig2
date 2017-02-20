@@ -89,11 +89,89 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Raycast under the mouse so we can highlight the objects
+	FHitResult Hit;
+	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+
+	if (Hit.GetActor())
+	{
+		if (GameMode->IsInteractble(Hit.GetActor()))
+		{
+			// Get a pointer to the actor and MeshComponent
+			AStaticMeshActor* OurActor = Cast<AStaticMeshActor>(Hit.GetActor());
+			UInteractableComponent* InteractableComponent = GameMode->GetInteractor(Hit.GetActor());
+			AInteractableObject* InteractableObj = GameMode->GetStaticMeshInteractor(Hit.GetActor());
+
+			UStaticMeshComponent* MeshComponent = nullptr;
+			USkeletalMeshComponent* TSkeletalMeshComponent = nullptr;
+
+
+			if (!InteractableComponent && InteractableObj)
+			{
+				MeshComponent = InteractableObj->GetStaticMeshComponent();
+			}
+			if (!InteractableObj && InteractableComponent)
+			{
+				MeshComponent = InteractableComponent->GetStaticMeshComponent();
+				TSkeletalMeshComponent = InteractableComponent->GetSkeletalMeshComponent();
+			}
+
+			if (MeshComponent && !TSkeletalMeshComponent)
+			{
+				if (MeshComponent != LastComponentMousedOver)
+				{
+					if (LastComponentMousedOver)
+						LastComponentMousedOver->SetRenderCustomDepth(false);
+				}
+
+				if (!MeshComponent->bRenderCustomDepth)
+				{
+					MeshComponent->SetRenderCustomDepth(true);
+					LastComponentMousedOver = MeshComponent;
+				}
+			}
+			if (!MeshComponent && TSkeletalMeshComponent)
+			{
+				if (TSkeletalMeshComponent != LastSkeletalMeshComponentMousedOver)
+				{
+					if (LastSkeletalMeshComponentMousedOver)
+						LastSkeletalMeshComponentMousedOver->SetRenderCustomDepth(false);
+				}
+
+				if (!TSkeletalMeshComponent->bRenderCustomDepth)
+				{
+					TSkeletalMeshComponent->SetRenderCustomDepth(true);
+					LastSkeletalMeshComponentMousedOver = TSkeletalMeshComponent;
+				}
+			}
+		}
+		else
+		{
+			if (LastComponentMousedOver)
+				LastComponentMousedOver->SetRenderCustomDepth(false);
+			if (LastSkeletalMeshComponentMousedOver)
+				LastSkeletalMeshComponentMousedOver->SetRenderCustomDepth(false);
+
+			LastSkeletalMeshComponentMousedOver = nullptr;
+			LastComponentMousedOver = nullptr;
+		}
+	}
+	else
+	{
+		if (LastComponentMousedOver)
+			LastComponentMousedOver->SetRenderCustomDepth(false);
+
+		if (LastSkeletalMeshComponentMousedOver)
+			LastSkeletalMeshComponentMousedOver->SetRenderCustomDepth(false);
+
+		LastSkeletalMeshComponentMousedOver = nullptr;
+		LastComponentMousedOver = nullptr;
+	}
+
+
 	// If the player clicked on the screen somewhere...
 	if (MouseMove)
 	{
-		
-
 		// 2D distance to target...
 		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
 		if (Distance == lastDistance)
@@ -103,12 +181,10 @@ void AMainCharacter::Tick(float DeltaTime)
 
 		if (NavSys && (Distance > 25.0f))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Moving!"));
 			NavSys->SimpleMoveToLocation(Controller, MoveTo);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Stopped Moving!"));
 			MouseMove = false;
 
 			if (DelayClimb)
@@ -125,6 +201,7 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			if (DelayActivate)
 			{
+				DelayActivate = false;
 				if (DelayActivateObject.OwningActor)
 				{
 					if (DelayActivateObject.ScriptComponent)
@@ -135,6 +212,10 @@ void AMainCharacter::Tick(float DeltaTime)
 					{
 						DelayActivateObject.StaticMeshInstance->ActivateObject(this);
 					}
+
+					DelayActivateObject.OwningActor = nullptr;
+					DelayActivateObject.ScriptComponent = nullptr;
+					DelayActivateObject.StaticMeshInstance = nullptr;
 				}
 			}
 		}
@@ -218,68 +299,80 @@ void AMainCharacter::MouseLeftClick()
 	{
 		if (GameMode->IsInteractble(HitActor))
 		{
+			InteractableObject* Obj = GameMode->GetInteractableObject(HitActor);
 
-		}
-
-		FVector PathStart = GetActorLocation();
-
-		FPathFindingQuery NavParams;
-		NavParams.EndLocation = Hit.ImpactPoint;
-		NavParams.StartLocation = GetActorLocation();
-		ANavigationData* navData = GetWorld()->GetNavigationSystem()->MainNavData;
-		NavParams.QueryFilter = UNavigationQueryFilter::GetQueryFilter<ANavigationData>(*navData);
-		NavParams.NavData = navData;
-
-		FPathFindingResult NavPath = NavSys->FindPathSync(NavParams);
-
-		
-		// We should check if we can climb the object here!
-		UCapsuleComponent* OurCapsule = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
-		float CapsuleHeight = OurCapsule->GetScaledCapsuleHalfHeight();
-
-		if (NavPath.IsSuccessful())
-		{
-			if (NavPath.IsPartial())
-			{
-				if (!HitActor->IsA(AClimbableObject::StaticClass()))
-				{
-					FVector OurLocation = GetActorLocation();
-					FVector TeleportLocation = Hit.ImpactPoint;
-					TeleportLocation += FVector::UpVector*OurCapsule->GetScaledCapsuleHalfHeight();
-
-					FVector Direction = TeleportLocation - OurLocation;
-
-					float Zabs = FMath::Abs(Direction.Z);
-					float Z = Direction.Z;
-
-					DelayClimb = true;
-					ClimbTo = TeleportLocation;
-				}
-				else {
-					FVector Origin;
-					FVector Extents;
-
-					HitActor->GetActorBounds(false, Origin, Extents);
-
-					FVector OurLocation = GetActorLocation();
-					FVector TeleportLocation = HitActor->GetActorLocation();
-					TeleportLocation += FVector::UpVector*Extents.Z;
-					TeleportLocation += FVector::UpVector*CapsuleHeight;
-
-					FVector Direction = OurLocation - TeleportLocation;
-					Direction.Z = 0;
-					Direction.Normalize();
-
-					TeleportLocation += Direction*Extents.Z*0.7;
-
-					DelayClimb = true;
-					ClimbTo = TeleportLocation;
-				}
-			}
+			DelayActivateObject.OwningActor = Obj->OwningActor;
+			DelayActivateObject.ScriptComponent = Obj->ScriptComponent;
+			DelayActivateObject.StaticMeshInstance = Obj->StaticMeshInstance;
 
 			MoveTo = Hit.ImpactPoint;
-			MouseMove = true;
+			DelayActivate = true;
+			//MouseMove = true;
 		}
+
+		if (HitActor->IsA(AClimbableObject::StaticClass()))
+		{
+			FVector PathStart = GetActorLocation();
+
+			FPathFindingQuery NavParams;
+			NavParams.EndLocation = Hit.ImpactPoint;
+			NavParams.StartLocation = GetActorLocation();
+			ANavigationData* navData = GetWorld()->GetNavigationSystem()->MainNavData;
+			NavParams.QueryFilter = UNavigationQueryFilter::GetQueryFilter<ANavigationData>(*navData);
+			NavParams.NavData = navData;
+
+			FPathFindingResult NavPath = NavSys->FindPathSync(NavParams);
+
+
+			// We should check if we can climb the object here!
+			UCapsuleComponent* OurCapsule = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
+			float CapsuleHeight = OurCapsule->GetScaledCapsuleHalfHeight();
+
+			if (NavPath.IsSuccessful())
+			{
+				if (NavPath.IsPartial())
+				{
+					if (!HitActor->IsA(AClimbableObject::StaticClass()))
+					{
+						FVector OurLocation = GetActorLocation();
+						FVector TeleportLocation = Hit.ImpactPoint;
+						TeleportLocation += FVector::UpVector*OurCapsule->GetScaledCapsuleHalfHeight();
+
+						FVector Direction = TeleportLocation - OurLocation;
+
+						float Zabs = FMath::Abs(Direction.Z);
+						float Z = Direction.Z;
+
+						DelayClimb = true;
+						ClimbTo = TeleportLocation;
+					}
+					else {
+						FVector Origin;
+						FVector Extents;
+
+						HitActor->GetActorBounds(false, Origin, Extents);
+
+						FVector OurLocation = GetActorLocation();
+						FVector TeleportLocation = HitActor->GetActorLocation();
+						TeleportLocation += FVector::UpVector*Extents.Z;
+						TeleportLocation += FVector::UpVector*CapsuleHeight;
+
+						FVector Direction = OurLocation - TeleportLocation;
+						Direction.Z = 0;
+						Direction.Normalize();
+
+						TeleportLocation += Direction*Extents.Z*0.7;
+
+						DelayClimb = true;
+						ClimbTo = TeleportLocation;
+					}
+				}
+			}
+			
+		}
+
+		MoveTo = Hit.ImpactPoint;
+		MouseMove = true;
 	}
 }
 

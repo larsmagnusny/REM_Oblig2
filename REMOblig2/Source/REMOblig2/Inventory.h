@@ -26,6 +26,8 @@ public:
 	int32 GetAvailableIndex();
 
 	InventoryItem* GetItem(int32 SlotNum);
+
+	InventoryItem* GetItemById(int32 ID);
 private:
 	// Pointer to a pointer...
 	InventoryItem** InventoryStorage;

@@ -18,5 +18,7 @@ public:
 	// This function all interactable components inherit
 	// This can be triggered from anywhere
 	virtual void ActivateObject();
-	
+
+	UStaticMeshComponent* GetStaticMeshComponent();
+	USkeletalMeshComponent* GetSkeletalMeshComponent();
 };
