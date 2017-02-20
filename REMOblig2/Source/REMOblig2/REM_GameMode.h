@@ -50,6 +50,8 @@ public:
 	// Get a pointer to the MainCharacter!
 	UFUNCTION(BlueprintCallable, Category = "GetCharacter")
 	ACharacter* GetMainCharacter();
+
+	InteractableObject* GetInteractableObject(AActor* Actor);
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;

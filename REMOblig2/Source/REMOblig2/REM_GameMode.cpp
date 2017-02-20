@@ -34,7 +34,12 @@ void AREM_GameMode::SetMainCamera(UCameraComponent* Camera)
 
 void AREM_GameMode::AddInteractableObject(AActor* Actor, UInteractableComponent* Component, AInteractableObject* StaticMeshInstance)
 {
+	InteractableObject Object;
+	Object.OwningActor = Actor;
+	Object.ScriptComponent = Component;
+	Object.StaticMeshInstance = StaticMeshInstance;
 
+	InteractableObjects.Add(Object);
 }
 
 void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
@@ -44,16 +49,45 @@ void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
 
 bool AREM_GameMode::IsInteractble(AActor* Actor)
 {
-	return true;
+	for (InteractableObject obj : InteractableObjects)
+	{
+		if (obj.OwningActor == Actor)
+			return true;
+	}
+
+	return false;
 }
 
 UInteractableComponent* AREM_GameMode::GetInteractor(AActor* Actor)
 {
+	for (InteractableObject obj : InteractableObjects)
+	{
+		if (obj.OwningActor == Actor)
+			return obj.ScriptComponent;
+	}
+
 	return nullptr;
 }
 
 AInteractableObject* AREM_GameMode::GetStaticMeshInteractor(AActor* Actor)
 {
+	for (InteractableObject obj : InteractableObjects)
+	{
+		if (obj.OwningActor == Actor)
+			return obj.StaticMeshInstance;
+	}
+
+	return nullptr;
+}
+
+InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
+{
+	for (int32 i = 0; i < InteractableObjects.Num(); i++)
+	{
+		if (InteractableObjects[i].OwningActor == Actor)
+			return &InteractableObjects[i];
+	}
+
 	return nullptr;
 }
 
