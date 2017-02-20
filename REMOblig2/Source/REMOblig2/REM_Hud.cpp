@@ -6,3 +6,16 @@
 
 
 
+AREM_Hud::AREM_Hud()
+{
+
+}
+
+void AREM_Hud::BeginPlay()
+{
+	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
+
+	MyController->bShowMouseCursor = true;
+	MyController->bEnableClickEvents = true;
+	MyController->bEnableMouseOverEvents = true;
+}
