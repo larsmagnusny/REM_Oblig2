@@ -1,13 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
-<<<<<<< HEAD
 #pragma once
 #include "REM_GameMode.h"
-#include "GameFramework/Character.h"
-#include "MainCharacter.generated.h"
-=======
-#pragma once
-
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
 
@@ -16,23 +10,6 @@ class REMOBLIG2_API AMainCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	AMainCharacter();
-
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	// Called every frame
-	virtual void Tick(float DeltaSeconds) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
->>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
-
-
-<<<<<<< HEAD
 public:
 	// Sets default values for this character's properties
 	AMainCharacter();
@@ -121,6 +98,4 @@ private:
 
 	bool DelayClimb = false;
 	FVector ClimbTo;
-=======
->>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
 };

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
 #include "REMOblig2.h"
@@ -223,42 +222,10 @@ void AMainCharacter::Tick(float DeltaTime)
 	}
 }
 
-=======
-// REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
-
-#include "REMOblig2.h"
-#include "MainCharacter.h"
-
-
-// Sets default values
-AMainCharacter::AMainCharacter()
-{
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
-
-}
-
-// Called when the game starts or when spawned
-void AMainCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
-// Called every frame
-void AMainCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
->>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
 // Called to bind functionality to input
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-<<<<<<< HEAD
 
 	UE_LOG(LogTemp, Warning, TEXT("Input set up!"));
 
@@ -412,6 +379,4 @@ void AMainCharacter::MouseLeftClick()
 void AMainCharacter::MouseRightClick()
 {
 
-=======
->>>>>>> 3f4b62b2900fe2b404f68c2ba0b2660ccffac8cb
 }
