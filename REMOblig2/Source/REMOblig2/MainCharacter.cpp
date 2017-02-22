@@ -42,7 +42,6 @@ AMainCharacter::AMainCharacter()
 		SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
 		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Mannequin/Character/Mesh/SK_Mannequin.SK_Mannequin'"));
-
 		if (SkeletalMeshLoader.Succeeded())
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
@@ -59,6 +58,16 @@ AMainCharacter::AMainCharacter()
 				{
 					SkeletalMeshComponent->SetAnimInstanceClass(AnimationBP.Object);
 				}
+			}
+
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat1(TEXT("Material'/Game/Materials/Camo_Mat.Camo_Mat'"));
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/Mannequin/Character/Materials/M_UE4Man_Body.M_UE4Man_Body'"));
+
+			if (Mat1.Succeeded() && Mat2.Succeeded())
+			{
+				StandardMaterial = Mat2.Object;
+				CamoMaterial = Mat1.Object;
+				SkeletalMeshComponent->SetMaterial(0, Mat2.Object);
 			}
 		}
 	}
@@ -168,6 +177,48 @@ void AMainCharacter::Tick(float DeltaTime)
 		LastComponentMousedOver = nullptr;
 	}
 
+	if (SpaceBarDown)
+	{
+		MouseMove = false;
+		// 2D distance to target...
+		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
+		if (Distance == lastDistance)
+			MoveTo = GetActorLocation();
+		lastDistance = Distance;
+
+		if (NavSys && (Distance > 25.0f))
+		{
+			Hiding = false;
+			NavSys->SimpleMoveToLocation(Controller, MoveTo);
+		}
+		else {
+			Hiding = true;
+			
+			SetActorRotation(HideNormal.ToOrientationQuat(), ETeleportType::TeleportPhysics);
+			if (SkeletalMeshComponent)
+			{
+				// Set our material to the masked material!
+				if (SkeletalMeshComponent->GetMaterial(0) != CamoMaterial)
+				{
+					SkeletalMeshComponent->SetMaterial(0, CamoMaterial);
+				}
+			}
+		}
+	}
+	else if (!MouseMove)
+	{
+		NavSys->SimpleMoveToLocation(Controller, GetActorLocation());
+
+		if (SkeletalMeshComponent)
+		{
+			// Set our material to the masked material!
+			if (SkeletalMeshComponent->GetMaterial(0) != StandardMaterial)
+			{
+				SkeletalMeshComponent->SetMaterial(0, StandardMaterial);
+			}
+		}
+	}
+	
 
 	// If the player clicked on the screen somewhere...
 	if (MouseMove)
@@ -230,7 +281,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	UE_LOG(LogTemp, Warning, TEXT("Input set up!"));
 
 	PlayerInputComponent->BindAction(FName("MouseClickLeft"), EInputEvent::IE_Pressed, this, &AMainCharacter::MouseLeftClick);
-	PlayerInputComponent->BindAction(FName("MouseClickRight"), EInputEvent::IE_Released, this, &AMainCharacter::MouseRightClick);
+	PlayerInputComponent->BindAction(FName("MouseClickRight"), EInputEvent::IE_Pressed, this, &AMainCharacter::MouseRightClick);
+	PlayerInputComponent->BindAction(FName("SpaceBar"), EInputEvent::IE_Pressed, this, &AMainCharacter::SpaceBarPressed);
+	PlayerInputComponent->BindAction(FName("SpaceBar"), EInputEvent::IE_Released, this, &AMainCharacter::SpaceBarReleased);
 }
 
 float AMainCharacter::GetDistanceBetweenActors(AActor* Actor1, AActor* Actor2)
@@ -287,6 +340,8 @@ void AMainCharacter::SetCanRayCast(bool val)
 
 void AMainCharacter::MouseLeftClick()
 {
+	if (SpaceBarDown)
+		return;
 	if (!CanClickRayCast)
 		return;
 
@@ -379,4 +434,61 @@ void AMainCharacter::MouseLeftClick()
 void AMainCharacter::MouseRightClick()
 {
 
+}
+
+void AMainCharacter::SpaceBarPressed()
+{
+	SpaceBarDown = true;
+
+	// RayCast in four directions and determine which direction is closest, then move to that location and activate cloaking mechanism...
+	FVector Start[4];
+
+	for (int i = 0; i < 4; i++)
+	{
+		Start[i] = GetActorLocation();
+	}
+
+	FVector Direction[4];
+	Direction[0] = FVector::ForwardVector;		// Forward
+	Direction[1] = -FVector::ForwardVector;	    // Back
+	Direction[2] = FVector::RightVector;		// Right
+	Direction[3] = -FVector::RightVector;		// Left
+
+	FHitResult Rays[4];
+
+	GameMode->RayCastArray(Rays, Start, Direction, 10000.f, 4, this);
+
+	for (int i = 0; i < 4; i++)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s"), *Rays[i].ImpactPoint.ToString());
+	}
+
+	float Distances[4];
+
+	for (int i = 0; i < 4; i++)
+	{
+		Distances[i] = FVector::Dist(GetActorLocation(), Rays[i].ImpactPoint);
+	}
+
+	float min = INT_MAX;
+	int smallest_index = 0;
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (Distances[i] < min)
+		{
+			min = Distances[i];
+			smallest_index = i;
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Should move to: %s"), *Rays[smallest_index].ImpactPoint.ToString());
+
+	MoveTo = Rays[smallest_index].ImpactPoint;
+	HideNormal = Rays[smallest_index].ImpactNormal;
+}
+
+void AMainCharacter::SpaceBarReleased()
+{
+	SpaceBarDown = false;
 }

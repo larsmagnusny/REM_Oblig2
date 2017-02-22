@@ -54,11 +54,18 @@ public:
 	void MouseLeftClick();
 	void MouseRightClick();
 
+	// Keyboard input
+	void SpaceBarPressed();
+	void SpaceBarReleased();
+
 	UPROPERTY(EditAnywhere)
 	UClass* AnimClass = nullptr;
 
-	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* SkeletalMeshComponent = nullptr;
+
+	UMaterial* CamoMaterial;
+
+	UMaterial* StandardMaterial;
 
 	// Camera Boom:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -75,6 +82,11 @@ private:
 	// Mouse movement
 	bool MouseMove = false;
 	bool DelayActivate = false;
+
+	// HidingMovement
+	bool SpaceBarDown = false;
+	bool Hiding = false;
+	FVector HideNormal = FVector(0, 0, 0);
 
 	// A struct containing what we clicked on and attached script instances
 	InteractableObject DelayActivateObject;
@@ -98,4 +110,6 @@ private:
 
 	bool DelayClimb = false;
 	FVector ClimbTo;
+
+	
 };

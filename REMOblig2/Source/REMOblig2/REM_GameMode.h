@@ -30,7 +30,7 @@ public:
 	void SetMainCamera(UCameraComponent* Camera);
 
 	// For when we implement hiding objects that block our view to the player
-	void RayCastArray(FHitResult* Ray, int size);
+	void RayCastArray(FHitResult* Ray, FVector* Start, FVector* Direction, float LengthOfRay, int size, AActor* ActorToIgnore);
 
 	// We need to keep track of our highlightable objects.
 	void AddInteractableObject(AActor* Actor, UInteractableComponent* Component = nullptr, AInteractableObject* StaticMeshInstance = nullptr);
