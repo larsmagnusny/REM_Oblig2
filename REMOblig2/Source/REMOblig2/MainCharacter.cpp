@@ -232,7 +232,7 @@ void AMainCharacter::Tick(float DeltaTime)
 
 		lastDistance = Distance;
 
-		if (lastDistanceCounter > 10)
+		if (lastDistanceCounter > 5)
 		{
 			MoveTo = GetActorLocation();
 		}
