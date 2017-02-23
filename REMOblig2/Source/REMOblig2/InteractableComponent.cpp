@@ -24,3 +24,8 @@ USkeletalMeshComponent* UInteractableComponent::GetSkeletalMeshComponent()
 {
 	return Cast<USkeletalMeshComponent>(GetOwner()->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 }
+
+FVector UInteractableComponent::GetActivatePosition()
+{
+	return FVector(0.f, 0.f, 0.f);
+}
