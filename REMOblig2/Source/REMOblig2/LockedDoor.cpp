@@ -152,7 +152,7 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 			if (OpenDirection)
 				ActorLocation -= OpenDir*50.f;
 			else
-				ActorLocation += OpenDir*50.f;
+				ActorLocation -= OpenDir*50.f;
 		}
 		else
 			ActorLocation += OpenDir*Bounds.Y;
@@ -164,14 +164,14 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 			if (OpenDirection)
 				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
 			else
-				ActorLocation += Rot*Bounds.X + OpenDir*50.f;
+				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
 		}
 		else
 		{
 			if (OpenDirection)
 				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
 			else
-				ActorLocation += Rot*Bounds.X - OpenDir*100.f;
+				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
 		}
 	}
 	
