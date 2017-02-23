@@ -25,7 +25,34 @@ USkeletalMeshComponent* UInteractableComponent::GetSkeletalMeshComponent()
 	return Cast<USkeletalMeshComponent>(GetOwner()->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 }
 
-FVector UInteractableComponent::GetActivatePosition()
+FVector UInteractableComponent::GetActivatePosition(AActor* Player)
 {
-	return FVector(0.f, 0.f, 0.f);
+	FVector ActorLocation = GetOwner()->GetActorLocation();
+
+	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+	USkeletalMeshComponent* SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetOwner()->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+
+	bool StaticMesh = false;
+
+	if (MeshComponent)
+		StaticMesh = true;
+
+	
+	FVector Bounds = FVector::ZeroVector;
+	
+	if (StaticMesh)
+		Bounds = MeshComponent->GetStaticMesh()->GetBounds().BoxExtent;
+	else
+		Bounds = SkeletalMeshComponent->Bounds.BoxExtent;
+
+	if (Bounds == FVector::ZeroVector)
+		return GetOwner()->GetActorLocation();
+
+	FVector ActivatePosition = ActorLocation + GetOwner()->GetActorForwardVector()*(Bounds.X + 20);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::SanitizeFloat(Bounds.X));
+
+	DrawDebugSphere(GetWorld(), ActivatePosition, 50.f, 32, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
+
+	return ActivatePosition;
 }

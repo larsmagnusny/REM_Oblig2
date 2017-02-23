@@ -31,6 +31,8 @@ public:
 
 	virtual void ActivateObject() override;
 
+	virtual FVector GetActivatePosition(AActor* Player) override;
+
 	void SetPuzzleSolved();
 
 	UPROPERTY(EditAnywhere)

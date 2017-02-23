@@ -360,9 +360,21 @@ void AMainCharacter::MouseLeftClick()
 			DelayActivateObject.ScriptComponent = Obj->ScriptComponent;
 			DelayActivateObject.StaticMeshInstance = Obj->StaticMeshInstance;
 
-			MoveTo = Hit.ImpactPoint;
+			if (Obj->StaticMeshInstance)
+			{
+				MoveTo = Hit.ImpactPoint;
+			}
+			if (Obj->ScriptComponent)
+			{
+				MoveTo = Obj->ScriptComponent->GetActivatePosition(this);
+			}
+
 			DelayActivate = true;
 			//MouseMove = true;
+		}
+		else
+		{
+			MoveTo = Hit.ImpactPoint;
 		}
 
 		if (HitActor->IsA(AClimbableObject::StaticClass()))
@@ -426,7 +438,7 @@ void AMainCharacter::MouseLeftClick()
 			
 		}
 
-		MoveTo = Hit.ImpactPoint;
+		//MoveTo = Hit.ImpactPoint;
 		MouseMove = true;
 	}
 }

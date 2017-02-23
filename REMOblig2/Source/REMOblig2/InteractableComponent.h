@@ -23,5 +23,5 @@ public:
 	USkeletalMeshComponent* GetSkeletalMeshComponent();
 
 	// The position relative to the object to move when activating the object.
-	virtual FVector GetActivatePosition(); 
+	virtual FVector GetActivatePosition(AActor* Player);
 };
