@@ -82,6 +82,7 @@ private:
 	// Mouse movement
 	bool MouseMove = false;
 	bool DelayActivate = false;
+	bool DestinationReached = false;
 
 	// HidingMovement
 	bool SpaceBarDown = false;
@@ -92,6 +93,7 @@ private:
 	InteractableObject DelayActivateObject;
 
 	FVector MoveTo = FVector(0.f, 0.f, 0.f);
+	FVector ActivatePosition = FVector(0.f, 0.f, 0.f);
 
 	// For checking if we need to change highlighting
 	UStaticMeshComponent* LastComponentMousedOver = nullptr;
@@ -107,6 +109,8 @@ private:
 	UNavigationSystem* NavSys;
 
 	float lastDistance = 0.0f;
+	int32 lastDistanceCounter = 0;
+
 
 	bool DelayClimb = false;
 	FVector ClimbTo;

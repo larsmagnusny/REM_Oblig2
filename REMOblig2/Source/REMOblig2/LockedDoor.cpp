@@ -17,6 +17,12 @@ void ULockedDoor::BeginPlay()
 
 	GameMode->AddInteractableObject(GetOwner(), this);
 	InitialRotation = GetOwner()->GetActorRotation();
+
+	// Used to check which side of the door the player is, so it doesn't slam him in the face when he tries to open it!
+	if (OpenDirection)
+		OpenDir = GetOwner()->GetActorUpVector();
+	else
+		OpenDir = -GetOwner()->GetActorUpVector();
 }
 
 void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -131,15 +137,7 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 
 	FVector PlayerToUs = OurPosition - PlayerPosition;
 	PlayerToUs.Normalize();
-
-	FVector OpenDir;
-
-
-
-	if (OpenDirection)
-		OpenDir = GetOwner()->GetActorUpVector();
-	else
-		OpenDir = -GetOwner()->GetActorUpVector();
+	
 	float dotProd = FVector::DotProduct(PlayerToUs, OpenDir);
 
 	float Angle = FMath::Acos(dotProd);
@@ -149,20 +147,35 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 
 	if (Open)
 	{
-		if (Angle < 1.2f)
-			ActorLocation -= Rot*50.f;
+		if (Angle < 1.4f)
+		{
+			if (OpenDirection)
+				ActorLocation -= OpenDir*50.f;
+			else
+				ActorLocation += OpenDir*50.f;
+		}
 		else
-			ActorLocation += Rot*Bounds.Y;
+			ActorLocation += OpenDir*Bounds.Y;
 	}
 	else
 	{
-		if (Angle < 1.15f)
-			ActorLocation += Rot*Bounds.X + GetOwner()->GetActorUpVector()*50.f;
+		if (Angle < 1.4f)
+		{
+			if (OpenDirection)
+				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
+			else
+				ActorLocation += Rot*Bounds.X + OpenDir*50.f;
+		}
 		else
-			ActorLocation += Rot*Bounds.X - GetOwner()->GetActorUpVector()*100.f;
+		{
+			if (OpenDirection)
+				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
+			else
+				ActorLocation += Rot*Bounds.X - OpenDir*100.f;
+		}
 	}
 	
-	DrawDebugSphere(GetWorld(), ActorLocation, 50.f, 32, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
+	DrawDebugSphere(GetWorld(), ActorLocation, 10.f, 5, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
 
 	return ActorLocation;
 }

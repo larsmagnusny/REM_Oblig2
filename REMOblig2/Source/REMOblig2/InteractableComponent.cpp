@@ -52,7 +52,7 @@ FVector UInteractableComponent::GetActivatePosition(AActor* Player)
 
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::SanitizeFloat(Bounds.X));
 
-	DrawDebugSphere(GetWorld(), ActivatePosition, 50.f, 32, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
+	DrawDebugSphere(GetWorld(), ActivatePosition, 10.f, 5, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
 
 	return ActivatePosition;
 }

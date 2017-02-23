@@ -226,9 +226,16 @@ void AMainCharacter::Tick(float DeltaTime)
 		// 2D distance to target...
 		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
 		if (Distance == lastDistance)
-			MoveTo = GetActorLocation();
+			lastDistanceCounter++;
+		else
+			lastDistanceCounter = 0;
+
 		lastDistance = Distance;
 
+		if (lastDistanceCounter > 10)
+		{
+			MoveTo = GetActorLocation();
+		}
 
 		if (NavSys && (Distance > 25.0f))
 		{
@@ -237,6 +244,11 @@ void AMainCharacter::Tick(float DeltaTime)
 		else
 		{
 			MouseMove = false;
+
+			float const ActivateDist = FVector2D::Distance(FVector2D(ActivatePosition), FVector2D(GetActorLocation()));
+
+			if (ActivateDist > 30.f)
+				return;
 
 			if (DelayClimb)
 			{
@@ -368,7 +380,7 @@ void AMainCharacter::MouseLeftClick()
 			{
 				MoveTo = Obj->ScriptComponent->GetActivatePosition(this);
 			}
-
+			ActivatePosition = MoveTo;
 			DelayActivate = true;
 			//MouseMove = true;
 		}

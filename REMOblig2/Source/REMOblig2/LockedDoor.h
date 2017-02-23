@@ -66,4 +66,6 @@ private:
 
 	FRotator InitialRotation;
 	float CurrentRotation = 0.f;
+
+	FVector OpenDir;
 };
