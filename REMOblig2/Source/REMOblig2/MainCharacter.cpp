@@ -354,6 +354,12 @@ void AMainCharacter::SetCanRayCast(bool val)
 
 void AMainCharacter::MouseLeftClick()
 {
+	if (OurHud)
+	{
+		if (!OurHud->canPlayerClick)
+			return;
+	}
+
 	if (SpaceBarDown)
 		return;
 	if (!CanClickRayCast)
@@ -480,14 +486,14 @@ void AMainCharacter::MouseRightClick()
 				OurHud->ShowAnimation = true;
 				OurHud->MenuSnapToActor = HitActor;
 			}
-			else
+			else if(OurHud->ShowRightClickMenu)
 			{
 				OurHud->ShowRightClickMenu = false;
 				OurHud->ShowAnimationBackwards = true;
 				OurHud->MenuSnapToActor = nullptr;
 			}
 		}
-		else
+		else if (OurHud->ShowRightClickMenu)
 		{
 			OurHud->ShowRightClickMenu = false;
 			OurHud->ShowAnimationBackwards = true;

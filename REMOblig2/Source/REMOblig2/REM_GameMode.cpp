@@ -98,7 +98,7 @@ InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
 
 void AREM_GameMode::SetMainCharacter(ACharacter* Character)
 {
-
+	MainCharacter = Character;
 }
 
 void AREM_GameMode::PutObjectInWorld()

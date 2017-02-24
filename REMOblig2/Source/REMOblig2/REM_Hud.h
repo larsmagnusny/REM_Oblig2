@@ -9,6 +9,15 @@
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class ActionType : uint8
+{
+	INTERACT_EXAMINE UMETA(DisplayName = "Examine the object"),
+	INTERACT_OPENINVENTORY UMETA(DisplayName = "Open Inventory"),
+	INTERACT_PICKUP UMETA(DisplayName = "Pickup Object"),
+	INTERACT_ACTIVATE UMETA(DisplayName = "Activate or Use Object")
+};
+
 UCLASS()
 class REMOBLIG2_API AREM_Hud : public AHUD
 {
@@ -21,6 +30,9 @@ public:
 
 	virtual void DrawHUD() override;
 
+	UFUNCTION(BlueprintCallable, Category="ActivateObect")
+	void CallActivate(ActionType Action);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	bool ShowAnimation = false;
 
@@ -32,6 +44,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorMenuSnap")
 	AActor* MenuSnapToActor = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
+	bool canPlayerClick = true;
 
 private:
 	UClass* RightClickMenuClassTemplate = nullptr;
