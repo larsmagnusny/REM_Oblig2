@@ -10,7 +10,7 @@ UInteractableComponent::UInteractableComponent()
 	
 }
 
-void UInteractableComponent::ActivateObject()
+void UInteractableComponent::ActivateObject(AActor* Player)
 {
 
 }

@@ -269,7 +269,7 @@ void AMainCharacter::Tick(float DeltaTime)
 				{
 					if (DelayActivateObject.ScriptComponent)
 					{
-						DelayActivateObject.ScriptComponent->ActivateObject();
+						DelayActivateObject.ScriptComponent->ActivateObject(this);
 					}
 					if (DelayActivateObject.StaticMeshInstance)
 					{

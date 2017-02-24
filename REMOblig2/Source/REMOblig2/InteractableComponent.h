@@ -1,5 +1,5 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
-
+#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White,text)
 #pragma once
 
 #include "Components/ActorComponent.h"
@@ -17,7 +17,7 @@ public:
 
 	// This function all interactable components inherit
 	// This can be triggered from anywhere
-	virtual void ActivateObject();
+	virtual void ActivateObject(AActor* Player);
 
 	UStaticMeshComponent* GetStaticMeshComponent();
 	USkeletalMeshComponent* GetSkeletalMeshComponent();

@@ -21,10 +21,19 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	virtual void ActivateObject() override;
+	virtual void ActivateObject(AActor* Player) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Is it open?")
 	bool isOpen = false;
+
+	UPROPERTY(EditAnywhere)
+	bool FollowWhenActivate = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FollowPlayer?")
+	bool FollowingPlayer = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player To follow")
+	AActor* PlayerToFollow = nullptr;
 private:
 	
 };

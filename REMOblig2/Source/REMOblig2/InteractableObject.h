@@ -1,5 +1,5 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
-
+#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White,text)
 #pragma once
 
 #include "Engine/StaticMeshActor.h"

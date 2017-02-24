@@ -32,12 +32,18 @@ void UChestController::TickComponent( float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
 }
 
-void UChestController::ActivateObject()
+void UChestController::ActivateObject(AActor* Player)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Should open chest now!"));
-
-	isOpen = !isOpen;
+	if (FollowWhenActivate)
+	{
+		PlayerToFollow = Player;
+		FollowingPlayer = true;
+	}
+	else
+	{
+		isOpen = !isOpen;
+	}
 }

@@ -1,5 +1,4 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
-#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White,text)
 
 #include "REMOblig2.h"
 #include "LockedDoor.h"
@@ -69,7 +68,7 @@ void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActo
 	}
 }
 
-void ULockedDoor::ActivateObject()
+void ULockedDoor::ActivateObject(AActor* Player)
 {
 	if (DoorOpenCondition == OpenCondition::OPEN_NORMAL)
 	{
