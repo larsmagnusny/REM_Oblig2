@@ -91,6 +91,8 @@ void AMainCharacter::BeginPlay()
 	GameMode->SetMainCharacter(this);
 
 	NavSys = GetWorld()->GetNavigationSystem();
+
+	OurHud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 }
 
 // Called every frame
@@ -457,7 +459,41 @@ void AMainCharacter::MouseLeftClick()
 
 void AMainCharacter::MouseRightClick()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Right Clicked Mouse!"));
+	if (OurHud)
+	{
+		if (SpaceBarDown)
+			return;
+		if (!CanClickRayCast)
+			return;
 
+		FHitResult Hit;
+		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+
+		AActor* HitActor = Hit.GetActor();
+
+		if (HitActor)
+		{
+			if (GameMode->IsInteractble(HitActor))
+			{
+				OurHud->ShowRightClickMenu = true;
+				OurHud->ShowAnimation = true;
+				OurHud->MenuSnapToActor = HitActor;
+			}
+			else
+			{
+				OurHud->ShowRightClickMenu = false;
+				OurHud->ShowAnimationBackwards = true;
+				OurHud->MenuSnapToActor = nullptr;
+			}
+		}
+		else
+		{
+			OurHud->ShowRightClickMenu = false;
+			OurHud->ShowAnimationBackwards = true;
+			OurHud->MenuSnapToActor = nullptr;
+		}
+	}
 }
 
 void AMainCharacter::SpaceBarPressed()

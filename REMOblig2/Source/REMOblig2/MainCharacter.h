@@ -2,6 +2,7 @@
 
 #pragma once
 #include "REM_GameMode.h"
+#include "REM_Hud.h"
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
 
@@ -115,5 +116,6 @@ private:
 	bool DelayClimb = false;
 	FVector ClimbTo;
 
-	
+
+	AREM_Hud* OurHud = nullptr;
 };
