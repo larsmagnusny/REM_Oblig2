@@ -22,6 +22,10 @@ public:
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 	virtual void ActivateObject(AActor* Player) override;
+	virtual void ExamineObject(AActor* Player) override;
+	virtual void OpenInventory(AActor* Player) override;
+	virtual void PickupObject(AActor* Player) override;
+	virtual void ActivateDialogue(AActor* Player) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Is it open?")
 	bool isOpen = false;

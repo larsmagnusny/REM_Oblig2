@@ -487,7 +487,7 @@ void AMainCharacter::MouseRightClick()
 				{
 					if (IWidget->ParentComponent)
 					{
-						if (OurHud->MenuSnapToActor)
+						if (OurHud->MenuSnapToActor && OurHud->MenuSnapToActor != HitActor)
 						{
 							InteractionWidget* OtherIWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
 

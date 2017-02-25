@@ -18,6 +18,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void ActivateObject(AActor* Player) override;
+	virtual void ExamineObject(AActor* Player) override;
 
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player) override;

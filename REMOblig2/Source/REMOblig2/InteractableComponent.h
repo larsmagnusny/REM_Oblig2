@@ -12,7 +12,8 @@ enum ButtonTypes
 	EXAMINE,
 	OPEN,
 	PICKUP,
-	USE
+	USE,
+	DIALOGUE
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -27,6 +28,10 @@ public:
 	// This function all interactable components inherit
 	// This can be triggered from anywhere
 	virtual void ActivateObject(AActor* Player);
+	virtual void ExamineObject(AActor* Player);
+	virtual void PickupObject(AActor* Player);
+	virtual void OpenInventory(AActor* Player);
+	virtual void ActivateDialogue(AActor* Player);
 
 	UStaticMeshComponent* GetStaticMeshComponent();
 	USkeletalMeshComponent* GetSkeletalMeshComponent();
@@ -54,6 +59,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MenuButtonArray")
 	TArray<UTexture2D*> GetMenuButtonTextures(int i);
+
+	UFUNCTION(BlueprintCallable, Category = "MenuButtonArray")
+	ActionType GetActionType(int i);
 
 	TArray<UMenuIconsDef*> MenuButtons;
 	TArray<UMenuIconsDef*> ObjectSpecificMenuButtons;

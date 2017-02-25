@@ -53,9 +53,52 @@ void AREM_Hud::CallActivate(ActionType Action)
 		{
 		case ActionType::INTERACT_ACTIVATE:
 			if (Obj->ScriptComponent)
+			{
 				Obj->ScriptComponent->ActivateObject(GameMode->GetMainCharacter());
+			}
 			if (Obj->StaticMeshInstance)
+			{
 				Obj->StaticMeshInstance->ActivateObject(GameMode->GetMainCharacter());
+			}
+			break;
+		case ActionType::INTERACT_EXAMINE:
+			if (Obj->ScriptComponent)
+			{
+				Obj->ScriptComponent->ExamineObject(GameMode->GetMainCharacter());
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+			}
+			break;
+		case ActionType::INTERACT_OPENINVENTORY:
+			if (Obj->ScriptComponent)
+			{
+				Obj->ScriptComponent->OpenInventory(GameMode->GetMainCharacter());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+			}
+			break;
+		case ActionType::INTERACT_PICKUP:
+			if (Obj->ScriptComponent)
+			{
+				Obj->ScriptComponent->PickupObject(GameMode->GetMainCharacter());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+			}
+			break;
+		case ActionType::INTERACT_DIALOGUE:
+			if (Obj->ScriptComponent)
+			{
+				Obj->ScriptComponent->ActivateDialogue(GameMode->GetMainCharacter());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+			}
 			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));

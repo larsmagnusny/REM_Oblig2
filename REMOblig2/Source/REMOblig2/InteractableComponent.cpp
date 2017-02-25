@@ -30,9 +30,33 @@ UInteractableComponent::UInteractableComponent()
 	MenuButtons.Add(new UMenuIconsDef("Texture2D'/Game/Textures/UseButtonCircle.UseButtonCircle'",
 									 "Texture2D'/Game/Textures/UseButtonCircleHover.UseButtonCircleHover'",
 									 "Texture2D'/Game/Textures/UseButtonCircleClick.UseButtonCircleClick'"));
+
+	MenuButtons.Add(new UMenuIconsDef("Texture2D'/Game/Textures/DialogueCircle.DialogueCircle'",
+									  "Texture2D'/Game/Textures/DialogueCircleHover.DialogueCircleHover'",
+									  "Texture2D'/Game/Textures/DialogueCircleClick.DialogueCircleClick'"));
 }
 
 void UInteractableComponent::ActivateObject(AActor* Player)
+{
+
+}
+
+void UInteractableComponent::ExamineObject(AActor* Player)
+{
+
+}
+
+void UInteractableComponent::PickupObject(AActor* Player)
+{
+
+}
+
+void UInteractableComponent::OpenInventory(AActor* Player)
+{
+
+}
+
+void UInteractableComponent::ActivateDialogue(AActor* Player)
 {
 
 }
@@ -95,4 +119,18 @@ TArray<UTexture2D*> UInteractableComponent::GetMenuButtonTextures(int i)
 	}
 
 	return Textures;
+}
+
+ActionType UInteractableComponent::GetActionType(int i)
+{
+	if (i <= Actions.Num() - 1)
+	{
+		return Actions[i];
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't find it!"));
+	}
+
+	return ActionType::INTERACT_ACTIVATE;
 }

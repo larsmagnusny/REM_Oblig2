@@ -10,14 +10,15 @@ UChestSpot::UChestSpot()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// Add what buttons this object has on its menu system...
-	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
-	Actions.Add(ActionType::INTERACT_EXAMINE);
+	
 }
 
 void UChestSpot::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
+	Actions.Add(ActionType::INTERACT_EXAMINE);
 
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
@@ -44,6 +45,11 @@ void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 }
 
 void UChestSpot::ActivateObject(AActor* Player)
+{
+	ExamineObject(Player);
+}
+
+void UChestSpot::ExamineObject(AActor* Player)
 {
 	print("There's an x marking the spot. I wonder if i place something here something will happen?");
 }

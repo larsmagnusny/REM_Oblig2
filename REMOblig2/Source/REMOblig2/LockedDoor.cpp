@@ -3,16 +3,38 @@
 #include "REMOblig2.h"
 #include "LockedDoor.h"
 #include "REM_GameMode.h"
+#include "REM_Hud.h"
 
 ULockedDoor::ULockedDoor()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	
 }
 
 void ULockedDoor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
+	Actions.Add(ActionType::INTERACT_ACTIVATE);
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
+	Actions.Add(ActionType::INTERACT_EXAMINE);
+
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
+	if (SubMenuWidgetClassTemplate)
+	{
+		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
+
+		if (SubMenuWidget)
+		{
+			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
+			SubMenuWidget->AddToViewport();
+		}
+	}
 
 	GameMode->AddInteractableObject(GetOwner(), this);
 	InitialRotation = GetOwner()->GetActorRotation();
@@ -76,6 +98,17 @@ void ULockedDoor::ActivateObject(AActor* Player)
 			CloseDoor();
 		else
 			OpenDoor();
+	}
+	else {
+		ExamineObject(Player);
+	}
+}
+
+void ULockedDoor::ExamineObject(AActor* Player)
+{
+	if (DoorOpenCondition == OpenCondition::OPEN_NORMAL)
+	{
+		print("The door is unlocked, why not open it?!");
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_KEY)
 	{

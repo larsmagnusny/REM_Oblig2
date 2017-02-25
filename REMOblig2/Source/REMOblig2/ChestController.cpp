@@ -11,6 +11,13 @@ UChestController::UChestController()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+
+// Called when the game starts
+void UChestController::BeginPlay()
+{
+	Super::BeginPlay();
 
 	// Add what buttons this object has on its menu system...
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
@@ -25,14 +32,8 @@ UChestController::UChestController()
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
 	Actions.Add(ActionType::INTERACT_ACTIVATE);
 
-	
-}
-
-
-// Called when the game starts
-void UChestController::BeginPlay()
-{
-	Super::BeginPlay();
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::DIALOGUE]);
+	Actions.Add(ActionType::INTERACT_DIALOGUE);
 
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
@@ -61,14 +62,29 @@ void UChestController::TickComponent( float DeltaTime, ELevelTick TickType, FAct
 
 void UChestController::ActivateObject(AActor* Player)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Should open chest now!"));
 	if (FollowWhenActivate)
 	{
 		PlayerToFollow = Player;
 		FollowingPlayer = true;
 	}
-	else
-	{
-		isOpen = !isOpen;
-	}
+}
+
+void UChestController::ExamineObject(AActor* Player)
+{
+	print("It's a toy chest, something seems strange about it.");
+}
+
+void UChestController::OpenInventory(AActor* Player)
+{
+	isOpen = !isOpen;
+}
+
+void UChestController::PickupObject(AActor* Player)
+{
+
+}
+
+void UChestController::ActivateDialogue(AActor* Player)
+{
+
 }
