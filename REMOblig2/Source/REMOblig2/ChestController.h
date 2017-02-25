@@ -1,7 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
 #pragma once
-
+#include "REM_Hud.h"
 #include "InteractableComponent.h"
 #include "ChestController.generated.h"
 
@@ -21,10 +21,23 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	virtual void ActivateObject() override;
+	virtual void ActivateObject(AActor* Player) override;
+	virtual void ExamineObject(AActor* Player) override;
+	virtual void OpenInventory(AActor* Player) override;
+	virtual void PickupObject(AActor* Player) override;
+	virtual void ActivateDialogue(AActor* Player) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Is it open?")
 	bool isOpen = false;
+
+	UPROPERTY(EditAnywhere)
+	bool FollowWhenActivate = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FollowPlayer?")
+	bool FollowingPlayer = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player To follow")
+	AActor* PlayerToFollow = nullptr;
 private:
 	
 };

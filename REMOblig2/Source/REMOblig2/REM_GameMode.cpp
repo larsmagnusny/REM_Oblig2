@@ -22,9 +22,14 @@ void AREM_GameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AREM_GameMode::RayCastArray(FHitResult* Ray, int size)
+void AREM_GameMode::RayCastArray(FHitResult* Ray, FVector* Start, FVector* Direction, float LengthOfRay, int size, AActor* ActorToIgnore)
 {
-
+	for (int32 i = 0; i < size; i++)
+	{
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(ActorToIgnore);
+		GetWorld()->LineTraceSingleByChannel(Ray[i], Start[i], Start[i] + (Direction[i] * LengthOfRay), ECollisionChannel::ECC_WorldStatic, Params);
+	}
 }
 
 void AREM_GameMode::SetMainCamera(UCameraComponent* Camera)
@@ -93,7 +98,7 @@ InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
 
 void AREM_GameMode::SetMainCharacter(ACharacter* Character)
 {
-
+	MainCharacter = Character;
 }
 
 void AREM_GameMode::PutObjectInWorld()

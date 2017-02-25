@@ -29,7 +29,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual void ActivateObject() override;
+	virtual void ActivateObject(AActor* Player) override;
+	virtual void ExamineObject(AActor* Player) override;
+
+	virtual FVector GetActivatePosition(AActor* Player) override;
 
 	void SetPuzzleSolved();
 
@@ -64,4 +67,6 @@ private:
 
 	FRotator InitialRotation;
 	float CurrentRotation = 0.f;
+
+	FVector OpenDir;
 };

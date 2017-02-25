@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#include "Blueprint/UserWidget.h"
 #include "InteractableObject.h"
 #include "InteractableComponent.h"
 #include "Inventory.h"
@@ -8,10 +9,22 @@
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
+struct InteractionWidget
+{
+	AActor* Owner;
+	UUserWidget* MenuWidget;
+	UInteractableComponent* ParentComponent;
+	AInteractableObject* ParentObject;
+};
+
+//USTRUCT(Blueprintable)
 struct InteractableObject
 {
+	//UPROPERTY(BlueprintReadWrite, Category = "InteractionWidget")
 	AActor* OwningActor = nullptr; // The object that owns the component. If It's an AInteractableObject, then OwningActor and AInteractableObject is the same.
+	//UPROPERTY(BlueprintReadWrite, Category = "InteractionWidget")
 	UInteractableComponent* ScriptComponent = nullptr;	// Pointer to the attached class to the owning actor.
+	//UPROPERTY(BlueprintReadWrite, Category = "InteractionWidget")
 	AInteractableObject* StaticMeshInstance = nullptr;	// Same class as OwningActor if it is set.
 };
 
@@ -30,7 +43,7 @@ public:
 	void SetMainCamera(UCameraComponent* Camera);
 
 	// For when we implement hiding objects that block our view to the player
-	void RayCastArray(FHitResult* Ray, int size);
+	void RayCastArray(FHitResult* Ray, FVector* Start, FVector* Direction, float LengthOfRay, int size, AActor* ActorToIgnore);
 
 	// We need to keep track of our highlightable objects.
 	void AddInteractableObject(AActor* Actor, UInteractableComponent* Component = nullptr, AInteractableObject* StaticMeshInstance = nullptr);

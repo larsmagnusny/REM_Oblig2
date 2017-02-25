@@ -11,8 +11,6 @@ UChestController::UChestController()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -21,7 +19,35 @@ void UChestController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Add what buttons this object has on its menu system...
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
+	Actions.Add(ActionType::INTERACT_EXAMINE);
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::OPEN]);
+	Actions.Add(ActionType::INTERACT_OPENINVENTORY);
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::PICKUP]);
+	Actions.Add(ActionType::INTERACT_PICKUP);
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
+	Actions.Add(ActionType::INTERACT_ACTIVATE);
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::DIALOGUE]);
+	Actions.Add(ActionType::INTERACT_DIALOGUE);
+
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
+	if (SubMenuWidgetClassTemplate)
+	{
+		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
+
+		if (SubMenuWidget)
+		{
+			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
+			SubMenuWidget->AddToViewport();
+		}
+	}
 
 	GameMode->AddInteractableObject(GetOwner(), this, nullptr);
 }
@@ -32,12 +58,33 @@ void UChestController::TickComponent( float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
 }
 
-void UChestController::ActivateObject()
+void UChestController::ActivateObject(AActor* Player)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Should open chest now!"));
+	if (FollowWhenActivate)
+	{
+		PlayerToFollow = Player;
+		FollowingPlayer = true;
+	}
+}
 
+void UChestController::ExamineObject(AActor* Player)
+{
+	print("It's a toy chest, something seems strange about it.");
+}
+
+void UChestController::OpenInventory(AActor* Player)
+{
 	isOpen = !isOpen;
+}
+
+void UChestController::PickupObject(AActor* Player)
+{
+
+}
+
+void UChestController::ActivateDialogue(AActor* Player)
+{
+
 }

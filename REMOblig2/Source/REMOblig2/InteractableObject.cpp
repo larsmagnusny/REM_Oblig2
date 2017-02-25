@@ -12,3 +12,8 @@ void AInteractableObject::ActivateObject(AActor* Player)
 {
 
 }
+
+FVector AInteractableObject::GetActivatePosition()
+{
+	return GetActorLocation();
+}

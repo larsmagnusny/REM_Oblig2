@@ -2,6 +2,7 @@
 
 #pragma once
 #include "REM_GameMode.h"
+#include "REM_Hud.h"
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
 
@@ -54,11 +55,18 @@ public:
 	void MouseLeftClick();
 	void MouseRightClick();
 
+	// Keyboard input
+	void SpaceBarPressed();
+	void SpaceBarReleased();
+
 	UPROPERTY(EditAnywhere)
 	UClass* AnimClass = nullptr;
 
-	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* SkeletalMeshComponent = nullptr;
+
+	UMaterial* CamoMaterial;
+
+	UMaterial* StandardMaterial;
 
 	// Camera Boom:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -75,11 +83,18 @@ private:
 	// Mouse movement
 	bool MouseMove = false;
 	bool DelayActivate = false;
+	bool DestinationReached = false;
+
+	// HidingMovement
+	bool SpaceBarDown = false;
+	bool Hiding = false;
+	FVector HideNormal = FVector(0, 0, 0);
 
 	// A struct containing what we clicked on and attached script instances
 	InteractableObject DelayActivateObject;
 
 	FVector MoveTo = FVector(0.f, 0.f, 0.f);
+	FVector ActivatePosition = FVector(0.f, 0.f, 0.f);
 
 	// For checking if we need to change highlighting
 	UStaticMeshComponent* LastComponentMousedOver = nullptr;
@@ -95,7 +110,12 @@ private:
 	UNavigationSystem* NavSys;
 
 	float lastDistance = 0.0f;
+	int32 lastDistanceCounter = 0;
+
 
 	bool DelayClimb = false;
 	FVector ClimbTo;
+
+
+	AREM_Hud* OurHud = nullptr;
 };
