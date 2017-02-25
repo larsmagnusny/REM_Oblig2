@@ -1,7 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
 #pragma once
-
+#include "REM_Hud.h"
 #include "InteractableComponent.h"
 #include "ChestController.generated.h"
 

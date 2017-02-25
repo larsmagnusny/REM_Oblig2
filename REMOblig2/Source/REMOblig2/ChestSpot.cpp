@@ -2,12 +2,16 @@
 
 #include "REMOblig2.h"
 #include "REM_GameMode.h"
-
+#include "REM_Hud.h"
 #include "ChestSpot.h"
 
 UChestSpot::UChestSpot()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	// Add what buttons this object has on its menu system...
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
+	Actions.Add(ActionType::INTERACT_EXAMINE);
 }
 
 void UChestSpot::BeginPlay()
@@ -16,6 +20,19 @@ void UChestSpot::BeginPlay()
 
 
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
+	if (SubMenuWidgetClassTemplate)
+	{
+		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
+
+		if (SubMenuWidget)
+		{
+			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
+			SubMenuWidget->AddToViewport();
+		}
+	}
+
 	GameMode->AddInteractableObject(GetOwner(), this);
 }
 

@@ -7,7 +7,29 @@
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
 {
+
+	ConstructorHelpers::FClassFinder<UUserWidget> SubMenuClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/InteractMenu.InteractMenu_C'"));
+
+	if (SubMenuClass.Succeeded())
+	{
+		SubMenuWidgetClassTemplate = SubMenuClass.Class;
+	}
 	
+	MenuButtons.Add(new UMenuIconsDef("Texture2D'/Game/Textures/ExamineButtonCircle.ExamineButtonCircle'",
+									 "Texture2D'/Game/Textures/ExamineButtonCircleHover.ExamineButtonCircleHover'",
+									 "Texture2D'/Game/Textures/ExamineButtonCircleClick.ExamineButtonCircleClick'"));
+
+	MenuButtons.Add(new UMenuIconsDef("Texture2D'/Game/Textures/OpenButtonCircle.OpenButtonCircle'",
+									 "Texture2D'/Game/Textures/OpenButtonCircleHover.OpenButtonCircleHover'",
+									 "Texture2D'/Game/Textures/OpenButtonCircleClick.OpenButtonCircleClick'"));
+
+	MenuButtons.Add(new UMenuIconsDef("Texture2D'/Game/Textures/PickupButtonCircle.PickupButtonCircle'",
+									 "Texture2D'/Game/Textures/PickupButtonCircleHover.PickupButtonCircleHover'",
+									 "Texture2D'/Game/Textures/PickupButtonCircleClick.PickupButtonCircleClick'"));
+
+	MenuButtons.Add(new UMenuIconsDef("Texture2D'/Game/Textures/UseButtonCircle.UseButtonCircle'",
+									 "Texture2D'/Game/Textures/UseButtonCircleHover.UseButtonCircleHover'",
+									 "Texture2D'/Game/Textures/UseButtonCircleClick.UseButtonCircleClick'"));
 }
 
 void UInteractableComponent::ActivateObject(AActor* Player)
@@ -55,4 +77,22 @@ FVector UInteractableComponent::GetActivatePosition(AActor* Player)
 	DrawDebugSphere(GetWorld(), ActivatePosition, 10.f, 5, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
 
 	return ActivatePosition;
+}
+
+int UInteractableComponent::GetNumMenuButtons()
+{
+	return ObjectSpecificMenuButtons.Num();
+}
+
+TArray<UTexture2D*> UInteractableComponent::GetMenuButtonTextures(int i)
+{
+	TArray<UTexture2D*> Textures;
+	if (i <= ObjectSpecificMenuButtons.Num() - 1)
+	{
+		Textures.Add(ObjectSpecificMenuButtons[i]->Textures[0]);
+		Textures.Add(ObjectSpecificMenuButtons[i]->Textures[1]);
+		Textures.Add(ObjectSpecificMenuButtons[i]->Textures[2]);
+	}
+
+	return Textures;
 }

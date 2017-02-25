@@ -1,7 +1,9 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
 #pragma once
-
+#include "InteractableComponent.h"
+#include "InteractableObject.h"
+#include "StructsAndEnums.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/HUD.h"
 #include "REM_Hud.generated.h"
@@ -9,14 +11,8 @@
 /**
  * 
  */
-UENUM(BlueprintType)
-enum class ActionType : uint8
-{
-	INTERACT_EXAMINE UMETA(DisplayName = "Examine the object"),
-	INTERACT_OPENINVENTORY UMETA(DisplayName = "Open Inventory"),
-	INTERACT_PICKUP UMETA(DisplayName = "Pickup Object"),
-	INTERACT_ACTIVATE UMETA(DisplayName = "Activate or Use Object")
-};
+
+
 
 UCLASS()
 class REMOBLIG2_API AREM_Hud : public AHUD
@@ -33,6 +29,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category="ActivateObect")
 	void CallActivate(ActionType Action);
 
+	// Add widget to actorcomponent
+	void AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UInteractableComponent* Component, AInteractableObject* Object = nullptr);
+
+	UFUNCTION(BlueprintCallable, Category = "GetInteractionWidget")
+	UInteractableComponent* GetParentInteractor(UUserWidget* Widget);
+
+	InteractionWidget* GetParentInteractorI(UUserWidget* Widget);
+	InteractionWidget* GetParentInteractorI(AActor* Owner);
+
+	UUserWidget* HUDCreateWidget(UClass* Template);
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	bool ShowAnimation = false;
 
@@ -48,7 +56,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool canPlayerClick = true;
 
+	UUserWidget* RightClickMenu = nullptr;
+
 private:
 	UClass* RightClickMenuClassTemplate = nullptr;
-	UUserWidget* RightClickMenu = nullptr;
+
+	TArray<InteractionWidget> SubMenues;
 };

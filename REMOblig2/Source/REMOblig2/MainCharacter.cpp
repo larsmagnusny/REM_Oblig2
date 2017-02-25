@@ -482,22 +482,79 @@ void AMainCharacter::MouseRightClick()
 		{
 			if (GameMode->IsInteractble(HitActor))
 			{
-				OurHud->ShowRightClickMenu = true;
-				OurHud->ShowAnimation = true;
-				OurHud->MenuSnapToActor = HitActor;
+				InteractionWidget* IWidget = OurHud->GetParentInteractorI(HitActor);
+				if (IWidget)
+				{
+					if (IWidget->ParentComponent)
+					{
+						if (OurHud->MenuSnapToActor)
+						{
+							InteractionWidget* OtherIWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
+
+							if (OtherIWidget)
+							{
+								if (OtherIWidget->ParentComponent)
+								{
+									if (OtherIWidget->ParentComponent->ShowRightClickMenu)
+									{
+										OtherIWidget->ParentComponent->ShowRightClickMenu = false;
+										OtherIWidget->ParentComponent->ShowAnimationBackwards = true;
+										OurHud->RightClickMenu = nullptr;
+										OurHud->MenuSnapToActor = nullptr;
+									}
+								}
+							}
+						}
+
+						IWidget->ParentComponent->ShowRightClickMenu = true;
+						IWidget->ParentComponent->ShowAnimation = true;
+						OurHud->RightClickMenu = IWidget->MenuWidget;
+						OurHud->MenuSnapToActor = HitActor;
+					}
+				}
 			}
-			else if(OurHud->ShowRightClickMenu)
+			else if(OurHud->MenuSnapToActor)
 			{
-				OurHud->ShowRightClickMenu = false;
-				OurHud->ShowAnimationBackwards = true;
-				OurHud->MenuSnapToActor = nullptr;
+				InteractionWidget* IWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
+
+				if (IWidget)
+				{
+					if (IWidget->ParentComponent)
+					{
+						if (IWidget->ParentComponent->ShowRightClickMenu)
+						{
+							IWidget->ParentComponent->ShowRightClickMenu = false;
+							IWidget->ParentComponent->ShowAnimationBackwards = true;
+							OurHud->RightClickMenu = nullptr;
+							OurHud->MenuSnapToActor = nullptr;
+						}
+					}
+				}
+				else {
+					UE_LOG(LogTemp, Error, TEXT("Could not find interactor!"));
+				}
 			}
 		}
-		else if (OurHud->ShowRightClickMenu)
+		else if (OurHud->MenuSnapToActor)
 		{
-			OurHud->ShowRightClickMenu = false;
-			OurHud->ShowAnimationBackwards = true;
-			OurHud->MenuSnapToActor = nullptr;
+			InteractionWidget* IWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
+
+			if (IWidget)
+			{
+				if (IWidget->ParentComponent)
+				{
+					if (IWidget->ParentComponent->ShowRightClickMenu)
+					{
+						IWidget->ParentComponent->ShowRightClickMenu = false;
+						IWidget->ParentComponent->ShowAnimationBackwards = true;
+						OurHud->RightClickMenu = nullptr;
+						OurHud->MenuSnapToActor = nullptr;
+					}
+				}
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Could not find interactor!"));
+			}
 		}
 	}
 }
