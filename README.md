@@ -11,6 +11,8 @@ https://docs.google.com/document/d/1aIMjEL5PPkkIj1dKvpaKNuv06nIOuNOG6U1XHyYwIoc/
 	- If the player clicks an interactable object he "Activates" it. Either triggering the mechanism or opening
 	  the inventory of the object.
 	- Have a fear bar.
+	- Player also gets a submenu when he right-clicks objects so he can take advantage of more options.
+	- There will also be an old school dialogue box for when the player and npcs talk.
 #Enemies
 	- Simple mesh with simple AI.
 	- When close to the enemy without being invisible to it you it scares you.
