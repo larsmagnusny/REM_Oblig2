@@ -1,6 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
 #pragma once
+#include "REM_GameMode.h"
 #include "REM_Hud.h"
 #include "InteractableComponent.h"
 #include "ChestController.generated.h"
@@ -26,6 +27,13 @@ public:
 	virtual void OpenInventory(AActor* Player) override;
 	virtual void PickupObject(AActor* Player) override;
 	virtual void ActivateDialogue(AActor* Player) override;
+	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
+	AActor* SlotToGoTo();
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
+	void SnapToSlot();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Is it open?")
 	bool isOpen = false;
@@ -38,6 +46,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player To follow")
 	AActor* PlayerToFollow = nullptr;
+
+	AREM_Hud* Hud = nullptr;
+
+	AREM_GameMode* GameMode = nullptr;
+
+	// A place where the chest can sit...
+	UPROPERTY(EditAnywhere)
+	AActor* Slot1 = nullptr;
+
+	// A place where the chest can sit
+	UPROPERTY(EditAnywhere)
+	AActor* Slot2 = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Should i try to go to the slot?")
+	bool GoToSlot = false;
+	int Slot = -1;
+	bool SnappedToSlot = false;
+	FRotator Rotation;
+	FVector SlotLocation;
 private:
 	
 };

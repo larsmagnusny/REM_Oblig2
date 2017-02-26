@@ -104,6 +104,8 @@ void AREM_Hud::CallActivate(ActionType Action)
 			UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));
 		}
 	}
+
+	return;
 }
 
 void AREM_Hud::AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UInteractableComponent* Component, AInteractableObject* Object)

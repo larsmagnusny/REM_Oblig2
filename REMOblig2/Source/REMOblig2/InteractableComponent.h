@@ -33,6 +33,9 @@ public:
 	virtual void OpenInventory(AActor* Player);
 	virtual void ActivateDialogue(AActor* Player);
 
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
+	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex);
+
 	UStaticMeshComponent* GetStaticMeshComponent();
 	USkeletalMeshComponent* GetSkeletalMeshComponent();
 
