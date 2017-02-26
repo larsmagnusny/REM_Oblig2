@@ -40,6 +40,20 @@ public:
 	// Change camera view
 	void ChangeCameraView(FVector Vector);
 
+	// For setting the dialogue options the player has when interacting with an object
+	void SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller);
+
+	void SetDialogueChoiceVisible();
+	void SetDialogueChoiceInvisible();
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	FString GetDialogueOption(int i);
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	UInteractableComponent* GetTalkingTo();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	bool ShouldReloadDialogues = false;
 
 	// Blueprint Callable Functions!
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -77,6 +91,8 @@ public:
 
 	float Mass = 0.0f;
 private:
+	TArray<FString> CurrentDialogueOptions;
+
 	// This can be toggled when hovering over a UI element
 	bool CanClickRayCast = true;
 
@@ -116,6 +132,10 @@ private:
 	bool DelayClimb = false;
 	FVector ClimbTo;
 
-
 	AREM_Hud* OurHud = nullptr;
+
+	UClass* DialogueWidgetClassTemplate = nullptr;
+	UUserWidget* DialogueWidget = nullptr;
+
+	UInteractableComponent* TalkingTo = nullptr;
 };

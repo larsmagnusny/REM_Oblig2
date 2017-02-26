@@ -10,6 +10,14 @@ AMainCharacter::AMainCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	ConstructorHelpers::FClassFinder<UUserWidget> DialogueBlueprintClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/DialogueMenu.DialogueMenu_C'"));
+
+	if (DialogueBlueprintClass.Succeeded())
+	{
+		DialogueWidgetClassTemplate = DialogueBlueprintClass.Class;
+	}
+
+
 	// Initialize the player inventory:
 	PlayerInventory = new Inventory(4);
 
@@ -93,12 +101,30 @@ void AMainCharacter::BeginPlay()
 	NavSys = GetWorld()->GetNavigationSystem();
 
 	OurHud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
+	if (DialogueWidgetClassTemplate)
+	{
+		DialogueWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetClassTemplate);
+	}
+
+	if (DialogueWidget)
+	{
+		DialogueWidget->AddToViewport();
+	}
+
+	SetDialogueChoiceInvisible();
 }
 
 // Called every frame
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (OurHud)
+	{
+		if (!OurHud->canPlayerClick)
+			return;
+	}
 
 	// Raycast under the mouse so we can highlight the objects
 	FHitResult Hit;
@@ -473,6 +499,9 @@ void AMainCharacter::MouseRightClick()
 		if (!CanClickRayCast)
 			return;
 
+		if (!OurHud->canPlayerClick)
+			return;
+
 		FHitResult Hit;
 		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
 
@@ -614,4 +643,50 @@ void AMainCharacter::SpaceBarPressed()
 void AMainCharacter::SpaceBarReleased()
 {
 	SpaceBarDown = false;
+}
+
+// For setting the dialogue options the player has when interacting with an object
+void AMainCharacter::SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller)
+{
+	TalkingTo = Caller;
+
+	CurrentDialogueOptions.Empty();
+
+	CurrentDialogueOptions = Options;
+
+	ShouldReloadDialogues = true;
+}
+
+FString AMainCharacter::GetDialogueOption(int i)
+{
+	if (i <= CurrentDialogueOptions.Num() - 1)
+	{
+		return CurrentDialogueOptions[i];
+	}
+	else
+	{
+		return "";
+	}
+}
+UInteractableComponent* AMainCharacter::GetTalkingTo()
+{
+	return TalkingTo;
+}
+
+void AMainCharacter::SetDialogueChoiceVisible()
+{
+	if (DialogueWidget)
+	{
+		DialogueWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	//SetDialogueChoiceInvisible();
+}
+
+void AMainCharacter::SetDialogueChoiceInvisible()
+{
+	if (DialogueWidget)
+	{
+		DialogueWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

@@ -134,3 +134,8 @@ ActionType UInteractableComponent::GetActionType(int i)
 
 	return ActionType::INTERACT_ACTIVATE;
 }
+
+void UInteractableComponent::DialogueOptionPressed(UUserWidget* Caller, int optionindex)
+{
+
+}
