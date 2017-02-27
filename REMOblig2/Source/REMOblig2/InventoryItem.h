@@ -9,7 +9,7 @@
 class REMOBLIG2_API InventoryItem
 {
 public:
-	InventoryItem();
+	InventoryItem(ItemIDs ID, int InteractID, FString NameToUse, UStaticMesh* MeshToUse, UTexture2D* Icon);
 	~InventoryItem();
 
 	// Enum that defines items
