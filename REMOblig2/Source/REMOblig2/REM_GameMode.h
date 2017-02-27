@@ -6,6 +6,7 @@
 #include "InteractableComponent.h"
 #include "Inventory.h"
 #include "ClimbableObject.h"
+#include "MeshAndTextureLoader.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -65,6 +66,8 @@ public:
 	ACharacter* GetMainCharacter();
 
 	InteractableObject* GetInteractableObject(AActor* Actor);
+
+	MeshAndTextureLoader* MeshesAndTextures;
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;

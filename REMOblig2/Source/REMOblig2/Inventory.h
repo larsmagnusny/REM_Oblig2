@@ -27,7 +27,7 @@ public:
 
 	InventoryItem* GetItem(int32 SlotNum);
 
-	InventoryItem* GetItemById(int32 ID);
+	InventoryItem* GetItemById(ItemIDs ID);
 private:
 	// Pointer to a pointer...
 	InventoryItem** InventoryStorage;

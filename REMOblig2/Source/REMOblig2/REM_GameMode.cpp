@@ -11,6 +11,8 @@ AREM_GameMode::AREM_GameMode()
 
 	// We are using our custom class to control our HUD
 	HUDClass = AREM_Hud::StaticClass();
+
+	MeshesAndTextures = new MeshAndTextureLoader();
 }
 
 void AREM_GameMode::BeginPlay()
