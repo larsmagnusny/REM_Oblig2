@@ -3,6 +3,7 @@
 #pragma once
 #include "Engine/StaticMeshActor.h"
 #include "InventoryItem.h"
+#include "InventoryItemComponent.h"
 #include "InventoryItemObject.generated.h"
 
 /**
@@ -17,7 +18,7 @@ public:
 	~AInventoryItemObject();
 
 	virtual void BeginPlay() override;
-	virtual void Tick() override;
+	virtual void Tick(float DeltaTime) override;
 
 	void Init(InventoryItem* Item);
 
@@ -29,8 +30,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	FString Name = "";
-private:
+
 	InventoryItem* InvItemRef = nullptr;
+private:
+	UInventoryItemComponent* InventoryItemComponent = nullptr;
 
 	UStaticMesh* Mesh = nullptr;
 	UTexture2D* InventoryIcon = nullptr;

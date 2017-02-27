@@ -28,6 +28,7 @@ public:
 	virtual void PickupObject(AActor* Player) override;
 	virtual void ActivateDialogue(AActor* Player) override;
 	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex) override;
+	virtual void ItemInteract(int32 SlotNum) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
 	AActor* SlotToGoTo();
@@ -43,6 +44,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FollowPlayer?")
 	bool FollowingPlayer = false;
+
+	UPROPERTY(EditAnywhere)
+	bool locked = true;
+
+	UPROPERTY(EditAnywhere)
+	int OPENID = 1337;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player To follow")
 	AActor* PlayerToFollow = nullptr;
@@ -65,6 +72,8 @@ public:
 	bool SnappedToSlot = false;
 	FRotator Rotation;
 	FVector SlotLocation;
+
+	bool filled = false;
 private:
-	
+	int toysfilled = 0;
 };

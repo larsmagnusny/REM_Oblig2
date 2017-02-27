@@ -19,7 +19,7 @@ public:
 	void DiscardItem(InventoryItem* Item);
 
 	// So that the HUD can load the icon to show in the menu for the item
-	FString GetTextureReference(int32 SlotNum);
+	UTexture2D* GetTextureReference(int32 SlotNum);
 
 	void Swap(int32 index1, int32 index2);
 

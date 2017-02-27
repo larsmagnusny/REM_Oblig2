@@ -52,7 +52,14 @@ void AREM_GameMode::AddInteractableObject(AActor* Actor, UInteractableComponent*
 
 void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
 {
-
+	for (int32 i = 0; i < InteractableObjects.Num(); i++)
+	{
+		if (InteractableObjects[i].OwningActor == Actor)
+		{
+			InteractableObjects.RemoveAt(i);
+			return;
+		}
+	}
 }
 
 bool AREM_GameMode::IsInteractble(AActor* Actor)
@@ -113,6 +120,8 @@ void AREM_GameMode::PutObjectInWorld(InventoryItem* Item, FVector Position, FVec
 
 
 	AInventoryItemObject* Object = Cast<AInventoryItemObject>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), AInventoryItemObject::StaticClass(), t));
+	Object->Init(Item);
+	Object->FinishSpawning(t);
 
 }
 

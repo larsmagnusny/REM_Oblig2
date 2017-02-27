@@ -19,7 +19,7 @@ AMainCharacter::AMainCharacter()
 
 
 	// Initialize the player inventory:
-	PlayerInventory = new Inventory(4);
+	PlayerInventory = new Inventory(5);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -334,7 +334,7 @@ float AMainCharacter::GetDistanceBetweenActors(AActor* Actor1, AActor* Actor2)
 // Inventory Functions
 bool AMainCharacter::AddItemToInventory(InventoryItem* Item)
 {
-	return false;
+	return PlayerInventory->AddItem(Item);
 }
 
 void AMainCharacter::SwapInventoryElements(int32 index1, int32 index2)
@@ -344,12 +344,28 @@ void AMainCharacter::SwapInventoryElements(int32 index1, int32 index2)
 
 void AMainCharacter::DropItem(int32 SlotIndex, FVector2D WorldLocation)
 {
+	FVector Position;
+	FVector Rotation;
+	FVector Scale;
 
+	FVector CharacterPosition = GetActorLocation();
+
+	FVector2D dir = WorldLocation - FVector2D(CharacterPosition);
+
+	dir.Normalize();
+
+	Position = CharacterPosition + 50 * FVector(dir, 0.5);
+
+	Rotation = FVector(0, 0, 0);
+	Scale = FVector(1, 1, 1);
+
+	GameMode->PutObjectInWorld(PlayerInventory->GetItem(SlotIndex), Position, Rotation, Scale);
+	PlayerInventory->DiscardItem(SlotIndex);
 }
 
 void AMainCharacter::DiscardItem(int32 SlotNum)
 {
-
+	PlayerInventory->DiscardItem(SlotNum);
 }
 void AMainCharacter::DiscardItem(InventoryItem* item)
 {
@@ -363,9 +379,9 @@ void AMainCharacter::ChangeCameraView(FVector Vector)
 }
 
 // Blueprint Callable Functions!
-FString AMainCharacter::GetInventoryTextureAt(int32 SlotNum)
+UTexture2D* AMainCharacter::GetInventoryTextureAt(int32 SlotNum)
 {
-	return "";
+	return PlayerInventory->GetTextureReference(SlotNum);
 }
 
 int32 AMainCharacter::GetInventorySize()
@@ -689,4 +705,14 @@ void AMainCharacter::SetDialogueChoiceInvisible()
 	{
 		DialogueWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+InventoryItem* AMainCharacter::GetItemByID(ItemIDs ID)
+{
+	return PlayerInventory->GetItemById(ID);
+}
+
+InventoryItem* AMainCharacter::GetItemBySlot(int32 SlotNum)
+{
+	return PlayerInventory->GetItem(SlotNum);
 }

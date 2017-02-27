@@ -29,6 +29,8 @@ public:
 
 	// Inventory Functions
 	bool AddItemToInventory(InventoryItem* Item);
+	InventoryItem* GetItemByID(ItemIDs ID);
+	InventoryItem* GetItemBySlot(int32 SlotNum);
 
 	void SwapInventoryElements(int32 index1, int32 index2);
 
@@ -57,7 +59,7 @@ public:
 
 	// Blueprint Callable Functions!
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	FString GetInventoryTextureAt(int32 SlotNum);
+	UTexture2D* GetInventoryTextureAt(int32 SlotNum);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	int32 GetInventorySize();

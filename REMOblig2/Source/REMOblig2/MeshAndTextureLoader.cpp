@@ -9,6 +9,9 @@ MeshAndTextureLoader::MeshAndTextureLoader()
 	MeshRefString.Add("StaticMesh'/Game/Meshes/Key.Key'");
 	ItemIconRefString.Add("Texture2D'/Game/Textures/golkey.golkey'");
 
+	MeshRefString.Add("StaticMesh'/Game/Meshes/toy.toy'");
+	ItemIconRefString.Add("Texture2D'/Game/Textures/ToyIcon.ToyIcon'");
+
 
 	for (uint8 i = 0; i < MeshRefString.Num(); i++)
 	{
@@ -27,12 +30,12 @@ MeshAndTextureLoader::~MeshAndTextureLoader()
 {
 }
 
-UStaticMesh* GetStaticMeshByItemID(ItemIDs ID)
+UStaticMesh* MeshAndTextureLoader::GetStaticMeshByItemID(ItemIDs ID)
 {
-	return nullptr;
+	return StaticMeshes[(uint8)ID];
 }
 
-UTexture2D* GetTextureByItemID(ItemIDs ID)
+UTexture2D* MeshAndTextureLoader::GetTextureByItemID(ItemIDs ID)
 {
-	return nullptr;
+	return ItemIconTextures[(uint8)ID];
 }

@@ -50,6 +50,11 @@ void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (DoorOpenCondition == OpenCondition::OPEN_COMPLETE_PUZZLE && PuzzleSolved)
+	{
+		Open = true;
+	}
+
 	if (Open)
 	{
 		if (CurrentRotation < MaxOpenAngle)
