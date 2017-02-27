@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "REM_GameMode.h"
+#include "InventoryItemObject.h"
 #include "REM_Hud.h"
 
 AREM_GameMode::AREM_GameMode()
@@ -103,8 +104,15 @@ void AREM_GameMode::SetMainCharacter(ACharacter* Character)
 	MainCharacter = Character;
 }
 
-void AREM_GameMode::PutObjectInWorld()
+void AREM_GameMode::PutObjectInWorld(InventoryItem* Item, FVector Position, FVector Rotation, FVector Scale)
 {
+	FTransform t;
+	t.SetLocation(Position);
+	t.SetScale3D(Scale);
+	t.SetRotation(Rotation.ToOrientationQuat());
+
+
+	AInventoryItemObject* Object = Cast<AInventoryItemObject>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), AInventoryItemObject::StaticClass(), t));
 
 }
 

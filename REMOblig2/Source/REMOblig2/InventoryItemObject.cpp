@@ -12,3 +12,17 @@ AInventoryItemObject::~AInventoryItemObject()
 {
 
 }
+
+void AInventoryItemObject::BeginPlay()
+{
+	Super::BeginPlay();
+}
+void AInventoryItemObject::Tick()
+{
+	Super::Tick();
+}
+
+void AInventoryItemObject::Init(InventoryItem* Item)
+{
+	InvItemRef = Item;
+}

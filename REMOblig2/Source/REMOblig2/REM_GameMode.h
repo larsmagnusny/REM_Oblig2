@@ -59,7 +59,7 @@ public:
 	void SetMainCharacter(ACharacter* Character);
 	
 	// We should be able to put an object in the world when it's dropped from an inventory, or if we want to spawn it in the world for some reason.
-	void PutObjectInWorld();
+	void PutObjectInWorld(InventoryItem* Item, FVector Position, FVector Rotation, FVector Scale);
 
 	// Get a pointer to the MainCharacter!
 	UFUNCTION(BlueprintCallable, Category = "GetCharacter")
