@@ -10,21 +10,20 @@
 UChestSpot::UChestSpot()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// Add what buttons this object has on its menu system...
-	
 }
 
 void UChestSpot::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Legg til meny-valg for "Right-Click" Meny
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
 	Actions.Add(ActionType::INTERACT_EXAMINE);
 
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
+	// SubMenuWidgetClass definert i UInteractableComponent
 	if (SubMenuWidgetClassTemplate)
 	{
 		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
@@ -36,12 +35,16 @@ void UChestSpot::BeginPlay()
 		}
 	}
 
+	// Fortell gamemode at denne er interactable
+
 	GameMode->AddInteractableObject(GetOwner(), this);
 }
 
 void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Dersom vi har en peker til Døren og kisten så vet vi at denne kan løse puzzelet dersom kisten er full
 	if (Door && Chest)
 	{
 		if (!ChestScriptInstance)
@@ -63,7 +66,7 @@ void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 				}
 			}
 		}
-	}
+	}	// Kan droppe en item.
 	else if (Chest)
 	{
 		if(!ChestScriptInstance)
@@ -81,6 +84,7 @@ void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 						UTexture2D* Texture = GameMode->MeshesAndTextures->GetTextureByItemID(ItemToDrop);
 						InventoryItem* Item = new InventoryItem(ItemToDrop, OPEN_ID, "Key", Mesh, Texture);
 
+						// Spawn ett objekt
 						GameMode->PutObjectInWorld(Item, GetOwner()->GetActorLocation() + GetOwner()->GetActorUpVector()*200.f + GetOwner()->GetActorForwardVector()*100.f, FVector(0, 0, 0), FVector(1, 1, 1));
 						ItemDropped = true;
 					}

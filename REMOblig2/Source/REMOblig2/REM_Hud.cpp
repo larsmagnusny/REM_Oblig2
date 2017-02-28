@@ -8,6 +8,7 @@
 
 AREM_Hud::AREM_Hud()
 {
+	// Last inn Inventory Widgeten
 	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
@@ -20,10 +21,12 @@ void AREM_Hud::BeginPlay()
 {
 	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 
+	// Spilleren skal kunne trykke på skjermen
 	MyController->bShowMouseCursor = true;
 	MyController->bEnableClickEvents = true;
 	MyController->bEnableMouseOverEvents = true;
 
+	// Lag InventoryWidgeten og legg den til viewporten
 	if (InventoryWidgetClassTemplate)
 	{
 		InventoryWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), InventoryWidgetClassTemplate);
@@ -31,6 +34,7 @@ void AREM_Hud::BeginPlay()
 		InventoryWidget->AddToViewport(0);
 	}
 
+	// Hent pekerene til InventorySlottene i InventoryBlueprintet
 	for (int32 i = 0; i < 5; i++)
 	{
 		FString name = "Slot";
@@ -50,18 +54,22 @@ void AREM_Hud::BeginPlay()
 		}
 	}
 
+	// Hent en peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 }
 
 void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
+
+	// Hent en peker til MainCharacter
 	AMainCharacter* MainCharacter = nullptr;
 	if(GameMode)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
 
 	if (MainCharacter)
 	{
+		// Sett Brushen til bildene i InventorySlot til en 2D tekstur basert på om det er en item der eller ikke
 		for (int32 i = 0; i < Slots.Num(); i++)
 		{
 			UTexture2D* tex = MainCharacter->GetInventoryTextureAt(i);
@@ -83,6 +91,8 @@ void AREM_Hud::DrawHUD()
 	{
 		return;
 	}
+
+	// For å sette posisjonen til en meny basert på hvor den er i forhold til kameraet
 	if (MenuSnapToActor)
 	{
 		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
@@ -99,8 +109,7 @@ void AREM_Hud::DrawHUD()
 
 void AREM_Hud::CallActivate(ActionType Action)
 {
-	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
-
+	// For å håntere hvilken knapp du trykte på og sende kommandoen videre til InteractableObject
 	InteractableObject* Obj = GameMode->GetInteractableObject(MenuSnapToActor);
 	if (Obj)
 	{

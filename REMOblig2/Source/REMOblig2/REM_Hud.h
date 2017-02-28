@@ -21,49 +21,64 @@ public:
 
 	virtual void DrawHUD() override;
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category="ActivateObect")
 	void CallActivate(ActionType Action);
 
 	// Add widget to actorcomponent
 	void AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UInteractableComponent* Component, AInteractableObject* Object = nullptr);
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "GetInteractionWidget")
 	UInteractableComponent* GetParentInteractor(UUserWidget* Widget);
 
+	// For å hente Den tilknyttede interactoren til widgeten
 	InteractionWidget* GetParentInteractorI(UUserWidget* Widget);
 	InteractionWidget* GetParentInteractorI(AActor* Owner);
 
+	// For å lage en widget fra en klasse som ikke kan lage en widget
 	UUserWidget* HUDCreateWidget(UClass* Template);
 
+	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	bool ShowAnimation = false;
 
+	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool ShowAnimationBackwards = false;
 
+	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RightclickMenu")
 	bool ShowRightClickMenu = false;
 
+	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorMenuSnap")
 	AActor* MenuSnapToActor = nullptr;
 
+	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool canPlayerClick = true;
 
+	// Den menyen som er åpen
 	UUserWidget* RightClickMenu = nullptr;
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "Get Slot Number")
 	void GetSlotNumber(int32& num) { num = SlotCounter++; }
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "Swap Inventory Elements")
 	void SwapElements(int32 index1, int32 index2);
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "Drop Item")
 	void DropItem(int32 SlotIndex, FVector2D HitPoint);
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "Check If we can interact with the object...")
 	bool IsActorInteractable(AActor* Actor);
 
+	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "Get the interactor instance")
 	UInteractableComponent* GetInteractor(AActor* Actor);
 

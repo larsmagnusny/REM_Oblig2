@@ -7,7 +7,7 @@
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
 {
-
+	// Last inn right click menyen
 	ConstructorHelpers::FClassFinder<UUserWidget> SubMenuClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/InteractMenu.InteractMenu_C'"));
 
 	if (SubMenuClass.Succeeded())
@@ -78,6 +78,7 @@ USkeletalMeshComponent* UInteractableComponent::GetSkeletalMeshComponent()
 
 FVector UInteractableComponent::GetActivatePosition(AActor* Player)
 {
+	// Denne brukes til å fastslå en posisjon som er rett foran ett objekt, så karakteren ikke går inn i objektet
 	FVector ActorLocation = GetOwner()->GetActorLocation();
 
 	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));

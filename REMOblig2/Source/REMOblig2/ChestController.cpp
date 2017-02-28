@@ -20,7 +20,7 @@ void UChestController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Add what buttons this object has on its menu system...
+	// Legg til Meny-valg dynamisk så vi slipper å lage en ny widget for hver eneste item
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
 	Actions.Add(ActionType::INTERACT_EXAMINE);
 
@@ -36,20 +36,31 @@ void UChestController::BeginPlay()
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::DIALOGUE]);
 	Actions.Add(ActionType::INTERACT_DIALOGUE);
 
+	// Hent peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+
+	// Hent peker til Hud klassen
 	Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
+
+	// SubMenuWidgetClass definert i UInteractableComponent og initializert i konstruktoren der
 	if (SubMenuWidgetClassTemplate)
 	{
+		// Lag widgeten i Hudden fordi vi ikke har lov til å gjøre det her!
 		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
 
+		// PointerGuard
 		if (SubMenuWidget)
 		{
+			// Fortell HUD-Klassen at denne instansen har en meny!
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
+
+			// Add på øverste lag på viewporten
 			SubMenuWidget->AddToViewport();
 		}
 	}
 
+	// Fortell GameMode-Klassen at denne instansen er "Interactable", spilleren kan trykke på og highlighte den
 	GameMode->AddInteractableObject(GetOwner(), this, nullptr);
 }
 
@@ -60,30 +71,36 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 
+	// Om kisten er snapped
 	if (SnappedToSlot)
 	{
+		// Set posisjon og Rotasjon hver frame, på grunn av AI-Blueprintet kan skape problemer av å til
 		GetOwner()->SetActorRotation(Rotation.Quaternion());
 		GetOwner()->SetActorLocation(SlotLocation);
 	}
 
+	// Hvis vi enda ikke har fyllt opp kisten med leker
 	if (!filled)
 	{
+		// Sjekk om vi har nok leker
 		if (toysfilled >= 6)
 		{
+			// Lukk kisten og gjør det umulig å åpne den med en item
 			print("The chest is full it wants to rest now...");
 			isOpen = false;
 			locked = true;
 			OPENID = -1;
 
+			// Den er full nå
 			filled = true;
 		}
 	}
-	
-
 }
 
+// Det som skjer når spilleren trykker med venstre mus-knapp på et objekt i scenen
 void UChestController::ActivateObject(AActor* Player)
 {
+	// Følg etter spilleren hvis du har blitt aktivert
 	if (FollowWhenActivate)
 	{
 		PlayerToFollow = Player;
@@ -92,24 +109,30 @@ void UChestController::ActivateObject(AActor* Player)
 	}
 }
 
+// Når spilleren trykker "Examine" Meny valget
 void UChestController::ExamineObject(AActor* Player)
 {
 	print("It's a toy chest, something seems strange about it.");
 }
 
+// Når spilleren trykker "OpenInventory" Meny valget
 void UChestController::OpenInventory(AActor* Player)
 {
+	// Åpne kisten hvis den ikke er låst
 	if (!locked)
 		isOpen = !isOpen;
 }
 
+// Når spilleren trykker "PickupObject" Meny valget
 void UChestController::PickupObject(AActor* Player)
 {
 	print("It's too heavy to pick up...");
 }
 
+// Det som skjer når spilleren trykker på "Dialogue" meny valget
 void UChestController::ActivateDialogue(AActor* Player)
 {
+	// Lag dialoger
 	// Max allowed dialogues is 6
 	TArray<FString> DialogueOptions;
 	DialogueOptions.Add("Hey... Go over to the x to the right");
@@ -117,19 +140,30 @@ void UChestController::ActivateDialogue(AActor* Player)
 
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(Player);
 
+	// Fortell spilleren at den har dialoger
 	MainCharacter->SetDialogueOptions(DialogueOptions, this);
+	
+	// Gjør dialog-boksen synlig
 	MainCharacter->SetDialogueChoiceVisible();
 
+	// Hvis vi har en meny åpen, lukk den
 	ShowAnimationBackwards = true;
 	ShowRightClickMenu = false;
 }
 
+// Det som skjer dersom et objekt blir "sluppet" over dette objektet
 void UChestController::ItemInteract(int32 SlotNum)
 {
+	// Hent hoved karakter pekeren ifra GameMode
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	// Hent itemet som er i den slotten vi slapp ifra, ( Se på blueprintet InventorySlot )
 	InventoryItem* Item = MainCharacter->GetItemBySlot(SlotNum);
+
+	// Hvis pekeren ikke er NULL
 	if (Item)
 	{
+		// Hvis det er en leke og kisten er åpen
 		if (Item->INTERACT_ID == 666 && isOpen)
 		{
 			print("It likes toys!");
@@ -142,6 +176,8 @@ void UChestController::ItemInteract(int32 SlotNum)
 			print("The chest is closed.");
 		}
 
+
+		// Hvis det er en nøkkel du har sluppet over kisten
 		if (Item->INTERACT_ID == OPENID)
 		{
 			locked = false;
@@ -159,11 +195,13 @@ void UChestController::ItemInteract(int32 SlotNum)
 	}
 }
 
+// Dersom spilleren har valgt et dialogvalg
 void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optionindex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Option %s pressed."), *FString::FromInt(optionindex));
+	// Gjør dialogboksen usynlig
 	Cast<AMainCharacter>(GameMode->GetMainCharacter())->SetDialogueChoiceInvisible();
 
+	// Switch for hvilket valg som ble trykt
 	switch (optionindex)
 	{
 	case 0:
@@ -182,6 +220,7 @@ void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optioninde
 		print("This option is not possible!");
 	}
 
+	// Fortell Hudden at den du kan trykke på ting i scenen igjen...
 	if (Hud)
 		Hud->canPlayerClick = true;
 }

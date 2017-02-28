@@ -16,12 +16,14 @@ void ULockedDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Meny valg som spilleren kan trykke på
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
 	Actions.Add(ActionType::INTERACT_ACTIVATE);
 
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
 	Actions.Add(ActionType::INTERACT_EXAMINE);
 
+	// Hent peker til HUD og GameMode
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
@@ -36,7 +38,10 @@ void ULockedDoor::BeginPlay()
 		}
 	}
 
+	// Så GameMode er klar over at vi kan interactes med
 	GameMode->AddInteractableObject(GetOwner(), this);
+
+	// Den rotasjonen døren går tilbake til når den lukkes
 	InitialRotation = GetOwner()->GetActorRotation();
 
 	// Used to check which side of the door the player is, so it doesn't slam him in the face when he tries to open it!
@@ -50,6 +55,7 @@ void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Brukes i puzzle
 	if (DoorOpenCondition == OpenCondition::OPEN_COMPLETE_PUZZLE && PuzzleSolved)
 	{
 		Open = true;
@@ -97,6 +103,7 @@ void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActo
 
 void ULockedDoor::ActivateObject(AActor* Player)
 {
+	// Dersom døren kan åpnes normalt
 	if (DoorOpenCondition == OpenCondition::OPEN_NORMAL)
 	{
 		if (Open)
@@ -105,6 +112,7 @@ void ULockedDoor::ActivateObject(AActor* Player)
 			OpenDoor();
 	}
 	else {
+		// Ikke åpne den hvis den er låst på en eller annen måte.
 		ExamineObject(Player);
 	}
 }
@@ -156,14 +164,14 @@ void ULockedDoor::SetPuzzleSolved()
 
 FVector ULockedDoor::GetActivatePosition(AActor* Player)
 {
-	//Super::GetActivatePosition();
+	// Vanskelig å forklare, men det den gjør er å finne en posisjon sånn at hvis spilleren åpner en dør
+	// Så slår den han ikke i fjeset og ødelegger for kameraet.
+
 	FVector ActorLocation = GetOwner()->GetActorLocation();
 
 	FRotator Rotation = GetOwner()->GetActorRotation();
 
 	FVector Rot = Rotation.Vector();
-	//Rot.X = 0.f;
-	//Rot.Y = 0.f;
 
 	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 
@@ -178,9 +186,6 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 	float dotProd = FVector::DotProduct(PlayerToUs, OpenDir);
 
 	float Angle = FMath::Acos(dotProd);
-	
-
-	UE_LOG(LogTemp, Warning, TEXT("Angle: %s"), *FString::SanitizeFloat(Angle));
 
 	if (Open)
 	{
@@ -211,8 +216,6 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
 		}
 	}
-	
-	DrawDebugSphere(GetWorld(), ActorLocation, 10.f, 5, FColor(255, 0, 0, 255), true, 5.0f, 0, 1.0f);
 
 	return ActorLocation;
 }
