@@ -1,10 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
 #pragma once
-#include "InteractableComponent.h"
-#include "InteractableObject.h"
-#include "StructsAndEnums.h"
-#include "Blueprint/UserWidget.h"
+#include "REM_GameMode.h"
 #include "GameFramework/HUD.h"
 #include "REM_Hud.generated.h"
 
@@ -38,7 +35,6 @@ public:
 
 	UUserWidget* HUDCreateWidget(UClass* Template);
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	bool ShowAnimation = false;
 
@@ -56,8 +52,30 @@ public:
 
 	UUserWidget* RightClickMenu = nullptr;
 
-private:
-	UClass* RightClickMenuClassTemplate = nullptr;
+	UFUNCTION(BlueprintCallable, Category = "Get Slot Number")
+	void GetSlotNumber(int32& num) { num = SlotCounter++; }
 
+	UFUNCTION(BlueprintCallable, Category = "Swap Inventory Elements")
+	void SwapElements(int32 index1, int32 index2);
+
+	UFUNCTION(BlueprintCallable, Category = "Drop Item")
+	void DropItem(int32 SlotIndex, FVector2D HitPoint);
+
+	UFUNCTION(BlueprintCallable, Category = "Check If we can interact with the object...")
+	bool IsActorInteractable(AActor* Actor);
+
+	UFUNCTION(BlueprintCallable, Category = "Get the interactor instance")
+	UInteractableComponent* GetInteractor(AActor* Actor);
+
+private:
+	UClass* InventoryWidgetClassTemplate = nullptr;
+	UUserWidget* InventoryWidget = nullptr;
 	TArray<InteractionWidget> SubMenues;
+
+	TArray<UImage*> Slots;
+
+	AREM_GameMode* GameMode = nullptr;
+
+	// Keep track of our inventory slots
+	int32 SlotCounter = 0;
 };

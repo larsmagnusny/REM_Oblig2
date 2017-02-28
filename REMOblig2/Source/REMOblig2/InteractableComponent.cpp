@@ -61,6 +61,11 @@ void UInteractableComponent::ActivateDialogue(AActor* Player)
 
 }
 
+void UInteractableComponent::ItemInteract(int32 SlotNum)
+{
+
+}
+
 UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()
 {
 	return Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));

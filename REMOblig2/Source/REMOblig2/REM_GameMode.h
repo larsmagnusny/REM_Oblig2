@@ -6,6 +6,7 @@
 #include "InteractableComponent.h"
 #include "Inventory.h"
 #include "ClimbableObject.h"
+#include "MeshAndTextureLoader.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -58,13 +59,15 @@ public:
 	void SetMainCharacter(ACharacter* Character);
 	
 	// We should be able to put an object in the world when it's dropped from an inventory, or if we want to spawn it in the world for some reason.
-	void PutObjectInWorld();
+	void PutObjectInWorld(InventoryItem* Item, FVector Position, FVector Rotation, FVector Scale);
 
 	// Get a pointer to the MainCharacter!
 	UFUNCTION(BlueprintCallable, Category = "GetCharacter")
 	ACharacter* GetMainCharacter();
 
 	InteractableObject* GetInteractableObject(AActor* Actor);
+
+	MeshAndTextureLoader* MeshesAndTextures;
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;

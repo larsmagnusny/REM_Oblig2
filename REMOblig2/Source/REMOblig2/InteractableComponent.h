@@ -4,6 +4,7 @@
 
 #include "Components/ActorComponent.h"
 #include "MenuIconsDef.h"
+#include "InventoryItem.h"
 #include "StructsAndEnums.h"
 #include "InteractableComponent.generated.h"
 
@@ -32,6 +33,10 @@ public:
 	virtual void PickupObject(AActor* Player);
 	virtual void OpenInventory(AActor* Player);
 	virtual void ActivateDialogue(AActor* Player);
+
+	// Item interacts with the object, when dropping an item from inventory to the object you want to interact with.
+	UFUNCTION(BlueprintCallable, Category = "Item Interact with object...")
+	virtual void ItemInteract(int32 SlotNum);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
 	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex);

@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "MainCharacter.h"
+#include "InventoryItem.h"
 #include "ChestController.h"
 
 
@@ -64,6 +65,21 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		GetOwner()->SetActorRotation(Rotation.Quaternion());
 		GetOwner()->SetActorLocation(SlotLocation);
 	}
+
+	if (!filled)
+	{
+		if (toysfilled >= 6)
+		{
+			print("The chest is full it wants to rest now...");
+			isOpen = false;
+			locked = true;
+			OPENID = -1;
+
+			filled = true;
+		}
+	}
+	
+
 }
 
 void UChestController::ActivateObject(AActor* Player)
@@ -72,6 +88,7 @@ void UChestController::ActivateObject(AActor* Player)
 	{
 		PlayerToFollow = Player;
 		FollowingPlayer = true;
+		SnappedToSlot = false;
 	}
 }
 
@@ -82,12 +99,13 @@ void UChestController::ExamineObject(AActor* Player)
 
 void UChestController::OpenInventory(AActor* Player)
 {
-	isOpen = !isOpen;
+	if (!locked)
+		isOpen = !isOpen;
 }
 
 void UChestController::PickupObject(AActor* Player)
 {
-
+	print("It's too heavy to pick up...");
 }
 
 void UChestController::ActivateDialogue(AActor* Player)
@@ -106,6 +124,41 @@ void UChestController::ActivateDialogue(AActor* Player)
 	ShowRightClickMenu = false;
 }
 
+void UChestController::ItemInteract(int32 SlotNum)
+{
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+	InventoryItem* Item = MainCharacter->GetItemBySlot(SlotNum);
+	if (Item)
+	{
+		if (Item->INTERACT_ID == 666 && isOpen)
+		{
+			print("It likes toys!");
+			toysfilled++;
+			MainCharacter->DiscardItem(SlotNum);
+			return;
+		}
+		else if (Item->INTERACT_ID == 666)
+		{
+			print("The chest is closed.");
+		}
+
+		if (Item->INTERACT_ID == OPENID)
+		{
+			locked = false;
+			MainCharacter->DiscardItem(SlotNum);
+			print("You hear a clicking noise!");
+		}
+		else if(Item->INTERACT_ID == OPENID)
+		{
+			print("You have a key, but it has the wrong ID!");
+		}
+	} 
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s"), *FString::FromInt(SlotNum));
+	}
+}
+
 void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optionindex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Option %s pressed."), *FString::FromInt(optionindex));
@@ -117,11 +170,13 @@ void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optioninde
 		Slot = 0;
 		GoToSlot = true;
 		FollowingPlayer = false;
+		SnappedToSlot = false;
 		break;
 	case 1:
 		Slot = 1;
 		GoToSlot = true;
 		FollowingPlayer = false;
+		SnappedToSlot = false;
 		break;
 	default:
 		print("This option is not possible!");
@@ -133,7 +188,7 @@ void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optioninde
 
 AActor* UChestController::SlotToGoTo()
 {
-	SnappedToSlot = false;
+	//SnappedToSlot = false;
 	switch (Slot)
 	{
 	case 0:
@@ -145,7 +200,6 @@ AActor* UChestController::SlotToGoTo()
 	default:
 		return nullptr;
 	}
-
 }
 
 void UChestController::SnapToSlot()

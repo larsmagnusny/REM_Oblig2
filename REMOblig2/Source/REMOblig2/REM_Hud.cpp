@@ -3,12 +3,17 @@
 #include "REMOblig2.h"
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Engine/RendererSettings.h"
-#include "REM_GameMode.h"
+#include "MainCharacter.h"
 #include "REM_Hud.h"
 
 AREM_Hud::AREM_Hud()
 {
-	
+	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
+
+	if (InventoryWidgetLoader.Succeeded())
+	{
+		InventoryWidgetClassTemplate = InventoryWidgetLoader.Class;
+	}
 }
 
 void AREM_Hud::BeginPlay()
@@ -18,11 +23,61 @@ void AREM_Hud::BeginPlay()
 	MyController->bShowMouseCursor = true;
 	MyController->bEnableClickEvents = true;
 	MyController->bEnableMouseOverEvents = true;
+
+	if (InventoryWidgetClassTemplate)
+	{
+		InventoryWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), InventoryWidgetClassTemplate);
+
+		InventoryWidget->AddToViewport(0);
+	}
+
+	for (int32 i = 0; i < 5; i++)
+	{
+		FString name = "Slot";
+
+		name += FString::FromInt(i);
+
+		UUserWidget* Slot = Cast<UUserWidget>(InventoryWidget->GetWidgetFromName(FName(*name)));
+
+		UImage* Image = nullptr;
+
+		if (Slot)
+		{
+			Image = Cast<UImage>(Slot->GetWidgetFromName("Image0"));
+
+			if (Image)
+				Slots.Add(Image);
+		}
+	}
+
+	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 }
 
 void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
+	AMainCharacter* MainCharacter = nullptr;
+	if(GameMode)
+		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	if (MainCharacter)
+	{
+		for (int32 i = 0; i < Slots.Num(); i++)
+		{
+			UTexture2D* tex = MainCharacter->GetInventoryTextureAt(i);
+
+			if (tex)
+			{
+				Slots[i]->SetBrushFromTexture(tex, true);
+				Slots[i]->SetVisibility(ESlateVisibility::Visible);
+			}
+			else
+			{
+				Slots[i]->SetBrush(FSlateBrush());
+				Slots[i]->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
 
 	if (!RightClickMenu)
 	{
@@ -154,4 +209,41 @@ UInteractableComponent* AREM_Hud::GetParentInteractor(UUserWidget* Widget)
 UUserWidget* AREM_Hud::HUDCreateWidget(UClass* Template)
 {
 	return CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), Template);
+}
+
+void AREM_Hud::SwapElements(int32 index1, int32 index2)
+{
+
+}
+
+void AREM_Hud::DropItem(int32 SlotIndex, FVector2D HitPoint)
+{
+	AMainCharacter* MainCharacter = nullptr;
+	if (GameMode)
+		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	if (MainCharacter)
+		MainCharacter->DropItem(SlotIndex, HitPoint);
+}
+
+bool AREM_Hud::IsActorInteractable(AActor* Actor)
+{
+	if (GameMode)
+	{
+		return GameMode->IsInteractble(Actor);
+	}
+	else 
+	{
+		return false;
+	}
+}
+
+UInteractableComponent* AREM_Hud::GetInteractor(AActor* Actor)
+{
+	if (GameMode)
+	{
+		return GameMode->GetInteractor(Actor);
+	}
+
+	return nullptr;
 }

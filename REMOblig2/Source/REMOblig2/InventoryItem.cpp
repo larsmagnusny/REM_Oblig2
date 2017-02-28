@@ -3,8 +3,13 @@
 #include "REMOblig2.h"
 #include "InventoryItem.h"
 
-InventoryItem::InventoryItem()
+InventoryItem::InventoryItem(ItemIDs ID, int InteractID, FString NameToUse, UStaticMesh* MeshToUse, UTexture2D* Icon)
 {
+	ItemID = ID;
+	INTERACT_ID = InteractID;
+	Name = NameToUse;
+	Mesh = MeshToUse;
+	InventoryIcon = Icon;
 }
 
 InventoryItem::~InventoryItem()

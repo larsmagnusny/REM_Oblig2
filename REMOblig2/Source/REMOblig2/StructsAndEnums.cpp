@@ -2,11 +2,3 @@
 
 #include "REMOblig2.h"
 #include "StructsAndEnums.h"
-
-StructsAndEnums::StructsAndEnums()
-{
-}
-
-StructsAndEnums::~StructsAndEnums()
-{
-}

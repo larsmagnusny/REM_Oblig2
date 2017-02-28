@@ -7,6 +7,17 @@
  */
 
 UENUM(BlueprintType)
+enum class ItemIDs : uint8
+{
+	ITEM_KEY UMETA(DisplayName = "Key to open a door"),
+	ITEM_TOY UMETA(DisplayName = "Just a toy"),
+	ITEM_FEATHER UMETA(DisplayName = "A simple feather to tickle the chest."),
+	ITEM_CRYSTALSHARD UMETA(DisplayName = "A Crystal shard"),
+	ITEM_PLIERS UMETA(DisplayName = "Pliers that can cut things"),
+	ITEM_SCISSORS UMETA(DisplayName = "Scissors, do i have to say anything else?")
+};
+
+UENUM(BlueprintType)
 enum class ActionType : uint8
 {
 	INTERACT_EXAMINE UMETA(DisplayName = "Examine the object"),
@@ -14,11 +25,4 @@ enum class ActionType : uint8
 	INTERACT_PICKUP UMETA(DisplayName = "Pickup Object"),
 	INTERACT_ACTIVATE UMETA(DisplayName = "Activate or Use Object"),
 	INTERACT_DIALOGUE UMETA(DisplayName = "Talk to npc")
-};
-
-class REMOBLIG2_API StructsAndEnums
-{
-public:
-	StructsAndEnums();
-	~StructsAndEnums();
 };

@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "REM_GameMode.h"
+#include "InventoryItemObject.h"
 #include "REM_Hud.h"
 
 AREM_GameMode::AREM_GameMode()
@@ -11,6 +12,8 @@ AREM_GameMode::AREM_GameMode()
 
 	// We are using our custom class to control our HUD
 	HUDClass = AREM_Hud::StaticClass();
+
+	MeshesAndTextures = new MeshAndTextureLoader();
 }
 
 void AREM_GameMode::BeginPlay()
@@ -49,7 +52,14 @@ void AREM_GameMode::AddInteractableObject(AActor* Actor, UInteractableComponent*
 
 void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
 {
-
+	for (int32 i = 0; i < InteractableObjects.Num(); i++)
+	{
+		if (InteractableObjects[i].OwningActor == Actor)
+		{
+			InteractableObjects.RemoveAt(i);
+			return;
+		}
+	}
 }
 
 bool AREM_GameMode::IsInteractble(AActor* Actor)
@@ -101,8 +111,17 @@ void AREM_GameMode::SetMainCharacter(ACharacter* Character)
 	MainCharacter = Character;
 }
 
-void AREM_GameMode::PutObjectInWorld()
+void AREM_GameMode::PutObjectInWorld(InventoryItem* Item, FVector Position, FVector Rotation, FVector Scale)
 {
+	FTransform t;
+	t.SetLocation(Position);
+	t.SetScale3D(Scale);
+	t.SetRotation(Rotation.ToOrientationQuat());
+
+
+	AInventoryItemObject* Object = Cast<AInventoryItemObject>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), AInventoryItemObject::StaticClass(), t));
+	Object->Init(Item);
+	Object->FinishSpawning(t);
 
 }
 

@@ -33,13 +33,27 @@ Inventory::~Inventory()
 
 bool Inventory::AddItem(InventoryItem* item)
 {
-	return false;
+	int32 index = GetAvailableIndex();
+
+	if (index != -1)
+	{
+		InventoryStorage[index] = item;
+		AvailableSlots[index] = false;
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 
 void Inventory::DiscardItem(int32 SlotNum)
 {
-
+	if (SlotNum <= InventorySize - 1)
+	{
+		InventoryStorage[SlotNum] = nullptr;
+		AvailableSlots[SlotNum] = true;
+	}
 }
 
 void Inventory::DiscardItem(InventoryItem* Item)
@@ -47,9 +61,12 @@ void Inventory::DiscardItem(InventoryItem* Item)
 
 }
 
-FString Inventory::GetTextureReference(int32 SlotNum)
+UTexture2D* Inventory::GetTextureReference(int32 SlotNum)
 {
-	return "";
+	if (InventoryStorage[SlotNum])
+		return InventoryStorage[SlotNum]->InventoryIcon;
+	else
+		return nullptr;
 }
 
 void Inventory::Swap(int32 index1, int32 index2)
@@ -59,21 +76,32 @@ void Inventory::Swap(int32 index1, int32 index2)
 
 int32 Inventory::GetAvailableIndex()
 {
-	return InventorySize;
+	for (int32 i = 0; i < InventorySize; i++)
+	{
+		if (AvailableSlots[i])
+			return i;
+	}
+
+	return -1;
 }
 
 InventoryItem* Inventory::GetItem(int32 SlotNum)
 {
+	if (SlotNum <= InventorySize - 1)
+	{
+		if (InventoryStorage[SlotNum])
+			return InventoryStorage[SlotNum];
+	}
 	return nullptr;
 }
 
-InventoryItem* Inventory::GetItemById(int32 ID)
+InventoryItem* Inventory::GetItemById(ItemIDs ID)
 {
 	for (int32 i = 0; i < InventorySize; i++)
 	{
 		if (InventoryStorage[i])
 		{
-			if (InventoryStorage[i]->ITEM_ID == ID)
+			if (InventoryStorage[i]->ItemID == ID)
 				return InventoryStorage[i];
 		}
 	}
