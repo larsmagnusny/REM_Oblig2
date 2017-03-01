@@ -10,10 +10,16 @@ AREM_Hud::AREM_Hud()
 {
 	// Last inn Inventory Widgeten
 	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/MainMenu.MainMenu_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
 	{
 		InventoryWidgetClassTemplate = InventoryWidgetLoader.Class;
+	}
+
+	if (MainMenuWidgetLoader.Succeeded())
+	{
+		MainMenuWidgetClassTemplate = MainMenuWidgetLoader.Class;
 	}
 }
 
@@ -31,27 +37,36 @@ void AREM_Hud::BeginPlay()
 	{
 		InventoryWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), InventoryWidgetClassTemplate);
 
-		InventoryWidget->AddToViewport(0);
+		if (InventoryWidget)
+		{
+			InventoryWidget->AddToViewport(0);
+			// Hent pekerene til InventorySlottene i InventoryBlueprintet
+			for (int32 i = 0; i < 5; i++)
+			{
+				FString name = "Slot";
+
+				name += FString::FromInt(i);
+
+				UUserWidget* Slot = Cast<UUserWidget>(InventoryWidget->GetWidgetFromName(FName(*name)));
+
+				UImage* Image = nullptr;
+
+				if (Slot)
+				{
+					Image = Cast<UImage>(Slot->GetWidgetFromName("Image0"));
+
+					if (Image)
+						Slots.Add(Image);
+				}
+			}
+		}
 	}
 
-	// Hent pekerene til InventorySlottene i InventoryBlueprintet
-	for (int32 i = 0; i < 5; i++)
+	if (MainMenuWidgetClassTemplate)
 	{
-		FString name = "Slot";
+		MainMenuWidget = CreateWidget < UUserWidget>(GetWorld()->GetFirstPlayerController(), MainMenuWidgetClassTemplate);
 
-		name += FString::FromInt(i);
-
-		UUserWidget* Slot = Cast<UUserWidget>(InventoryWidget->GetWidgetFromName(FName(*name)));
-
-		UImage* Image = nullptr;
-
-		if (Slot)
-		{
-			Image = Cast<UImage>(Slot->GetWidgetFromName("Image0"));
-
-			if (Image)
-				Slots.Add(Image);
-		}
+		MainMenuWidget->AddToViewport(0);
 	}
 
 	// Hent en peker til GameMode
@@ -62,12 +77,27 @@ void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
 
+	FString LevelName = GetWorld()->GetMapName();
+
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *LevelName);
+
+	if (LevelName.Equals("UEDPIE_0_MainMenu") || LevelName.Equals("MainMenu"))
+	{
+		
+	}
+	else {
+		MainMenuLevel = false;
+
+		if (MainMenuWidget->GetIsVisible())
+			MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 	// Hent en peker til MainCharacter
 	AMainCharacter* MainCharacter = nullptr;
-	if(GameMode)
+	if(GameMode && !MainMenuLevel)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
 
-	if (MainCharacter)
+	if (MainCharacter && !MainMenuLevel)
 	{
 		// Sett Brushen til bildene i InventorySlot til en 2D tekstur basert på om det er en item der eller ikke
 		for (int32 i = 0; i < Slots.Num(); i++)
@@ -87,13 +117,13 @@ void AREM_Hud::DrawHUD()
 		}
 	}
 
-	if (!RightClickMenu)
+	if (!RightClickMenu && !MainMenuLevel)
 	{
 		return;
 	}
 
 	// For å sette posisjonen til en meny basert på hvor den er i forhold til kameraet
-	if (MenuSnapToActor)
+	if (MenuSnapToActor && !MainMenuLevel)
 	{
 		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		const float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));

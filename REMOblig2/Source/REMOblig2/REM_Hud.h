@@ -82,9 +82,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Get the interactor instance")
 	UInteractableComponent* GetInteractor(AActor* Actor);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
+	bool MainMenuLevel = true;
 private:
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;
+
+	UClass* MainMenuWidgetClassTemplate = nullptr;
+	UUserWidget* MainMenuWidget = nullptr;
+
 	TArray<InteractionWidget> SubMenues;
 
 	TArray<UImage*> Slots;
