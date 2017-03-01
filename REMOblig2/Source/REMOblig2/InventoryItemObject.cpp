@@ -29,7 +29,6 @@ void AInventoryItemObject::BeginPlay()
 	// Og kan kollidere med andre ting
 	Component->SetMobility(EComponentMobility::Movable);
 	Component->SetSimulatePhysics(true);
-	Component->bGenerateOverlapEvents = true;
 
 	// Dersom Meshen ikke allerede er satt så henter vi en peker ifra MeshLoaderen
 	if(!Mesh)
@@ -41,6 +40,9 @@ void AInventoryItemObject::BeginPlay()
 
 	// Sett kollisjonsprofilen
 	Component->SetCollisionProfileName(FName("BlockAll"));
+	Component->bGenerateOverlapEvents = true;
+	Component->BodyInstance.bUseCCD = true;
+	Component->SetNotifyRigidBodyCollision(true);
 
 	// Sett Meshen
 	Component->SetStaticMesh(Mesh);
