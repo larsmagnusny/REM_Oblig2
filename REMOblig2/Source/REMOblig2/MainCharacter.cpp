@@ -25,23 +25,6 @@ AMainCharacter::AMainCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Create a camera boom...
-	if (!CameraBoom)
-	{
-		CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-		CameraBoom->SetupAttachment(RootComponent);
-		CameraBoom->bAbsoluteRotation = true;
-		CameraBoom->TargetArmLength = 380.0f;
-		CameraBoom->RelativeRotation = FRotator(-60.0f, 145.0f, 0.0f);
-		CameraBoom->bDoCollisionTest = true;
-
-		if (!TopDownCameraComponent)
-		{
-			TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-			TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-			TopDownCameraComponent->bUsePawnControlRotation = false;
-		}
-	}
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// Load in the mesh if it has not been set...
@@ -93,7 +76,13 @@ void AMainCharacter::BeginPlay()
 	SetupPlayerInputComponent(GetWorld()->GetFirstPlayerController()->InputComponent);
 
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
-	GameMode->SetMainCamera(TopDownCameraComponent);
+
+	if (MainCamera)
+	{
+		UCameraComponent* CameraComp = Cast<UCameraComponent>(MainCamera->GetComponentByClass(UCameraComponent::StaticClass()));
+		ChangeCameraView(MainCamera);
+		GameMode->SetMainCamera(CameraComp);
+	}
 
 	// Make the gamemode aware that we exist:
 	GameMode->SetMainCharacter(this);
@@ -382,7 +371,11 @@ void AMainCharacter::ChangeCameraView(AActor* Camera)
 {
 	UCameraComponent* CameraComponent = Cast<UCameraComponent>(Camera->GetComponentByClass(UCameraComponent::StaticClass()));
 
-	GameMode->SetMainCamera(CameraComponent);
+	UE_LOG(LogTemp, Warning, TEXT("Switched Camera!"));
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	PlayerController->SetViewTarget(Camera);
 }
 
 // Blueprint Callable Functions!
