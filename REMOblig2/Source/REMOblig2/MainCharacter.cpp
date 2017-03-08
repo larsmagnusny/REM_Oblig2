@@ -378,10 +378,11 @@ void AMainCharacter::DiscardItem(InventoryItem* item)
 
 }
 
-void AMainCharacter::ChangeCameraView(FVector Vector)
+void AMainCharacter::ChangeCameraView(AActor* Camera)
 {
-	FRotator rotation = FRotator::MakeFromEuler(Vector);
-	CameraBoom->SetRelativeRotation(rotation.Quaternion());
+	UCameraComponent* CameraComponent = Cast<UCameraComponent>(Camera->GetComponentByClass(UCameraComponent::StaticClass()));
+
+	GameMode->SetMainCamera(CameraComponent);
 }
 
 // Blueprint Callable Functions!

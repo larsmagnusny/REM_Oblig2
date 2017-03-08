@@ -40,7 +40,7 @@ public:
 	void DiscardItem(InventoryItem* item);
 
 	// Change camera view
-	void ChangeCameraView(FVector Vector);
+	void ChangeCameraView(AActor* Camera);
 
 	// For setting the dialogue options the player has when interacting with an object
 	void SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller);

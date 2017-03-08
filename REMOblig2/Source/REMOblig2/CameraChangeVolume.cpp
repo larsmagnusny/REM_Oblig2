@@ -21,10 +21,14 @@ void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* Othe
 	// Sjekk om det er HovedKarakteren vi overlapper
 	if (OtherActor->IsA(AMainCharacter::StaticClass()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Camera overlapped player"));
 		// Cast til Klassen så vi kan bruke dens funksjoner
 		AMainCharacter* OurCharacter = Cast<AMainCharacter>(OtherActor);
 
 		// Endre på kameravinkelen til den gitte Vektoren
-		OurCharacter->ChangeCameraView(CameraAngle);
+		if (CameraToSwitchTo)
+		{
+			OurCharacter->ChangeCameraView(CameraToSwitchTo);
+		}
 	}
 }
