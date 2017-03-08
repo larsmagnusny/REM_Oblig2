@@ -98,20 +98,25 @@ void AMainCharacter::BeginPlay()
 	// Make the gamemode aware that we exist:
 	GameMode->SetMainCharacter(this);
 
+	// Hent NavigasjonsSystemet
 	NavSys = GetWorld()->GetNavigationSystem();
 
+	// Hent en peker til Hudden
 	OurHud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
+	// Lag en Widget for Dialog
 	if (DialogueWidgetClassTemplate)
 	{
 		DialogueWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetClassTemplate);
 	}
 
+	// Add til viewport
 	if (DialogueWidget)
 	{
 		DialogueWidget->AddToViewport();
 	}
 
+	// Set den til usynelig
 	SetDialogueChoiceInvisible();
 }
 
@@ -120,6 +125,7 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Hvis spilleren ikke kan klikke på skjermen kan vi heller ikke bevege oss
 	if (OurHud)
 	{
 		if (!OurHud->canPlayerClick)
@@ -507,7 +513,6 @@ void AMainCharacter::MouseLeftClick()
 
 void AMainCharacter::MouseRightClick()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Right Clicked Mouse!"));
 	if (OurHud)
 	{
 		if (SpaceBarDown)
@@ -625,11 +630,6 @@ void AMainCharacter::SpaceBarPressed()
 	FHitResult Rays[4];
 
 	GameMode->RayCastArray(Rays, Start, Direction, 10000.f, 4, this);
-
-	for (int i = 0; i < 4; i++)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s"), *Rays[i].ImpactPoint.ToString());
-	}
 
 	float Distances[4];
 

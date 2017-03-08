@@ -13,6 +13,7 @@ UInventoryItemComponent::UInventoryItemComponent()
 void UInventoryItemComponent::BeginPlay()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Began!"));
+
 	// Add what buttons this object has on its menu system...
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
 	Actions.Add(ActionType::INTERACT_EXAMINE);
@@ -57,12 +58,18 @@ void UInventoryItemComponent::ExamineObject(AActor* Player)
 void UInventoryItemComponent::PickupObject(AActor* Player)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Should tell the GameMode to remove me as interactable and delete me then add me to the player inventory!"));
+	// Hent en referanse til denne itemet ifra parenten som er et objekt vi spawner inn i verden
 	InventoryItem* ThisItem = Cast<AInventoryItemObject>(GetOwner())->InvItemRef;
 
 	if (ThisItem)
 	{
+		// Fortell HovedKarakteren at han skal legge til ThisItem til inventoryen hans
 		Cast<AMainCharacter>(GameMode->GetMainCharacter())->AddItemToInventory(ThisItem);
+
+		// Hvis jeg ikke fjerner denne så kan spillet krashe
 		GameMode->RemoveInteractableObject(GetOwner());
+
+		// Ødelegg deg selv!
 		GetOwner()->Destroy();
 	}
 }

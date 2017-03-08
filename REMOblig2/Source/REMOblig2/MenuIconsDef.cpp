@@ -5,6 +5,7 @@
 
 UMenuIconsDef::UMenuIconsDef(FString NormalT, FString HoverT, FString ClickT)
 {
+	// Last inn Textures som brukes på knappene i rightclick-menyen
 	ConstructorHelpers::FObjectFinder<UTexture2D> Normal(*NormalT);
 	ConstructorHelpers::FObjectFinder<UTexture2D> Hover(*HoverT);
 	ConstructorHelpers::FObjectFinder<UTexture2D> Click(*ClickT);

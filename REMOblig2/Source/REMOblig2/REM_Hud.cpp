@@ -8,11 +8,18 @@
 
 AREM_Hud::AREM_Hud()
 {
+	// Last inn Inventory Widgeten
 	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/MainMenu.MainMenu_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
 	{
 		InventoryWidgetClassTemplate = InventoryWidgetLoader.Class;
+	}
+
+	if (MainMenuWidgetLoader.Succeeded())
+	{
+		MainMenuWidgetClassTemplate = MainMenuWidgetLoader.Class;
 	}
 }
 
@@ -20,48 +27,79 @@ void AREM_Hud::BeginPlay()
 {
 	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 
+	// Spilleren skal kunne trykke på skjermen
 	MyController->bShowMouseCursor = true;
 	MyController->bEnableClickEvents = true;
 	MyController->bEnableMouseOverEvents = true;
 
+	// Lag InventoryWidgeten og legg den til viewporten
 	if (InventoryWidgetClassTemplate)
 	{
 		InventoryWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), InventoryWidgetClassTemplate);
 
-		InventoryWidget->AddToViewport(0);
-	}
-
-	for (int32 i = 0; i < 5; i++)
-	{
-		FString name = "Slot";
-
-		name += FString::FromInt(i);
-
-		UUserWidget* Slot = Cast<UUserWidget>(InventoryWidget->GetWidgetFromName(FName(*name)));
-
-		UImage* Image = nullptr;
-
-		if (Slot)
+		if (InventoryWidget)
 		{
-			Image = Cast<UImage>(Slot->GetWidgetFromName("Image0"));
+			InventoryWidget->AddToViewport(0);
+			// Hent pekerene til InventorySlottene i InventoryBlueprintet
+			for (int32 i = 0; i < 5; i++)
+			{
+				FString name = "Slot";
 
-			if (Image)
-				Slots.Add(Image);
+				name += FString::FromInt(i);
+
+				UUserWidget* Slot = Cast<UUserWidget>(InventoryWidget->GetWidgetFromName(FName(*name)));
+
+				UImage* Image = nullptr;
+
+				if (Slot)
+				{
+					Image = Cast<UImage>(Slot->GetWidgetFromName("Image0"));
+
+					if (Image)
+						Slots.Add(Image);
+				}
+			}
 		}
 	}
 
+	if (MainMenuWidgetClassTemplate)
+	{
+		MainMenuWidget = CreateWidget < UUserWidget>(GetWorld()->GetFirstPlayerController(), MainMenuWidgetClassTemplate);
+
+		MainMenuWidget->AddToViewport(0);
+	}
+
+	// Hent en peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 }
 
 void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
+
+	FString LevelName = GetWorld()->GetMapName();
+
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *LevelName);
+
+	if (LevelName.Equals("UEDPIE_0_MainMenu") || LevelName.Equals("MainMenu"))
+	{
+		
+	}
+	else {
+		MainMenuLevel = false;
+
+		if (MainMenuWidget->GetIsVisible())
+			MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	// Hent en peker til MainCharacter
 	AMainCharacter* MainCharacter = nullptr;
-	if(GameMode)
+	if(GameMode && !MainMenuLevel)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
 
-	if (MainCharacter)
+	if (MainCharacter && !MainMenuLevel)
 	{
+		// Sett Brushen til bildene i InventorySlot til en 2D tekstur basert på om det er en item der eller ikke
 		for (int32 i = 0; i < Slots.Num(); i++)
 		{
 			UTexture2D* tex = MainCharacter->GetInventoryTextureAt(i);
@@ -79,11 +117,13 @@ void AREM_Hud::DrawHUD()
 		}
 	}
 
-	if (!RightClickMenu)
+	if (!RightClickMenu && !MainMenuLevel)
 	{
 		return;
 	}
-	if (MenuSnapToActor)
+
+	// For å sette posisjonen til en meny basert på hvor den er i forhold til kameraet
+	if (MenuSnapToActor && !MainMenuLevel)
 	{
 		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		const float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
@@ -99,8 +139,7 @@ void AREM_Hud::DrawHUD()
 
 void AREM_Hud::CallActivate(ActionType Action)
 {
-	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
-
+	// For å håntere hvilken knapp du trykte på og sende kommandoen videre til InteractableObject
 	InteractableObject* Obj = GameMode->GetInteractableObject(MenuSnapToActor);
 	if (Obj)
 	{

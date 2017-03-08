@@ -38,6 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Item Interact with object...")
 	virtual void ItemInteract(int32 SlotNum);
 
+	// Base function inherited and overriden later
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
 	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex);
 
@@ -47,36 +48,46 @@ public:
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player);
 
+	// Used in Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool ShowAnimation = false;
 
+	// Used in Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	bool ShowAnimationBackwards = false;
 
+	// Used in Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RightclickMenu")
 	bool ShowRightClickMenu = false;
 
+	// Used in Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorMenuSnap")
 	AActor* MenuSnapToActor = nullptr;
 
+	// Used in Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool canPlayerClick = true;
 
+	// Used in Blueprint
 	UFUNCTION(BlueprintCallable, Category = "MenuButtonArray")
 	int GetNumMenuButtons();
 
+	// Used in Blueprint
 	UFUNCTION(BlueprintCallable, Category = "MenuButtonArray")
 	TArray<UTexture2D*> GetMenuButtonTextures(int i);
 
+	// Used in Blueprint
 	UFUNCTION(BlueprintCallable, Category = "MenuButtonArray")
 	ActionType GetActionType(int i);
 
 	TArray<UMenuIconsDef*> MenuButtons;
 	TArray<UMenuIconsDef*> ObjectSpecificMenuButtons;
 
+	// Used in Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MenuButtonArray")
 	TArray<ActionType> Actions;
 
+	// Used in Inherited Classes
 	UClass* SubMenuWidgetClassTemplate = nullptr;
 	UUserWidget* SubMenuWidget = nullptr;
 private:

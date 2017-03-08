@@ -5,38 +5,37 @@
 
 Inventory::Inventory(int32 NumSlots)
 {
+	// Sett InventoryStorage til å være en pointer til en array av InventoryItems
 	InventoryStorage = new InventoryItem*[NumSlots];
+
+	// Vi må vite om en slot er okkupert
 	AvailableSlots = new bool[NumSlots];
 
+	// Initialiser til å være null og åpen
 	for (int32 i = 0; i < NumSlots; i++)
 	{
 		InventoryStorage[i] = nullptr;
 		AvailableSlots[i] = true;
 	}
 
+	// Vi må vite hvor stor arrayen er
 	InventorySize = NumSlots;
 }
 
 Inventory::~Inventory()
 {
-	for (int32 i = 0; i < InventorySize; i++)
-	{
-		delete[] InventoryStorage[i];
-		InventoryStorage[i] = nullptr;
-	}
-
-	delete[] InventoryStorage;
-	InventoryStorage = nullptr;
-
-	delete[] AvailableSlots;
+	
 }
 
 bool Inventory::AddItem(InventoryItem* item)
 {
+	// Hent en tiljengelig slot index
 	int32 index = GetAvailableIndex();
 
+	// Hvis det finnes en slot som er ledig
 	if (index != -1)
 	{
+		// Kopier over peker adressen
 		InventoryStorage[index] = item;
 		AvailableSlots[index] = false;
 		return true;
@@ -49,6 +48,7 @@ bool Inventory::AddItem(InventoryItem* item)
 
 void Inventory::DiscardItem(int32 SlotNum)
 {
+	// Fjern Peker referansen
 	if (SlotNum <= InventorySize - 1)
 	{
 		InventoryStorage[SlotNum] = nullptr;
@@ -58,7 +58,7 @@ void Inventory::DiscardItem(int32 SlotNum)
 
 void Inventory::DiscardItem(InventoryItem* Item)
 {
-
+	// Ikke implementert enda, fordi jeg ikke har fått bruk for det enda
 }
 
 UTexture2D* Inventory::GetTextureReference(int32 SlotNum)
