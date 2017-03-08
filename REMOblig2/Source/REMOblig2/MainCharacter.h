@@ -40,7 +40,7 @@ public:
 	void DiscardItem(InventoryItem* item);
 
 	// Change camera view
-	void ChangeCameraView(FVector Vector);
+	void ChangeCameraView(AActor* Camera);
 
 	// For setting the dialogue options the player has when interacting with an object
 	void SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller);
@@ -76,6 +76,9 @@ public:
 	void SpaceBarReleased();
 
 	UPROPERTY(EditAnywhere)
+	AActor* MainCamera = nullptr;
+
+	UPROPERTY(EditAnywhere)
 	UClass* AnimClass = nullptr;
 
 	USkeletalMeshComponent* SkeletalMeshComponent = nullptr;
@@ -83,13 +86,6 @@ public:
 	UMaterial* CamoMaterial;
 
 	UMaterial* StandardMaterial;
-
-	// Camera Boom:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* TopDownCameraComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom = nullptr;
 
 	float Mass = 0.0f;
 private:

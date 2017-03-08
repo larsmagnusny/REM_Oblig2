@@ -21,6 +21,9 @@ public:
 	// Kamera vinkel som hoved kameraet skal settes til, kan endres i editoren
 	UPROPERTY(EditAnywhere)
 	FVector CameraAngle = FVector(0.f, -60.f, 45.f);
+	
+	UPROPERTY(EditAnywhere)
+	AActor* CameraToSwitchTo = nullptr;
 
 	// Sjekk om vi overlapper noe
 	UFUNCTION()
