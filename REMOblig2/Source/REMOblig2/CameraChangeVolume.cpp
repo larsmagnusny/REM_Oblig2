@@ -11,17 +11,24 @@ ACameraChangeVolume::ACameraChangeVolume()
 void ACameraChangeVolume::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Fortell Unreal at den skal legge til en overlap-event for dette objektet
 	OnActorBeginOverlap.AddDynamic(this, &ACameraChangeVolume::OnOverlapBegin);
 }
 
 void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* OtherActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Should change cameraview to specified angle now!"));
-	
+	// Sjekk om det er HovedKarakteren vi overlapper
 	if (OtherActor->IsA(AMainCharacter::StaticClass()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Camera overlapped player"));
+		// Cast til Klassen så vi kan bruke dens funksjoner
 		AMainCharacter* OurCharacter = Cast<AMainCharacter>(OtherActor);
 
-		OurCharacter->ChangeCameraView(CameraAngle);
+		// Endre på kameravinkelen til den gitte Vektoren
+		if (CameraToSwitchTo)
+		{
+			OurCharacter->ChangeCameraView(CameraToSwitchTo);
+		}
 	}
 }

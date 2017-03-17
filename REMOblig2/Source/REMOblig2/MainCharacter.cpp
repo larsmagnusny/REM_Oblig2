@@ -10,30 +10,21 @@ AMainCharacter::AMainCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	ConstructorHelpers::FClassFinder<UUserWidget> DialogueBlueprintClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/DialogueMenu.DialogueMenu_C'"));
+
+	if (DialogueBlueprintClass.Succeeded())
+	{
+		DialogueWidgetClassTemplate = DialogueBlueprintClass.Class;
+	}
+
+
 	// Initialize the player inventory:
-	PlayerInventory = new Inventory(4);
+	PlayerInventory = new Inventory(5);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Create a camera boom...
-	if (!CameraBoom)
-	{
-		CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-		CameraBoom->SetupAttachment(RootComponent);
-		CameraBoom->bAbsoluteRotation = true;
-		CameraBoom->TargetArmLength = 380.0f;
-		CameraBoom->RelativeRotation = FRotator(-60.0f, 145.0f, 0.0f);
-		CameraBoom->bDoCollisionTest = true;
-
-		if (!TopDownCameraComponent)
-		{
-			TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-			TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-			TopDownCameraComponent->bUsePawnControlRotation = false;
-		}
-	}
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// Load in the mesh if it has not been set...
@@ -42,7 +33,6 @@ AMainCharacter::AMainCharacter()
 		SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
 		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Mannequin/Character/Mesh/SK_Mannequin.SK_Mannequin'"));
-
 		if (SkeletalMeshLoader.Succeeded())
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
@@ -60,6 +50,16 @@ AMainCharacter::AMainCharacter()
 					SkeletalMeshComponent->SetAnimInstanceClass(AnimationBP.Object);
 				}
 			}
+
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat1(TEXT("Material'/Game/Materials/Camo_Mat.Camo_Mat'"));
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/Mannequin/Character/Materials/M_UE4Man_Body.M_UE4Man_Body'"));
+
+			if (Mat1.Succeeded() && Mat2.Succeeded())
+			{
+				StandardMaterial = Mat2.Object;
+				CamoMaterial = Mat1.Object;
+				SkeletalMeshComponent->SetMaterial(0, Mat2.Object);
+			}
 		}
 	}
 }
@@ -76,18 +76,50 @@ void AMainCharacter::BeginPlay()
 	SetupPlayerInputComponent(GetWorld()->GetFirstPlayerController()->InputComponent);
 
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
-	GameMode->SetMainCamera(TopDownCameraComponent);
+
+	if (MainCamera)
+	{
+		UCameraComponent* CameraComp = Cast<UCameraComponent>(MainCamera->GetComponentByClass(UCameraComponent::StaticClass()));
+		ChangeCameraView(MainCamera);
+		GameMode->SetMainCamera(CameraComp);
+	}
 
 	// Make the gamemode aware that we exist:
 	GameMode->SetMainCharacter(this);
 
+	// Hent NavigasjonsSystemet
 	NavSys = GetWorld()->GetNavigationSystem();
+
+	// Hent en peker til Hudden
+	OurHud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
+	// Lag en Widget for Dialog
+	if (DialogueWidgetClassTemplate)
+	{
+		DialogueWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), DialogueWidgetClassTemplate);
+	}
+
+	// Add til viewport
+	if (DialogueWidget)
+	{
+		DialogueWidget->AddToViewport();
+	}
+
+	// Set den til usynelig
+	SetDialogueChoiceInvisible();
 }
 
 // Called every frame
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Hvis spilleren ikke kan klikke på skjermen kan vi heller ikke bevege oss
+	if (OurHud)
+	{
+		if (!OurHud->canPlayerClick)
+			return;
+	}
 
 	// Raycast under the mouse so we can highlight the objects
 	FHitResult Hit;
@@ -168,6 +200,48 @@ void AMainCharacter::Tick(float DeltaTime)
 		LastComponentMousedOver = nullptr;
 	}
 
+	if (SpaceBarDown)
+	{
+		MouseMove = false;
+		// 2D distance to target...
+		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
+		if (Distance == lastDistance)
+			MoveTo = GetActorLocation();
+		lastDistance = Distance;
+
+		if (NavSys && (Distance > 25.0f))
+		{
+			Hiding = false;
+			NavSys->SimpleMoveToLocation(Controller, MoveTo);
+		}
+		else {
+			Hiding = true;
+			
+			SetActorRotation(HideNormal.ToOrientationQuat(), ETeleportType::TeleportPhysics);
+			if (SkeletalMeshComponent)
+			{
+				// Set our material to the masked material!
+				if (SkeletalMeshComponent->GetMaterial(0) != CamoMaterial)
+				{
+					SkeletalMeshComponent->SetMaterial(0, CamoMaterial);
+				}
+			}
+		}
+	}
+	else if (!MouseMove)
+	{
+		NavSys->SimpleMoveToLocation(Controller, GetActorLocation());
+
+		if (SkeletalMeshComponent)
+		{
+			// Set our material to the masked material!
+			if (SkeletalMeshComponent->GetMaterial(0) != StandardMaterial)
+			{
+				SkeletalMeshComponent->SetMaterial(0, StandardMaterial);
+			}
+		}
+	}
+	
 
 	// If the player clicked on the screen somewhere...
 	if (MouseMove)
@@ -175,9 +249,16 @@ void AMainCharacter::Tick(float DeltaTime)
 		// 2D distance to target...
 		float const Distance = FVector2D::Distance(FVector2D(MoveTo), FVector2D(GetActorLocation()));
 		if (Distance == lastDistance)
-			MoveTo = GetActorLocation();
+			lastDistanceCounter++;
+		else
+			lastDistanceCounter = 0;
+
 		lastDistance = Distance;
 
+		if (lastDistanceCounter > 5)
+		{
+			MoveTo = GetActorLocation();
+		}
 
 		if (NavSys && (Distance > 25.0f))
 		{
@@ -186,6 +267,11 @@ void AMainCharacter::Tick(float DeltaTime)
 		else
 		{
 			MouseMove = false;
+
+			float const ActivateDist = FVector2D::Distance(FVector2D(ActivatePosition), FVector2D(GetActorLocation()));
+
+			if (ActivateDist > 30.f)
+				return;
 
 			if (DelayClimb)
 			{
@@ -206,7 +292,7 @@ void AMainCharacter::Tick(float DeltaTime)
 				{
 					if (DelayActivateObject.ScriptComponent)
 					{
-						DelayActivateObject.ScriptComponent->ActivateObject();
+						DelayActivateObject.ScriptComponent->ActivateObject(this);
 					}
 					if (DelayActivateObject.StaticMeshInstance)
 					{
@@ -230,7 +316,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	UE_LOG(LogTemp, Warning, TEXT("Input set up!"));
 
 	PlayerInputComponent->BindAction(FName("MouseClickLeft"), EInputEvent::IE_Pressed, this, &AMainCharacter::MouseLeftClick);
-	PlayerInputComponent->BindAction(FName("MouseClickRight"), EInputEvent::IE_Released, this, &AMainCharacter::MouseRightClick);
+	PlayerInputComponent->BindAction(FName("MouseClickRight"), EInputEvent::IE_Pressed, this, &AMainCharacter::MouseRightClick);
+	PlayerInputComponent->BindAction(FName("SpaceBar"), EInputEvent::IE_Pressed, this, &AMainCharacter::SpaceBarPressed);
+	PlayerInputComponent->BindAction(FName("SpaceBar"), EInputEvent::IE_Released, this, &AMainCharacter::SpaceBarReleased);
 }
 
 float AMainCharacter::GetDistanceBetweenActors(AActor* Actor1, AActor* Actor2)
@@ -241,7 +329,7 @@ float AMainCharacter::GetDistanceBetweenActors(AActor* Actor1, AActor* Actor2)
 // Inventory Functions
 bool AMainCharacter::AddItemToInventory(InventoryItem* Item)
 {
-	return false;
+	return PlayerInventory->AddItem(Item);
 }
 
 void AMainCharacter::SwapInventoryElements(int32 index1, int32 index2)
@@ -251,28 +339,49 @@ void AMainCharacter::SwapInventoryElements(int32 index1, int32 index2)
 
 void AMainCharacter::DropItem(int32 SlotIndex, FVector2D WorldLocation)
 {
+	FVector Position;
+	FVector Rotation;
+	FVector Scale;
 
+	FVector CharacterPosition = GetActorLocation();
+
+	FVector2D dir = WorldLocation - FVector2D(CharacterPosition);
+
+	dir.Normalize();
+
+	Position = CharacterPosition + 50 * FVector(dir, 0.5);
+
+	Rotation = FVector(0, 0, 0);
+	Scale = FVector(1, 1, 1);
+
+	GameMode->PutObjectInWorld(PlayerInventory->GetItem(SlotIndex), Position, Rotation, Scale);
+	PlayerInventory->DiscardItem(SlotIndex);
 }
 
 void AMainCharacter::DiscardItem(int32 SlotNum)
 {
-
+	PlayerInventory->DiscardItem(SlotNum);
 }
 void AMainCharacter::DiscardItem(InventoryItem* item)
 {
 
 }
 
-void AMainCharacter::ChangeCameraView(FVector Vector)
+void AMainCharacter::ChangeCameraView(AActor* Camera)
 {
-	FRotator rotation = FRotator::MakeFromEuler(Vector);
-	CameraBoom->SetRelativeRotation(rotation.Quaternion());
+	UCameraComponent* CameraComponent = Cast<UCameraComponent>(Camera->GetComponentByClass(UCameraComponent::StaticClass()));
+
+	UE_LOG(LogTemp, Warning, TEXT("Switched Camera!"));
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	PlayerController->SetViewTarget(Camera);
 }
 
 // Blueprint Callable Functions!
-FString AMainCharacter::GetInventoryTextureAt(int32 SlotNum)
+UTexture2D* AMainCharacter::GetInventoryTextureAt(int32 SlotNum)
 {
-	return "";
+	return PlayerInventory->GetTextureReference(SlotNum);
 }
 
 int32 AMainCharacter::GetInventorySize()
@@ -287,6 +396,14 @@ void AMainCharacter::SetCanRayCast(bool val)
 
 void AMainCharacter::MouseLeftClick()
 {
+	if (OurHud)
+	{
+		if (!OurHud->canPlayerClick)
+			return;
+	}
+
+	if (SpaceBarDown)
+		return;
 	if (!CanClickRayCast)
 		return;
 
@@ -305,9 +422,21 @@ void AMainCharacter::MouseLeftClick()
 			DelayActivateObject.ScriptComponent = Obj->ScriptComponent;
 			DelayActivateObject.StaticMeshInstance = Obj->StaticMeshInstance;
 
-			MoveTo = Hit.ImpactPoint;
+			if (Obj->StaticMeshInstance)
+			{
+				MoveTo = Hit.ImpactPoint;
+			}
+			if (Obj->ScriptComponent)
+			{
+				MoveTo = Obj->ScriptComponent->GetActivatePosition(this);
+			}
+			ActivatePosition = MoveTo;
 			DelayActivate = true;
 			//MouseMove = true;
+		}
+		else
+		{
+			MoveTo = Hit.ImpactPoint;
 		}
 
 		if (HitActor->IsA(AClimbableObject::StaticClass()))
@@ -371,12 +500,213 @@ void AMainCharacter::MouseLeftClick()
 			
 		}
 
-		MoveTo = Hit.ImpactPoint;
+		//MoveTo = Hit.ImpactPoint;
 		MouseMove = true;
 	}
 }
 
 void AMainCharacter::MouseRightClick()
 {
+	if (OurHud)
+	{
+		if (SpaceBarDown)
+			return;
+		if (!CanClickRayCast)
+			return;
 
+		if (!OurHud->canPlayerClick)
+			return;
+
+		FHitResult Hit;
+		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+
+		AActor* HitActor = Hit.GetActor();
+
+		if (HitActor)
+		{
+			if (GameMode->IsInteractble(HitActor))
+			{
+				InteractionWidget* IWidget = OurHud->GetParentInteractorI(HitActor);
+				if (IWidget)
+				{
+					if (IWidget->ParentComponent)
+					{
+						if (OurHud->MenuSnapToActor && OurHud->MenuSnapToActor != HitActor)
+						{
+							InteractionWidget* OtherIWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
+
+							if (OtherIWidget)
+							{
+								if (OtherIWidget->ParentComponent)
+								{
+									if (OtherIWidget->ParentComponent->ShowRightClickMenu)
+									{
+										OtherIWidget->ParentComponent->ShowRightClickMenu = false;
+										OtherIWidget->ParentComponent->ShowAnimationBackwards = true;
+										OurHud->RightClickMenu = nullptr;
+										OurHud->MenuSnapToActor = nullptr;
+									}
+								}
+							}
+						}
+
+						IWidget->ParentComponent->ShowRightClickMenu = true;
+						IWidget->ParentComponent->ShowAnimation = true;
+						OurHud->RightClickMenu = IWidget->MenuWidget;
+						OurHud->MenuSnapToActor = HitActor;
+					}
+				}
+			}
+			else if(OurHud->MenuSnapToActor)
+			{
+				InteractionWidget* IWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
+
+				if (IWidget)
+				{
+					if (IWidget->ParentComponent)
+					{
+						if (IWidget->ParentComponent->ShowRightClickMenu)
+						{
+							IWidget->ParentComponent->ShowRightClickMenu = false;
+							IWidget->ParentComponent->ShowAnimationBackwards = true;
+							OurHud->RightClickMenu = nullptr;
+							OurHud->MenuSnapToActor = nullptr;
+						}
+					}
+				}
+				else {
+					UE_LOG(LogTemp, Error, TEXT("Could not find interactor!"));
+				}
+			}
+		}
+		else if (OurHud->MenuSnapToActor)
+		{
+			InteractionWidget* IWidget = OurHud->GetParentInteractorI(OurHud->MenuSnapToActor);
+
+			if (IWidget)
+			{
+				if (IWidget->ParentComponent)
+				{
+					if (IWidget->ParentComponent->ShowRightClickMenu)
+					{
+						IWidget->ParentComponent->ShowRightClickMenu = false;
+						IWidget->ParentComponent->ShowAnimationBackwards = true;
+						OurHud->RightClickMenu = nullptr;
+						OurHud->MenuSnapToActor = nullptr;
+					}
+				}
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Could not find interactor!"));
+			}
+		}
+	}
+}
+
+void AMainCharacter::SpaceBarPressed()
+{
+	SpaceBarDown = true;
+
+	// RayCast in four directions and determine which direction is closest, then move to that location and activate cloaking mechanism...
+	FVector Start[4];
+
+	for (int i = 0; i < 4; i++)
+	{
+		Start[i] = GetActorLocation();
+	}
+
+	FVector Direction[4];
+	Direction[0] = FVector::ForwardVector;		// Forward
+	Direction[1] = -FVector::ForwardVector;	    // Back
+	Direction[2] = FVector::RightVector;		// Right
+	Direction[3] = -FVector::RightVector;		// Left
+
+	FHitResult Rays[4];
+
+	GameMode->RayCastArray(Rays, Start, Direction, 10000.f, 4, this);
+
+	float Distances[4];
+
+	for (int i = 0; i < 4; i++)
+	{
+		Distances[i] = FVector::Dist(GetActorLocation(), Rays[i].ImpactPoint);
+	}
+
+	float min = INT_MAX;
+	int smallest_index = 0;
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (Distances[i] < min)
+		{
+			min = Distances[i];
+			smallest_index = i;
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Should move to: %s"), *Rays[smallest_index].ImpactPoint.ToString());
+
+	MoveTo = Rays[smallest_index].ImpactPoint;
+	HideNormal = Rays[smallest_index].ImpactNormal;
+}
+
+void AMainCharacter::SpaceBarReleased()
+{
+	SpaceBarDown = false;
+}
+
+// For setting the dialogue options the player has when interacting with an object
+void AMainCharacter::SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller)
+{
+	TalkingTo = Caller;
+
+	CurrentDialogueOptions.Empty();
+
+	CurrentDialogueOptions = Options;
+
+	ShouldReloadDialogues = true;
+}
+
+FString AMainCharacter::GetDialogueOption(int i)
+{
+	if (i <= CurrentDialogueOptions.Num() - 1)
+	{
+		return CurrentDialogueOptions[i];
+	}
+	else
+	{
+		return "";
+	}
+}
+UInteractableComponent* AMainCharacter::GetTalkingTo()
+{
+	return TalkingTo;
+}
+
+void AMainCharacter::SetDialogueChoiceVisible()
+{
+	if (DialogueWidget)
+	{
+		DialogueWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	//SetDialogueChoiceInvisible();
+}
+
+void AMainCharacter::SetDialogueChoiceInvisible()
+{
+	if (DialogueWidget)
+	{
+		DialogueWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+InventoryItem* AMainCharacter::GetItemByID(ItemIDs ID)
+{
+	return PlayerInventory->GetItemById(ID);
+}
+
+InventoryItem* AMainCharacter::GetItemBySlot(int32 SlotNum)
+{
+	return PlayerInventory->GetItem(SlotNum);
 }

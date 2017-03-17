@@ -1,27 +1,65 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
-#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White,text)
 
 #include "REMOblig2.h"
 #include "LockedDoor.h"
 #include "REM_GameMode.h"
+#include "REM_Hud.h"
 
 ULockedDoor::ULockedDoor()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	
 }
 
 void ULockedDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 
+	// Meny valg som spilleren kan trykke på
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
+	Actions.Add(ActionType::INTERACT_ACTIVATE);
+
+	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
+	Actions.Add(ActionType::INTERACT_EXAMINE);
+
+	// Hent peker til HUD og GameMode
+	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
+	if (SubMenuWidgetClassTemplate)
+	{
+		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
+
+		if (SubMenuWidget)
+		{
+			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
+			SubMenuWidget->AddToViewport();
+		}
+	}
+
+	// Så GameMode er klar over at vi kan interactes med
 	GameMode->AddInteractableObject(GetOwner(), this);
+
+	// Den rotasjonen døren går tilbake til når den lukkes
 	InitialRotation = GetOwner()->GetActorRotation();
+
+	// Used to check which side of the door the player is, so it doesn't slam him in the face when he tries to open it!
+	if (OpenDirection)
+		OpenDir = GetOwner()->GetActorUpVector();
+	else
+		OpenDir = -GetOwner()->GetActorUpVector();
 }
 
 void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Brukes i puzzle
+	if (DoorOpenCondition == OpenCondition::OPEN_COMPLETE_PUZZLE && PuzzleSolved)
+	{
+		Open = true;
+	}
 
 	if (Open)
 	{
@@ -63,14 +101,27 @@ void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActo
 	}
 }
 
-void ULockedDoor::ActivateObject()
+void ULockedDoor::ActivateObject(AActor* Player)
 {
+	// Dersom døren kan åpnes normalt
 	if (DoorOpenCondition == OpenCondition::OPEN_NORMAL)
 	{
 		if (Open)
 			CloseDoor();
 		else
 			OpenDoor();
+	}
+	else {
+		// Ikke åpne den hvis den er låst på en eller annen måte.
+		ExamineObject(Player);
+	}
+}
+
+void ULockedDoor::ExamineObject(AActor* Player)
+{
+	if (DoorOpenCondition == OpenCondition::OPEN_NORMAL)
+	{
+		print("The door is unlocked, why not open it?!");
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_KEY)
 	{
@@ -109,4 +160,62 @@ void ULockedDoor::LockDoor(InventoryItem* item)
 void ULockedDoor::SetPuzzleSolved()
 {
 	PuzzleSolved = true;
+}
+
+FVector ULockedDoor::GetActivatePosition(AActor* Player)
+{
+	// Vanskelig å forklare, men det den gjør er å finne en posisjon sånn at hvis spilleren åpner en dør
+	// Så slår den han ikke i fjeset og ødelegger for kameraet.
+
+	FVector ActorLocation = GetOwner()->GetActorLocation();
+
+	FRotator Rotation = GetOwner()->GetActorRotation();
+
+	FVector Rot = Rotation.Vector();
+
+	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+
+	FVector Bounds = MeshComponent->GetStaticMesh()->GetBounds().BoxExtent;
+
+	FVector PlayerPosition = Player->GetActorLocation();
+	FVector OurPosition = GetOwner()->GetActorLocation();
+
+	FVector PlayerToUs = OurPosition - PlayerPosition;
+	PlayerToUs.Normalize();
+	
+	float dotProd = FVector::DotProduct(PlayerToUs, OpenDir);
+
+	float Angle = FMath::Acos(dotProd);
+
+	if (Open)
+	{
+		if (Angle < 1.4f)
+		{
+			if (OpenDirection)
+				ActorLocation -= OpenDir*50.f;
+			else
+				ActorLocation -= OpenDir*50.f;
+		}
+		else
+			ActorLocation += OpenDir*Bounds.Y;
+	}
+	else
+	{
+		if (Angle < 1.4f)
+		{
+			if (OpenDirection)
+				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
+			else
+				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
+		}
+		else
+		{
+			if (OpenDirection)
+				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
+			else
+				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
+		}
+	}
+
+	return ActorLocation;
 }
