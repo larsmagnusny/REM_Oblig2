@@ -212,6 +212,22 @@ void AREM_Hud::AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UI
 	SubMenues.Add(InterWidget);
 }
 
+void AREM_Hud::RemoveInteractionWidget(UInteractableComponent* Component)
+{
+	for (InteractionWidget IW : SubMenues)
+	{
+		if (IW.ParentComponent == Component)
+		{
+			IW.MenuWidget->RemoveFromViewport();
+
+			canPlayerClick = true;
+
+			//SubMenues.Remove(IW);
+			break;
+		}
+	}
+}
+
 InteractionWidget* AREM_Hud::GetParentInteractorI(UUserWidget* Widget)
 {
 	for (int32 i = 0; i < SubMenues.Num(); i++)

@@ -82,6 +82,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Get the interactor instance")
 	UInteractableComponent* GetInteractor(AActor* Actor);
 
+	void RemoveInteractionWidget(UInteractableComponent* Component);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool MainMenuLevel = true;
 private:

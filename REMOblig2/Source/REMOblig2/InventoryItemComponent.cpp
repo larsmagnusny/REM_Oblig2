@@ -69,6 +69,12 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 		// Hvis jeg ikke fjerner denne så kan spillet krashe
 		GameMode->RemoveInteractableObject(GetOwner());
 
+		if (Hud)
+		{
+			Hud->RemoveInteractionWidget(this);
+			UE_LOG(LogTemp, Warning, TEXT("Should show animation backwards..."));
+		}
+
 		// Ødelegg deg selv!
 		GetOwner()->Destroy();
 	}
