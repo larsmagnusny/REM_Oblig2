@@ -7,6 +7,7 @@
 #include "Inventory.h"
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
+#include "REMSaveGame.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -68,6 +69,14 @@ public:
 	InteractableObject* GetInteractableObject(AActor* Actor);
 
 	MeshAndTextureLoader* MeshesAndTextures;
+
+	UFUNCTION()
+	void SpawnMap(FName MapName);
+
+	UFUNCTION()
+	void UnloadMap(FName MapName);
+
+	FName CurrentLoadedMap = "";
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
@@ -80,4 +89,6 @@ private:
 
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
+
+	UREMSaveGame* SaveGameInstance;
 };

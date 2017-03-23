@@ -79,8 +79,6 @@ void AREM_Hud::DrawHUD()
 
 	FString LevelName = GetWorld()->GetMapName();
 
-	//UE_LOG(LogTemp, Warning, TEXT("%s"), *LevelName);
-
 	if (LevelName.Equals("UEDPIE_0_MainMenu") || LevelName.Equals("MainMenu"))
 	{
 		

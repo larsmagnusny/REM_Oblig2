@@ -19,6 +19,11 @@ AREM_GameMode::AREM_GameMode()
 void AREM_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SaveGameInstance = Cast<UREMSaveGame>(UGameplayStatics::CreateSaveGameObject(UREMSaveGame::StaticClass()));
+	//UGameplayStatics::LoadGameFromSlot(SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex);
+
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(SaveGameInstance->DoorIndex));
 }
 void AREM_GameMode::Tick(float DeltaTime)
 {
@@ -104,6 +109,21 @@ InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
 	}
 
 	return nullptr;
+}
+
+void AREM_GameMode::UnloadMap(FName MapName)
+{
+	
+}
+
+void AREM_GameMode::SpawnMap(FName MapName)
+{
+	//SaveGameInstance->PlayerName = "TestPlayer";
+	//SaveGameInstance->DoorIndex = 1234;
+
+	//UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex);
+
+	UGameplayStatics::OpenLevel(GetWorld(), MapName);
 }
 
 void AREM_GameMode::SetMainCharacter(ACharacter* Character)

@@ -18,6 +18,9 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
+	bool MainCamera = false;
+
+	UPROPERTY(EditAnywhere)
 	bool FollowCharacter = false;
 
 	UPROPERTY(EditAnywhere)

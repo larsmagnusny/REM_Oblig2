@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "REM_GameMode.h"
 #include "InteractableComponent.h"
 #include "LevelChangeActor.generated.h"
 
@@ -26,4 +27,9 @@ public:
 		
 	UPROPERTY(EditAnywhere)
 	FName LevelName;
+
+	AREM_GameMode* GameMode = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	FVector ConnectedPosition;
 };
