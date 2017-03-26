@@ -108,3 +108,8 @@ InventoryItem* Inventory::GetItemById(ItemIDs ID)
 
 	return nullptr;
 }
+
+int32 Inventory::GetSize()
+{
+	return InventorySize;
+}

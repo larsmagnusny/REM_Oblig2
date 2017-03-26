@@ -82,9 +82,7 @@ public:
 	UClass* AnimClass = nullptr;
 
 	USkeletalMeshComponent* SkeletalMeshComponent = nullptr;
-
 	UMaterial* CamoMaterial;
-
 	UMaterial* StandardMaterial;
 
 	float Mass = 0.0f;

@@ -386,7 +386,7 @@ UTexture2D* AMainCharacter::GetInventoryTextureAt(int32 SlotNum)
 
 int32 AMainCharacter::GetInventorySize()
 {
-	return 0;
+	return PlayerInventory->GetSize();
 }
 
 void AMainCharacter::SetCanRayCast(bool val)

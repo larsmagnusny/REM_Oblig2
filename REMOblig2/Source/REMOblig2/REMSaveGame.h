@@ -1,22 +1,10 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
-#pragma once
 
-#include "GameFramework/SaveGame.h"
-#include "REMSaveGame.generated.h"
-
-/**
- * 
- */
-UCLASS()
-class REMOBLIG2_API UREMSaveGame : public USaveGame
+class REMOBLIG2_API REMSaveGame
 {
-	GENERATED_BODY()
 public:
-	UREMSaveGame();
-
-	UPROPERTY(EditAnywhere, Category = Basic)
-	uint32 DoorIndex;
+	REMSaveGame();
 
 	template<typename T> void SaveLoadData(FArchive& Ar, T& t)
 	{
@@ -24,6 +12,7 @@ public:
 	}
 
 	bool SaveGameDataToFile(const FString& FullFilePath, FBufferArchive& ToBinary);
+	bool LoadGameDataFromFile(const FString& FullFilePath, FBufferArchive& BinaryData);
 
 
 private:

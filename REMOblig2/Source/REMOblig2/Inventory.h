@@ -32,6 +32,8 @@ public:
 
 	// Hent en item som har en itemID
 	InventoryItem* GetItemById(ItemIDs ID);
+
+	int32 GetSize();
 private:
 	// Pointer to a pointer...
 	InventoryItem** InventoryStorage;

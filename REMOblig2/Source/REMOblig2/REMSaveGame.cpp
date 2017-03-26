@@ -3,15 +3,13 @@
 #include "REMOblig2.h"
 #include "REMSaveGame.h"
 
-UREMSaveGame::UREMSaveGame()
+REMSaveGame::REMSaveGame()
 {
 
 }
 
-bool UREMSaveGame::SaveGameDataToFile(const FString & FullFilePath, FBufferArchive & ToBinary)
+bool REMSaveGame::SaveGameDataToFile(const FString & FullFilePath, FBufferArchive & ToBinary)
 {
-	SaveLoadData(ToBinary, DoorIndex);
-
 	if (ToBinary.Num() <= 0)
 		return false;
 
@@ -21,12 +19,25 @@ bool UREMSaveGame::SaveGameDataToFile(const FString & FullFilePath, FBufferArchi
 		ToBinary.FlushCache();
 		ToBinary.Empty();
 
+		UE_LOG(LogTemp, Warning, TEXT("File %s successfully saved..."), *FullFilePath);
+
 		return true;
 	}
 
 	// Free binary array
 	ToBinary.FlushCache();
 	ToBinary.Empty();
+
+	return false;
+}
+
+bool REMSaveGame::LoadGameDataFromFile(const FString & FullFilePath, FBufferArchive & BinaryData)
+{
+	if (FFileHelper::LoadFileToArray(BinaryData, *FullFilePath))
+	{
+
+		return true;
+	}
 
 	return false;
 }

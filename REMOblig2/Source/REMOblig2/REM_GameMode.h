@@ -76,7 +76,16 @@ public:
 	UFUNCTION()
 	void UnloadMap(FName MapName);
 
+	FBufferArchive GetRelevantSaveData();
+	void LoadDataFromBinary(FBufferArchive &BinaryData);
+
 	FName CurrentLoadedMap = "";
+
+	bool LoadSave = false;
+
+	float counter = 0.f;
+
+	FBufferArchive BinaryData;
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
@@ -90,5 +99,7 @@ private:
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
 
-	UREMSaveGame* SaveGameInstance;
+	REMSaveGame* SaveGameInstance;
+
+	FString GlobalSaveFile = "CharacterData.bin";
 };
