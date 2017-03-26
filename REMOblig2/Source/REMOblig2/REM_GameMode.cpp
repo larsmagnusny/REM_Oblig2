@@ -21,25 +21,23 @@ void AREM_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GameInstance = Cast<UREM_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	SaveGameInstance = new REMSaveGame();
 
 	FString LevelSaveFile = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
 
 	GlobalSaveFile = LevelSaveFile;
+
+
+	// Trigger Beginplay in GameInstance...
+	GameInstance->BeginPlay();
 }
 void AREM_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	counter += DeltaTime;
-
-	if (counter > 5)
-	{
-		LoadSave = true;
-		counter = 0.f;
-	}
-
-	if (LoadSave)
+	if (!GameInstance->MainMenu && LoadSave)
 	{
 		if (SaveGameInstance->LoadGameDataFromFile(GlobalSaveFile, BinaryData))
 		{
@@ -48,6 +46,11 @@ void AREM_GameMode::Tick(float DeltaTime)
 		}
 
 		LoadSave = false;
+
+		if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*GlobalSaveFile))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Could not find file..."));
+		}
 	}
 }
 
@@ -194,13 +197,18 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 
 	int32 size = 0;
 	FVector CharacterLocation;
-	FVector CharacterRotation;
+	FRotator CharacterRotation;
 
 	FMemoryReader Ar = FMemoryReader(BinaryData, true);
 	Ar.Seek(0);
 
 	Ar << CharacterLocation;
 	Ar << CharacterRotation;
+
+	Char->SetActorLocation(CharacterLocation);
+	
+	CharacterRotation.Yaw += 180;
+	Char->SetActorRotation(CharacterRotation);
 
 	for (TActorIterator<AStaticMeshActor> Itr(GetWorld()); Itr; ++Itr)
 	{

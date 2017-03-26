@@ -13,7 +13,15 @@ class REMOBLIG2_API UREM_GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+	UREM_GameInstance();
 	
-	
-	
+	void BeginPlay();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Tell the game if you are in main menu or not?!")
+	bool MainMenu;
+	bool LoadRoom;
+	bool LoadCheckpoint;
+
+	FString CurrentLevel;
 };

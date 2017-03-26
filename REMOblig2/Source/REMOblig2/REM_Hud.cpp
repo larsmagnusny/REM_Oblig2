@@ -25,6 +25,7 @@ AREM_Hud::AREM_Hud()
 
 void AREM_Hud::BeginPlay()
 {
+	GameInstance = Cast<UREM_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 
 	// Spilleren skal kunne trykke på skjermen
@@ -77,13 +78,7 @@ void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
 
-	FString LevelName = GetWorld()->GetMapName();
-
-	if (LevelName.Equals("UEDPIE_0_MainMenu") || LevelName.Equals("MainMenu"))
-	{
-		
-	}
-	else {
+	if(!GameInstance->MainMenu) {
 		MainMenuLevel = false;
 
 		if (MainMenuWidget->GetIsVisible())

@@ -98,6 +98,7 @@ private:
 	TArray<UImage*> Slots;
 
 	AREM_GameMode* GameMode = nullptr;
+	UREM_GameInstance* GameInstance = nullptr;
 
 	// Keep track of our inventory slots
 	int32 SlotCounter = 0;

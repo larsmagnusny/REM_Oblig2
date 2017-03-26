@@ -8,6 +8,7 @@
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
 #include "REMSaveGame.h"
+#include "REM_GameInstance.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -81,7 +82,7 @@ public:
 
 	FName CurrentLoadedMap = "";
 
-	bool LoadSave = false;
+	bool LoadSave = true;
 
 	float counter = 0.f;
 
@@ -98,6 +99,8 @@ private:
 
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
+
+	UREM_GameInstance* GameInstance = nullptr;
 
 	REMSaveGame* SaveGameInstance;
 
