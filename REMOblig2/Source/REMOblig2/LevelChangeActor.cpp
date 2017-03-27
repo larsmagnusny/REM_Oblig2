@@ -2,7 +2,6 @@
 
 #include "REMOblig2.h"
 #include "LevelChangeActor.h"
-#include "REM_GameMode.h"
 
 
 // Sets default values for this component's properties
@@ -22,7 +21,7 @@ void ULevelChangeActor::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 
 	// Så GameMode er klar over at vi kan interactes med
 	GameMode->AddInteractableObject(GetOwner(), this);
@@ -41,5 +40,11 @@ void ULevelChangeActor::ActivateObject(AActor* Player)
 {
 	FLatentActionInfo info;
 	UE_LOG(LogTemp, Warning, TEXT("LoadLevel Called!"));
-	UGameplayStatics::OpenLevel(GetWorld(), LevelName);
+	GameMode->SpawnMap(LevelName);
+	GameMode->UnloadMap(GameMode->CurrentLoadedMap);
+
+	ACharacter* OurCharacter = GameMode->GetMainCharacter();
+
+	OurCharacter->SetActorLocation(ConnectedPosition);
+	
 }

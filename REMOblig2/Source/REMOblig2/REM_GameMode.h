@@ -7,6 +7,7 @@
 #include "Inventory.h"
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
+#include "REM_GameInstance.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -68,6 +69,24 @@ public:
 	InteractableObject* GetInteractableObject(AActor* Actor);
 
 	MeshAndTextureLoader* MeshesAndTextures;
+
+	UFUNCTION()
+	void SpawnMap(FName MapName);
+
+	UFUNCTION()
+	void UnloadMap(FName MapName);
+
+	void GetRelevantSaveData(FBufferArchive &BinaryData);
+	void LoadDataFromBinary(FBufferArchive &BinaryData);
+
+	UFUNCTION(BlueprintCallable, Category = "Load All Data")
+	FName LoadAllData();
+
+	FName CurrentLoadedMap = "";
+
+	bool LoadSave = true;
+
+	float counter = 0.f;
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
@@ -80,4 +99,10 @@ private:
 
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
+
+	UREM_GameInstance* GameInstance = nullptr;
+
+	REMSaveGame* SaveGameInstance;
+
+	FString GlobalSaveFile = "CharacterData.bin";
 };

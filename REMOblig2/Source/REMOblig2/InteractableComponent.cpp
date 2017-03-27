@@ -61,6 +61,17 @@ void UInteractableComponent::ActivateDialogue(AActor* Player)
 
 }
 
+FBufferArchive UInteractableComponent::GetSaveData()
+{
+	FBufferArchive BinaryData;
+	return BinaryData;
+}
+
+void UInteractableComponent::LoadSaveData(FBufferArchive &BinaryData)
+{
+
+}
+
 void UInteractableComponent::ItemInteract(int32 SlotNum)
 {
 

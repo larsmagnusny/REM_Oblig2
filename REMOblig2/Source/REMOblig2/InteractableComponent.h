@@ -34,6 +34,12 @@ public:
 	virtual void OpenInventory(AActor* Player);
 	virtual void ActivateDialogue(AActor* Player);
 
+	// Data to save about this object, can be overriden
+	virtual FBufferArchive GetSaveData();
+
+	// Data to load about this object, can be overriden
+	virtual void LoadSaveData(FBufferArchive &BinaryData);
+
 	// Item interacts with the object, when dropping an item from inventory to the object you want to interact with.
 	UFUNCTION(BlueprintCallable, Category = "Item Interact with object...")
 	virtual void ItemInteract(int32 SlotNum);

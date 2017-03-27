@@ -25,6 +25,7 @@ AREM_Hud::AREM_Hud()
 
 void AREM_Hud::BeginPlay()
 {
+	GameInstance = Cast<UREM_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 
 	// Spilleren skal kunne trykke på skjermen
@@ -77,15 +78,9 @@ void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
 
-	FString LevelName = GetWorld()->GetMapName();
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt((int32)GameInstance->MainMenu));
 
-	//UE_LOG(LogTemp, Warning, TEXT("%s"), *LevelName);
-
-	if (LevelName.Equals("UEDPIE_0_MainMenu") || LevelName.Equals("MainMenu"))
-	{
-		
-	}
-	else {
+	if(!GameInstance->MainMenu) {
 		MainMenuLevel = false;
 
 		if (MainMenuWidget->GetIsVisible())
@@ -210,6 +205,22 @@ void AREM_Hud::AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UI
 	InterWidget.ParentComponent = Component;
 	InterWidget.ParentObject = Object;
 	SubMenues.Add(InterWidget);
+}
+
+void AREM_Hud::RemoveInteractionWidget(UInteractableComponent* Component)
+{
+	for (InteractionWidget IW : SubMenues)
+	{
+		if (IW.ParentComponent == Component)
+		{
+			IW.MenuWidget->RemoveFromViewport();
+
+			canPlayerClick = true;
+
+			//SubMenues.Remove(IW);
+			break;
+		}
+	}
 }
 
 InteractionWidget* AREM_Hud::GetParentInteractorI(UUserWidget* Widget)
