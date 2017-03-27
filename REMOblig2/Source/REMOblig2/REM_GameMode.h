@@ -7,7 +7,6 @@
 #include "Inventory.h"
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
-#include "REMSaveGame.h"
 #include "REM_GameInstance.h"
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
@@ -77,16 +76,17 @@ public:
 	UFUNCTION()
 	void UnloadMap(FName MapName);
 
-	FBufferArchive GetRelevantSaveData();
+	void GetRelevantSaveData(FBufferArchive &BinaryData);
 	void LoadDataFromBinary(FBufferArchive &BinaryData);
+
+	UFUNCTION(BlueprintCallable, Category = "Load All Data")
+	FName LoadAllData();
 
 	FName CurrentLoadedMap = "";
 
 	bool LoadSave = true;
 
 	float counter = 0.f;
-
-	FBufferArchive BinaryData;
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;

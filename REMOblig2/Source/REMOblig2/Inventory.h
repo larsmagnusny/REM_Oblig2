@@ -2,6 +2,7 @@
 
 #pragma once
 #include "InventoryItem.h"
+#include "MeshAndTextureLoader.h"
 /**
  * 
  */
@@ -32,6 +33,9 @@ public:
 
 	// Hent en item som har en itemID
 	InventoryItem* GetItemById(ItemIDs ID);
+
+	void LoadInventoryFromPersistent(FBufferArchive& BinaryData, MeshAndTextureLoader* ResourceLoaderRef);
+	void SaveInventoryToPersistent(FBufferArchive& BinaryData);
 
 	int32 GetSize();
 private:

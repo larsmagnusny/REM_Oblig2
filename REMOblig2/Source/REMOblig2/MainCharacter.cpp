@@ -394,6 +394,16 @@ void AMainCharacter::SetCanRayCast(bool val)
 
 }
 
+void AMainCharacter::ReloadInventory(FBufferArchive & BinaryData, MeshAndTextureLoader * ResourceLoader)
+{
+	PlayerInventory->LoadInventoryFromPersistent(BinaryData, ResourceLoader);
+}
+
+void AMainCharacter::SaveInventory(FBufferArchive & BinaryData)
+{
+	PlayerInventory->SaveInventoryToPersistent(BinaryData);
+}
+
 void AMainCharacter::MouseLeftClick()
 {
 	if (OurHud)

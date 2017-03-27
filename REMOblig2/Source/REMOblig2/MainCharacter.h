@@ -67,6 +67,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character Raycast")
 	void SetCanRayCast(bool val);
 
+	// Reload the inventory
+	void ReloadInventory(FBufferArchive& BinaryData, MeshAndTextureLoader* ResourceLoader);
+	void SaveInventory(FBufferArchive& BinaryData);
+
 	// Mouse Input 
 	void MouseLeftClick();
 	void MouseRightClick();

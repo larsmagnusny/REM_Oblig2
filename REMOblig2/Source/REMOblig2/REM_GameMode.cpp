@@ -29,28 +29,43 @@ void AREM_GameMode::BeginPlay()
 
 	GlobalSaveFile = LevelSaveFile;
 
-
 	// Trigger Beginplay in GameInstance...
 	GameInstance->BeginPlay();
+
+	GameInstance->LoadCheckpoint = true;
+
+	// Load Inventory from the GameInstance if its not empty...
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(GameInstance->PersistentInventory->Num()));
 }
 void AREM_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!GameInstance->MainMenu && LoadSave)
+	if (GameInstance->LoadCheckpoint)
 	{
-		if (SaveGameInstance->LoadGameDataFromFile(GlobalSaveFile, BinaryData))
+		GameInstance->LoadCheckpoint = false;
+		if (GameInstance->PersistentInventory)
 		{
-
-			LoadDataFromBinary(BinaryData);
+			if (GameInstance->PersistentInventory->Num() != 0)
+			{
+				if (MainCharacter)
+					Cast<AMainCharacter>(MainCharacter)->ReloadInventory(*GameInstance->PersistentInventory, MeshesAndTextures);
+				UE_LOG(LogTemp, Warning, TEXT("Reloaded Inventory"));
+			}
 		}
 
-		LoadSave = false;
 
-		if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*GlobalSaveFile))
+		if (GameInstance->LevelData[GameInstance->CurrentLevelLoaded])
 		{
-			UE_LOG(LogTemp, Error, TEXT("Could not find file..."));
+			if (GameInstance->LevelData[GameInstance->CurrentLevelLoaded]->Num() != 0)
+			{
+				LoadDataFromBinary(*GameInstance->LevelData[GameInstance->CurrentLevelLoaded]);
+				UE_LOG(LogTemp, Warning, TEXT("Loaded LevelData"));
+			}
 		}
+
+		if(!GameInstance->MainMenu)
+			GameInstance->SaveAllData(SaveGameInstance);
 	}
 }
 
@@ -140,9 +155,8 @@ void AREM_GameMode::UnloadMap(FName MapName)
 	
 }
 
-FBufferArchive AREM_GameMode::GetRelevantSaveData()
+void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 {
-	FBufferArchive BinaryData;
 	AMainCharacter* Char = Cast<AMainCharacter>(MainCharacter);
 	
 	// Save last location of player in this level
@@ -184,11 +198,6 @@ FBufferArchive AREM_GameMode::GetRelevantSaveData()
 		BinaryData << Location;
 		BinaryData << Rotation;
 	}
-
-
-	// Save the state of the interactable objects
-
-	return BinaryData;
 }
 
 void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
@@ -246,11 +255,22 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 	}
 }
 
+FName AREM_GameMode::LoadAllData()
+{
+	FName LastLevel;
+	GameInstance->LoadAllData(LastLevel, SaveGameInstance);
+	return LastLevel;
+}
+
 void AREM_GameMode::SpawnMap(FName MapName)
 {
-	FBufferArchive BinaryData = GetRelevantSaveData();
-	SaveGameInstance->SaveGameDataToFile(GlobalSaveFile, BinaryData);
+	GameInstance->DeleteLevelData(GameInstance->CurrentLevelLoaded);
+	GetRelevantSaveData(*GameInstance->LevelData[GameInstance->CurrentLevelLoaded]);
 
+	GameInstance->DeletePersistentInventory();
+	Cast<AMainCharacter>(MainCharacter)->SaveInventory(*GameInstance->PersistentInventory);
+
+	UE_LOG(LogTemp, Warning, TEXT("All Data Saved"));
 	UGameplayStatics::OpenLevel(GetWorld(), MapName);
 }
 

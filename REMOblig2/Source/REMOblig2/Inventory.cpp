@@ -109,6 +109,65 @@ InventoryItem* Inventory::GetItemById(ItemIDs ID)
 	return nullptr;
 }
 
+void Inventory::LoadInventoryFromPersistent(FBufferArchive & BinaryData, MeshAndTextureLoader* ResourceLoaderRef)
+{
+	int32 size = 0;
+	int32 InteractID;
+	int32 ID;
+	ItemIDs ItemID;
+	FString ItemName;
+
+	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+
+	Ar << size;
+
+	for (int32 i = 0; i < size; i++)
+	{
+		Ar << InteractID;
+		Ar << ID;
+		Ar << ItemName;
+
+		UE_LOG(LogTemp, Warning, TEXT("Loaded: %s"), *ItemName);
+
+		if (ID != -1)
+		{
+			ItemID = (ItemIDs)ID;
+			InventoryStorage[i] = new InventoryItem(ItemID, InteractID, ItemName, ResourceLoaderRef->GetStaticMeshByItemID(ItemID), ResourceLoaderRef->GetTextureByItemID(ItemID));
+			AvailableSlots[i] = false;
+		}
+	}
+}
+
+void Inventory::SaveInventoryToPersistent(FBufferArchive & BinaryData)
+{
+	int32 size = 0;
+	size = BinaryData.Num();
+
+	// Size of inventory
+	size = GetSize();
+	BinaryData << size;
+
+	for (int32 i = 0; i < size; i++)
+	{
+		int32 InteractID = 0;
+		int32 ItemID = -1;
+		FString ItemName = "ItemNone";
+
+		if (InventoryStorage[i])
+		{
+			InteractID = InventoryStorage[i]->INTERACT_ID;
+			ItemID = (int32)InventoryStorage[i]->ItemID;
+			ItemName = InventoryStorage[i]->Name;
+			
+			UE_LOG(LogTemp, Warning, TEXT("Saved: %s"), *ItemName);
+		}
+
+		BinaryData << InteractID;
+		BinaryData << ItemID;
+		BinaryData << ItemName;
+	}
+}
+
 int32 Inventory::GetSize()
 {
 	return InventorySize;

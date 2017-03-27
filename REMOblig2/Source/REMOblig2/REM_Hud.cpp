@@ -78,6 +78,8 @@ void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
 
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt((int32)GameInstance->MainMenu));
+
 	if(!GameInstance->MainMenu) {
 		MainMenuLevel = false;
 
