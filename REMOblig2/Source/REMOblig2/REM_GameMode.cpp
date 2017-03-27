@@ -198,6 +198,25 @@ void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 		BinaryData << Location;
 		BinaryData << Rotation;
 	}
+
+	TArray<UInteractableComponent*> InteractableComponents;
+	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
+	{
+		InteractableComponents.Add(*Itr);
+	}
+
+	size = InteractableComponents.Num();
+
+	BinaryData << size;
+
+	for (int i = 0; i < size; i++)
+	{
+		FBufferArchive ObjectData = InteractableComponents[i]->GetSaveData();
+
+		BinaryData << ObjectData;
+	}
+
+	// Get all interactable components that exist in the scene
 }
 
 void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
@@ -252,6 +271,21 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 		InventoryItem* Item = new InventoryItem(ItemID, InteractID, Name, MeshesAndTextures->GetStaticMeshByItemID(ItemID), MeshesAndTextures->GetTextureByItemID(ItemID));
 
 		PutObjectInWorld(Item, Location, Rotation, FVector(1, 1, 1));
+	}
+
+	TArray<UInteractableComponent*> InteractableComponents;
+	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
+	{
+		InteractableComponents.Add(*Itr);
+	}
+
+	Ar << size;
+
+	for (int32 i = 0; i < InteractableComponents.Num(); i++)
+	{
+		FBufferArchive ObjectData;
+		Ar << ObjectData;
+		InteractableComponents[i]->LoadSaveData(ObjectData);
 	}
 }
 

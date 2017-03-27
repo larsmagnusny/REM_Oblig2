@@ -32,6 +32,12 @@ public:
 	virtual void ActivateObject(AActor* Player) override;
 	virtual void ExamineObject(AActor* Player) override;
 
+	// Data to save about this object, can be overriden
+	virtual FBufferArchive GetSaveData();
+
+	// Data to load about this object, can be overriden
+	virtual void LoadSaveData(FBufferArchive &BinaryData);
+
 	virtual FVector GetActivatePosition(AActor* Player) override;
 
 	void SetPuzzleSolved();
@@ -49,7 +55,7 @@ public:
 	ATriggerVolume* Trigger = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	bool Open = false;	// start closed
+	bool Open = false;	// Save this
 
 	UPROPERTY(EditAnywhere)
 	float MaxOpenAngle = 90.f;
@@ -63,10 +69,10 @@ private:
 	void UnlockDoor(InventoryItem* item);
 	void LockDoor(InventoryItem* item);
 
-	bool PuzzleSolved = false;
+	bool PuzzleSolved = false; // Save this
 
-	FRotator InitialRotation;
-	float CurrentRotation = 0.f;
+	FRotator InitialRotation; // Save this
+	float CurrentRotation = 0.f; // Save this
 
 	FVector OpenDir;
 };

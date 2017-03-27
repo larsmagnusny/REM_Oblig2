@@ -104,6 +104,24 @@ void UChestSpot::ExamineObject(AActor* Player)
 	print("There's an x marking the spot. I wonder if i place something here something will happen?");
 }
 
+FBufferArchive UChestSpot::GetSaveData()
+{
+	FBufferArchive BinaryData;
+
+	BinaryData << ItemDropped;
+	BinaryData << PuzzleSolved;
+
+	return BinaryData;
+}
+
+void UChestSpot::LoadSaveData(FBufferArchive & BinaryData)
+{
+	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+
+	Ar << ItemDropped;
+	Ar << PuzzleSolved;
+}
+
 FVector UChestSpot::GetActivatePosition(AActor* Player)
 {
 	return GetOwner()->GetActorLocation();

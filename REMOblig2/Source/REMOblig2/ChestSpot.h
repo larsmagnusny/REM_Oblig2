@@ -25,6 +25,12 @@ public:
 	virtual void ActivateObject(AActor* Player) override;
 	virtual void ExamineObject(AActor* Player) override;
 
+	// Data to save about this object, can be overriden
+	virtual FBufferArchive GetSaveData() override;
+
+	// Data to load about this object, can be overriden
+	virtual void LoadSaveData(FBufferArchive &BinaryData) override;
+
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player) override;
 
@@ -46,17 +52,17 @@ public:
 
 	// At den faktisk dropper en item når en kiste står på den.
 	UPROPERTY(EditAnywhere)
-	bool CanDropItem = false;
+	bool CanDropItem = false;	// Save this
 
 private:
 	// Used to send messages to the chest...
 	UChestController* ChestScriptInstance = nullptr;
 
 	// Så vi ikke slipper mer enn en item
-	bool ItemDropped = false;
+	bool ItemDropped = false; // Save this
 
 	// For å vite om puzzelet er løst eller ikke
-	bool PuzzleSolved = false;
+	bool PuzzleSolved = false;	// Save this
 
 	// Pekere til andre klasser
 	AREM_GameMode* GameMode = nullptr;
