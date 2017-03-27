@@ -195,6 +195,43 @@ void UChestController::ItemInteract(int32 SlotNum)
 	}
 }
 
+FBufferArchive UChestController::GetSaveData()
+{
+	FBufferArchive BinaryData;
+
+	BinaryData << isOpen;
+	BinaryData << FollowWhenActivate;
+	BinaryData << FollowingPlayer;
+	BinaryData << locked;
+	BinaryData << GoToSlot;
+	BinaryData << Slot;
+	BinaryData << SnappedToSlot;
+	BinaryData << Rotation;
+	BinaryData << SlotLocation;
+	BinaryData << filled;
+	BinaryData << toysfilled;
+
+	return BinaryData;
+}
+
+void UChestController::LoadSaveData(FBufferArchive & BinaryData)
+{
+	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+
+	// Load variables connected to this object...
+	Ar << isOpen;
+	Ar << FollowWhenActivate;
+	Ar << FollowingPlayer;
+	Ar << locked;
+	Ar << GoToSlot;
+	Ar << Slot;
+	Ar << SnappedToSlot;
+	Ar << Rotation;
+	Ar << SlotLocation;
+	Ar << filled;
+	Ar << toysfilled;
+}
+
 // Dersom spilleren har valgt et dialogvalg
 void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optionindex)
 {

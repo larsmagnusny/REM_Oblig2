@@ -14,7 +14,8 @@ enum class ItemIDs : uint8
 	ITEM_FEATHER UMETA(DisplayName = "A simple feather to tickle the chest."),
 	ITEM_CRYSTALSHARD UMETA(DisplayName = "A Crystal shard"),
 	ITEM_PLIERS UMETA(DisplayName = "Pliers that can cut things"),
-	ITEM_SCISSORS UMETA(DisplayName = "Scissors, do i have to say anything else?")
+	ITEM_SCISSORS UMETA(DisplayName = "Scissors, do i have to say anything else?"),
+	ITEM_NONE UMETA(DisplayName = "Just to know in save file if it is empty")
 };
 
 UENUM(BlueprintType)

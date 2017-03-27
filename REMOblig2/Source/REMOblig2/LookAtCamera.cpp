@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "LookAtCamera.h"
+#include "MainCharacter.h"
 
 ALookAtCamera::ALookAtCamera()
 {
@@ -16,6 +17,14 @@ void ALookAtCamera::BeginPlay()
 	// Set the original Rotation of the Camera
 	OrigRotation = GetActorRotation();
 	OrigPosition = GetActorLocation();
+
+	if (MainCamera)
+	{
+		AMainCharacter* OurCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+		if(OurCharacter)
+			OurCharacter->ChangeCameraView(this);
+	}
 }
 
 void ALookAtCamera::Tick(float DeltaTime)

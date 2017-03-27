@@ -38,6 +38,8 @@ public:
 
 	// Brukes når vi legger til dette objektet i spiller-inventory
 	InventoryItem* InvItemRef = nullptr;
+
+	bool NeedDelete = false;
 private:
 	// Peker til komponenten vi lager
 	UInventoryItemComponent* InventoryItemComponent = nullptr;

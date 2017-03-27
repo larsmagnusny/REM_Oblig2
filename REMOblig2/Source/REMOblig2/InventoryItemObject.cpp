@@ -8,6 +8,8 @@ AInventoryItemObject::AInventoryItemObject()
 {
 	// Instance the interactable component to this item...
 	InventoryItemComponent = Cast<UInventoryItemComponent>(CreateDefaultSubobject<UInventoryItemComponent>(TEXT("InventoryItemComponent")));
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 AInventoryItemObject::~AInventoryItemObject()
@@ -59,6 +61,12 @@ void AInventoryItemObject::BeginPlay()
 void AInventoryItemObject::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (NeedDelete)
+	{
+		Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("DELETED MYSELF!"));
+	}
 }
 
 void AInventoryItemObject::Init(InventoryItem* Item)

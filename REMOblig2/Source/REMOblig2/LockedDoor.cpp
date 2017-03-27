@@ -162,6 +162,28 @@ void ULockedDoor::SetPuzzleSolved()
 	PuzzleSolved = true;
 }
 
+FBufferArchive ULockedDoor::GetSaveData()
+{
+	FBufferArchive BinaryData;
+
+	BinaryData << Open;
+	BinaryData << PuzzleSolved;
+	BinaryData << InitialRotation;
+	BinaryData << CurrentRotation;
+
+	return BinaryData;
+}
+
+void ULockedDoor::LoadSaveData(FBufferArchive & BinaryData)
+{
+	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+	
+	Ar << Open;
+	Ar << PuzzleSolved;
+	Ar << InitialRotation;
+	Ar << CurrentRotation;
+}
+
 FVector ULockedDoor::GetActivatePosition(AActor* Player)
 {
 	// Vanskelig å forklare, men det den gjør er å finne en posisjon sånn at hvis spilleren åpner en dør

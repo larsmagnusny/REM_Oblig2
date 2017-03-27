@@ -4,6 +4,7 @@
 #include "REM_GameMode.h"
 #include "InventoryItemObject.h"
 #include "REM_Hud.h"
+#include "MainCharacter.h"
 
 AREM_GameMode::AREM_GameMode()
 {
@@ -19,10 +20,53 @@ AREM_GameMode::AREM_GameMode()
 void AREM_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameInstance = Cast<UREM_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	SaveGameInstance = new REMSaveGame();
+
+	FString LevelSaveFile = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
+
+	GlobalSaveFile = LevelSaveFile;
+
+	// Trigger Beginplay in GameInstance...
+	GameInstance->BeginPlay();
+
+	GameInstance->LoadCheckpoint = true;
+
+	// Load Inventory from the GameInstance if its not empty...
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(GameInstance->PersistentInventory->Num()));
 }
 void AREM_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GameInstance->LoadCheckpoint)
+	{
+		GameInstance->LoadCheckpoint = false;
+		if (GameInstance->PersistentInventory)
+		{
+			if (GameInstance->PersistentInventory->Num() != 0)
+			{
+				if (MainCharacter)
+					Cast<AMainCharacter>(MainCharacter)->ReloadInventory(*GameInstance->PersistentInventory, MeshesAndTextures);
+				UE_LOG(LogTemp, Warning, TEXT("Reloaded Inventory"));
+			}
+		}
+
+
+		if (GameInstance->LevelData[GameInstance->CurrentLevelLoaded])
+		{
+			if (GameInstance->LevelData[GameInstance->CurrentLevelLoaded]->Num() != 0)
+			{
+				LoadDataFromBinary(*GameInstance->LevelData[GameInstance->CurrentLevelLoaded]);
+				UE_LOG(LogTemp, Warning, TEXT("Loaded LevelData"));
+			}
+		}
+
+		if(!GameInstance->MainMenu)
+			GameInstance->SaveAllData(SaveGameInstance);
+	}
 }
 
 void AREM_GameMode::RayCastArray(FHitResult* Ray, FVector* Start, FVector* Direction, float LengthOfRay, int size, AActor* ActorToIgnore)
@@ -104,6 +148,164 @@ InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
 	}
 
 	return nullptr;
+}
+
+void AREM_GameMode::UnloadMap(FName MapName)
+{
+	
+}
+
+void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
+{
+	AMainCharacter* Char = Cast<AMainCharacter>(MainCharacter);
+	
+	// Save last location of player in this level
+	FVector CharacterLocation = Char->GetActorLocation();
+	FRotator CharacterRotation = Char->GetActorRotation();
+	BinaryData << CharacterLocation;
+	BinaryData << CharacterRotation;
+
+	TArray<AInventoryItemObject*> DynamicObjects;
+	// Save all inventory items that are on the ground...
+
+	for (TActorIterator<AStaticMeshActor> Itr(GetWorld()); Itr; ++Itr)
+	{
+		AStaticMeshActor* Object = *Itr;
+
+
+		if (Object->IsA(AInventoryItemObject::StaticClass()))
+		{
+			DynamicObjects.Add(Cast<AInventoryItemObject>(Object));
+		}
+	}
+
+
+
+	int32 size = DynamicObjects.Num();
+	BinaryData << size;
+
+	for (int i = 0; i < size; i++)
+	{
+		int32 InteractID = DynamicObjects[i]->INTERACT_ID;
+		int32 ID = (int32)DynamicObjects[i]->ItemID;
+		FString Name = DynamicObjects[i]->Name;
+		FVector Location = DynamicObjects[i]->GetActorLocation();
+		FRotator Rotation = DynamicObjects[i]->GetActorRotation();
+
+		BinaryData << InteractID;
+		BinaryData << ID;
+		BinaryData << Name;
+		BinaryData << Location;
+		BinaryData << Rotation;
+	}
+
+	TArray<UInteractableComponent*> InteractableComponents;
+	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
+	{
+		InteractableComponents.Add(*Itr);
+	}
+
+	size = InteractableComponents.Num();
+
+	BinaryData << size;
+
+	for (int i = 0; i < size; i++)
+	{
+		FBufferArchive ObjectData = InteractableComponents[i]->GetSaveData();
+
+		BinaryData << ObjectData;
+	}
+
+	// Get all interactable components that exist in the scene
+}
+
+void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
+{
+	AMainCharacter* Char = Cast<AMainCharacter>(MainCharacter);
+
+	int32 size = 0;
+	FVector CharacterLocation;
+	FRotator CharacterRotation;
+
+	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+	Ar.Seek(0);
+
+	Ar << CharacterLocation;
+	Ar << CharacterRotation;
+
+	Char->SetActorLocation(CharacterLocation);
+	
+	CharacterRotation.Yaw += 180;
+	Char->SetActorRotation(CharacterRotation);
+
+	for (TActorIterator<AStaticMeshActor> Itr(GetWorld()); Itr; ++Itr)
+	{
+		AStaticMeshActor* Object = *Itr;
+		
+
+		if (Object->IsA(AInventoryItemObject::StaticClass()))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Going through already existing items!"));
+			Object->Destroy();
+		}
+	}
+
+	Ar << size;
+
+	for (int32 i = 0; i < size; i++)
+	{
+		int32 InteractID;
+		int32 ID;
+		FString Name;
+		FVector Location;
+		FVector Rotation;
+
+		Ar << InteractID;
+		Ar << ID;
+		Ar << Name;
+		Ar << Location;
+		Ar << Rotation;
+
+		ItemIDs ItemID = (ItemIDs)ID;
+
+		InventoryItem* Item = new InventoryItem(ItemID, InteractID, Name, MeshesAndTextures->GetStaticMeshByItemID(ItemID), MeshesAndTextures->GetTextureByItemID(ItemID));
+
+		PutObjectInWorld(Item, Location, Rotation, FVector(1, 1, 1));
+	}
+
+	TArray<UInteractableComponent*> InteractableComponents;
+	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
+	{
+		InteractableComponents.Add(*Itr);
+	}
+
+	Ar << size;
+
+	for (int32 i = 0; i < InteractableComponents.Num(); i++)
+	{
+		FBufferArchive ObjectData;
+		Ar << ObjectData;
+		InteractableComponents[i]->LoadSaveData(ObjectData);
+	}
+}
+
+FName AREM_GameMode::LoadAllData()
+{
+	FName LastLevel;
+	GameInstance->LoadAllData(LastLevel, SaveGameInstance);
+	return LastLevel;
+}
+
+void AREM_GameMode::SpawnMap(FName MapName)
+{
+	GameInstance->DeleteLevelData(GameInstance->CurrentLevelLoaded);
+	GetRelevantSaveData(*GameInstance->LevelData[GameInstance->CurrentLevelLoaded]);
+
+	GameInstance->DeletePersistentInventory();
+	Cast<AMainCharacter>(MainCharacter)->SaveInventory(*GameInstance->PersistentInventory);
+
+	UE_LOG(LogTemp, Warning, TEXT("All Data Saved"));
+	UGameplayStatics::OpenLevel(GetWorld(), MapName);
 }
 
 void AREM_GameMode::SetMainCharacter(ACharacter* Character)

@@ -82,6 +82,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Get the interactor instance")
 	UInteractableComponent* GetInteractor(AActor* Actor);
 
+	void RemoveInteractionWidget(UInteractableComponent* Component);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool MainMenuLevel = true;
 private:
@@ -96,6 +98,7 @@ private:
 	TArray<UImage*> Slots;
 
 	AREM_GameMode* GameMode = nullptr;
+	UREM_GameInstance* GameInstance = nullptr;
 
 	// Keep track of our inventory slots
 	int32 SlotCounter = 0;

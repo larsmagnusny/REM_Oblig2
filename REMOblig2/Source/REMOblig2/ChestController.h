@@ -33,6 +33,12 @@ public:
 	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex) override;
 	virtual void ItemInteract(int32 SlotNum) override;
 
+	// Data to save about this object, can be overriden
+	virtual FBufferArchive GetSaveData() override;
+
+	// Data to load about this object, can be overriden
+	virtual void LoadSaveData(FBufferArchive &BinaryData) override;
+
 	// En Funksjon som kalles ifra blueprint for å vite hvor kisten skal gå når du sier at den skal gå til et sted
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
 	AActor* SlotToGoTo();
@@ -43,19 +49,19 @@ public:
 
 	// Variabel som brukes i AnimasjonsBlueprint for å se om kisten skal være åpen eller ikke
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Is it open?")
-	bool isOpen = false;
+	bool isOpen = false;	// Save this
 
 	// Når vi "Aktiverer" kisten så følger den etter oss
 	UPROPERTY(EditAnywhere)
-	bool FollowWhenActivate = true;
+	bool FollowWhenActivate = true; // Save this
 
 	// Kisten skal aktivt følge etter spilleren hvis denne er true
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FollowPlayer?")
-	bool FollowingPlayer = false;
+	bool FollowingPlayer = false; // Save this
 
 	// Er kisten låst?
 	UPROPERTY(EditAnywhere)
-	bool locked = true;
+	bool locked = true;	// Save this
 
 	// Den INTERACT_IDen eventuelt nøkkelen må ha for å åpne kisten
 	UPROPERTY(EditAnywhere)
@@ -81,17 +87,17 @@ public:
 
 	// Boolean for at blueprintet til AI'en skal vite hvem han skal følge etter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Should i try to go to the slot?")
-	bool GoToSlot = false;
+	bool GoToSlot = false;	// Save this
 	
 	// Generelle variabler vi bruker
-	int Slot = -1;
-	bool SnappedToSlot = false;
-	FRotator Rotation;
-	FVector SlotLocation;
+	int Slot = -1;	// Save this
+	bool SnappedToSlot = false;	// Save this
+	FRotator Rotation;	// Save this
+	FVector SlotLocation;	// Save this
 
 	// Brukes for å "se" om kisten er full ifra andre klasser
-	bool filled = false;
+	bool filled = false;	// Save this
 private:
 	// Tell hvor mange leker vi har puttet i kisten
-	int toysfilled = 0;
+	int toysfilled = 0;	// Save this
 };

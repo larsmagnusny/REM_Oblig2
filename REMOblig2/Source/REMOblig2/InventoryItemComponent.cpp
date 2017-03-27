@@ -64,12 +64,25 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 	if (ThisItem)
 	{
 		// Fortell HovedKarakteren at han skal legge til ThisItem til inventoryen hans
-		Cast<AMainCharacter>(GameMode->GetMainCharacter())->AddItemToInventory(ThisItem);
+		AMainCharacter* Character = Cast<AMainCharacter>(GameMode->GetMainCharacter());
 
-		// Hvis jeg ikke fjerner denne så kan spillet krashe
-		GameMode->RemoveInteractableObject(GetOwner());
+		bool SuccessfullyAdded = Character->AddItemToInventory(ThisItem);
+		//Cast<AMainCharacter>(GameMode->GetMainCharacter())->AddItemToInventory(ThisItem);
 
-		// Ødelegg deg selv!
-		GetOwner()->Destroy();
+
+		if (SuccessfullyAdded)
+		{
+			// Hvis jeg ikke fjerner denne så kan spillet krashe
+			GameMode->RemoveInteractableObject(GetOwner());
+
+			if (Hud)
+			{
+				Hud->RemoveInteractionWidget(this);
+				UE_LOG(LogTemp, Warning, TEXT("Should show animation backwards..."));
+			}
+
+			// Ødelegg deg selv!
+			GetOwner()->Destroy();
+		}
 	}
 }
