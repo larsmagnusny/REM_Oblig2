@@ -4,6 +4,7 @@
 #include "REM_GameMode.h"
 #include "REM_Hud.h"
 #include "InventoryItem.h"
+#include "MainCharacter.h"
 #include "LockedDoor.h"
 #include "ChestSpot.h"
 
@@ -102,6 +103,15 @@ void UChestSpot::ActivateObject(AActor* Player)
 void UChestSpot::ExamineObject(AActor* Player)
 {
 	print("There's an x marking the spot. I wonder if i place something here something will happen?");
+
+	TArray<FString> Conversation;
+	Conversation.Add("There's an x marking the spot. I wonder if i place something here something will happen?");
+	Conversation.Add("You should totally not be reading this, as i am testing how the dialogue system works...");
+	Conversation.Add("This conversation seems to be dragging on, so i'll leave you be!");
+
+	Cast<AMainCharacter>(Player)->Conversation = Conversation;
+	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
 FBufferArchive UChestSpot::GetSaveData()

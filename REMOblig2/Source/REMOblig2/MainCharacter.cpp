@@ -119,6 +119,8 @@ void AMainCharacter::Tick(float DeltaTime)
 	{
 		if (!OurHud->canPlayerClick)
 			return;
+		if (OurHud->DialogueMenuOpen)
+			return;
 	}
 
 	// Raycast under the mouse so we can highlight the objects
@@ -410,6 +412,8 @@ void AMainCharacter::MouseLeftClick()
 	{
 		if (!OurHud->canPlayerClick)
 			return;
+		if (OurHud->DialogueMenuOpen)
+			return;
 	}
 
 	if (SpaceBarDown)
@@ -521,10 +525,14 @@ void AMainCharacter::MouseRightClick()
 	{
 		if (SpaceBarDown)
 			return;
+
 		if (!CanClickRayCast)
 			return;
 
 		if (!OurHud->canPlayerClick)
+			return;
+
+		if (OurHud->DialogueMenuOpen)
 			return;
 
 		FHitResult Hit;

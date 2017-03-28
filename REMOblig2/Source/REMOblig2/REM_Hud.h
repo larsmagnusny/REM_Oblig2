@@ -59,6 +59,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool canPlayerClick = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue menu open")
+	bool DialogueMenuOpen = false;
+
 	// Den menyen som er åpen
 	UUserWidget* RightClickMenu = nullptr;
 

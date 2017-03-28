@@ -256,10 +256,6 @@ void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optioninde
 	default:
 		print("This option is not possible!");
 	}
-
-	// Fortell Hudden at den du kan trykke på ting i scenen igjen...
-	if (Hud)
-		Hud->canPlayerClick = true;
 }
 
 AActor* UChestController::SlotToGoTo()

@@ -54,8 +54,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	UInteractableComponent* GetTalkingTo();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Dialogues, meta = (AllowPrivateAccess = "true"))
 	bool ShouldReloadDialogues = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Dialogues)
+	bool ShouldShowConversation = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Dialogues)
+	TArray<FString> Conversation;
 
 	// Blueprint Callable Functions!
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
