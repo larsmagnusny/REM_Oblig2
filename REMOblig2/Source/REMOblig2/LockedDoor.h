@@ -33,10 +33,10 @@ public:
 	virtual void ExamineObject(AActor* Player) override;
 
 	// Data to save about this object, can be overriden
-	virtual FBufferArchive GetSaveData();
+	virtual FBufferArchive GetSaveData() override;
 
 	// Data to load about this object, can be overriden
-	virtual void LoadSaveData(FBufferArchive &BinaryData);
+	virtual void LoadSaveData(FMemoryReader &Ar) override;
 
 	virtual FVector GetActivatePosition(AActor* Player) override;
 

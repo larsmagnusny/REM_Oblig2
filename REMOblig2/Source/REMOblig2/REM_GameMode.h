@@ -70,6 +70,8 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	void SaveAllData();
+
 	UFUNCTION()
 	void SpawnMap(FName MapName);
 

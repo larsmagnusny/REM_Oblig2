@@ -207,13 +207,11 @@ void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 
 	size = InteractableComponents.Num();
 
-	BinaryData << size;
-
 	for (int i = 0; i < size; i++)
 	{
 		FBufferArchive ObjectData = InteractableComponents[i]->GetSaveData();
 
-		BinaryData << ObjectData;
+		BinaryData.Append(ObjectData);
 	}
 
 	// Get all interactable components that exist in the scene
@@ -227,7 +225,7 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 	FVector CharacterLocation;
 	FRotator CharacterRotation;
 
-	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+	FMemoryReader Ar = FMemoryReader(BinaryData, false);
 	Ar.Seek(0);
 
 	Ar << CharacterLocation;
@@ -279,13 +277,9 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 		InteractableComponents.Add(*Itr);
 	}
 
-	Ar << size;
-
 	for (int32 i = 0; i < InteractableComponents.Num(); i++)
 	{
-		FBufferArchive ObjectData;
-		Ar << ObjectData;
-		InteractableComponents[i]->LoadSaveData(ObjectData);
+		InteractableComponents[i]->LoadSaveData(Ar);
 	}
 }
 
@@ -296,13 +290,18 @@ FName AREM_GameMode::LoadAllData()
 	return LastLevel;
 }
 
-void AREM_GameMode::SpawnMap(FName MapName)
+void AREM_GameMode::SaveAllData()
 {
 	GameInstance->DeleteLevelData(GameInstance->CurrentLevelLoaded);
 	GetRelevantSaveData(*GameInstance->LevelData[GameInstance->CurrentLevelLoaded]);
 
 	GameInstance->DeletePersistentInventory();
 	Cast<AMainCharacter>(MainCharacter)->SaveInventory(*GameInstance->PersistentInventory);
+}
+
+void AREM_GameMode::SpawnMap(FName MapName)
+{
+	SaveAllData();
 
 	UE_LOG(LogTemp, Warning, TEXT("All Data Saved"));
 	UGameplayStatics::OpenLevel(GetWorld(), MapName);

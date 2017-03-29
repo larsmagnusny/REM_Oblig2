@@ -127,10 +127,8 @@ FBufferArchive UChestSpot::GetSaveData()
 	return BinaryData;
 }
 
-void UChestSpot::LoadSaveData(FBufferArchive & BinaryData)
+void UChestSpot::LoadSaveData(FMemoryReader &Ar)
 {
-	FMemoryReader Ar = FMemoryReader(BinaryData, true);
-
 	Ar << ItemDropped;
 	Ar << PuzzleSolved;
 }

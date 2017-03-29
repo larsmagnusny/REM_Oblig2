@@ -67,7 +67,7 @@ FBufferArchive UInteractableComponent::GetSaveData()
 	return BinaryData;
 }
 
-void UInteractableComponent::LoadSaveData(FBufferArchive &BinaryData)
+void UInteractableComponent::LoadSaveData(FMemoryReader &Ar)
 {
 
 }
