@@ -52,7 +52,13 @@ void UInventoryItemComponent::ActivateObject(AActor* Player)
 
 void UInventoryItemComponent::ExamineObject(AActor* Player)
 {
-	print("It's a key, it probably opens something");
+	TArray<FString> Conversation;
+
+	Conversation.Add("This item has no description.");
+
+	Cast<AMainCharacter>(Player)->Conversation = Conversation;
+	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
 void UInventoryItemComponent::PickupObject(AActor* Player)

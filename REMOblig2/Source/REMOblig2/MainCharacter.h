@@ -45,6 +45,9 @@ public:
 	// For setting the dialogue options the player has when interacting with an object
 	void SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller);
 
+	UFUNCTION(BlueprintCallable, Category = "Clear Dialogue")
+	void ClearDialogueOptions();
+
 	void SetDialogueChoiceVisible();
 	void SetDialogueChoiceInvisible();
 
@@ -54,8 +57,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	UInteractableComponent* GetTalkingTo();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Dialogues, meta = (AllowPrivateAccess = "true"))
 	bool ShouldReloadDialogues = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Dialogues)
+	bool ShouldShowConversation = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Dialogues)
+	TArray<FString> Conversation;
 
 	// Blueprint Callable Functions!
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -90,6 +99,15 @@ public:
 	UMaterial* StandardMaterial;
 
 	float Mass = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
+	bool ResetPlayerCanClickAfterNextRightClick = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
+	bool ResetDialogueMenuOpenAfterNextRightClick = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
+	bool ResetCanClickRayCastAfterNextRightClick = false;
 private:
 	TArray<FString> CurrentDialogueOptions;
 
