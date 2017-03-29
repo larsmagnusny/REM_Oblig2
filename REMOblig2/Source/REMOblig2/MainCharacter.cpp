@@ -119,6 +119,8 @@ void AMainCharacter::Tick(float DeltaTime)
 	{
 		if (!OurHud->canPlayerClick)
 			return;
+		if (OurHud->DialogueMenuOpen)
+			return;
 	}
 
 	// Raycast under the mouse so we can highlight the objects
@@ -408,7 +410,36 @@ void AMainCharacter::MouseLeftClick()
 {
 	if (OurHud)
 	{
+		bool ShouldReturn = false;
+		if (ResetPlayerCanClickAfterNextRightClick)
+		{
+			OurHud->canPlayerClick = true;
+			ResetPlayerCanClickAfterNextRightClick = false;
+			ShouldReturn = true;
+		}
+
+		if (ResetDialogueMenuOpenAfterNextRightClick)
+		{
+			OurHud->DialogueMenuOpen = false;
+			ResetDialogueMenuOpenAfterNextRightClick = false;
+			ShouldReturn = true;
+		}
+
+		if (ResetCanClickRayCastAfterNextRightClick)
+		{
+			SetCanRayCast(true);
+			ResetCanClickRayCastAfterNextRightClick = false;
+			ShouldReturn = true;
+		}
+
+		if (ShouldReturn)
+		{
+			return;
+		}
+
 		if (!OurHud->canPlayerClick)
+			return;
+		if (OurHud->DialogueMenuOpen)
 			return;
 	}
 
@@ -519,12 +550,44 @@ void AMainCharacter::MouseRightClick()
 {
 	if (OurHud)
 	{
+		bool ShouldReturn = false;
+		if (ResetPlayerCanClickAfterNextRightClick)
+		{
+			OurHud->canPlayerClick = true;
+			ResetPlayerCanClickAfterNextRightClick = false;
+			ShouldReturn = true;
+		}
+
+		if (ResetDialogueMenuOpenAfterNextRightClick)
+		{
+			OurHud->DialogueMenuOpen = false;
+			ResetDialogueMenuOpenAfterNextRightClick = false;
+			ShouldReturn = true;
+		}
+
+		if (ResetCanClickRayCastAfterNextRightClick)
+		{
+			SetCanRayCast(true);
+			ResetCanClickRayCastAfterNextRightClick = false;
+			ShouldReturn = true;
+		}
+
+		if (ShouldReturn)
+		{
+			return;
+		}
+
+
 		if (SpaceBarDown)
 			return;
+
 		if (!CanClickRayCast)
 			return;
 
 		if (!OurHud->canPlayerClick)
+			return;
+
+		if (OurHud->DialogueMenuOpen)
 			return;
 
 		FHitResult Hit;
@@ -691,6 +754,11 @@ FString AMainCharacter::GetDialogueOption(int i)
 UInteractableComponent* AMainCharacter::GetTalkingTo()
 {
 	return TalkingTo;
+}
+
+void AMainCharacter::ClearDialogueOptions()
+{
+	CurrentDialogueOptions.Empty();
 }
 
 void AMainCharacter::SetDialogueChoiceVisible()
