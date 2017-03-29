@@ -88,6 +88,8 @@ public:
 	void SpaceBarPressed();
 	void SpaceBarReleased();
 
+	void TogglePauseMenu();
+
 	UPROPERTY(EditAnywhere)
 	AActor* MainCamera = nullptr;
 
