@@ -48,10 +48,6 @@ public:
 	bool ShowAnimationBackwards = false;
 
 	// Brukes i Blueprint
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RightclickMenu")
-	bool ShowRightClickMenu = false;
-
-	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorMenuSnap")
 	AActor* MenuSnapToActor = nullptr;
 
@@ -62,8 +58,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue menu open")
 	bool DialogueMenuOpen = false;
 
+	// Brukes i Blueprint
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RightclickMenu")
+	bool ShowRightClickMenu = false;
+
 	// Den menyen som er åpen
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Menu Widget")
 	UUserWidget* RightClickMenu = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "Set Hud Widget to null")
+	void ResetRightClickMenu();
 
 	// Brukes i Blueprint
 	UFUNCTION(BlueprintCallable, Category = "Get Slot Number")

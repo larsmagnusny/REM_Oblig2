@@ -45,6 +45,9 @@ public:
 	// For setting the dialogue options the player has when interacting with an object
 	void SetDialogueOptions(TArray<FString> Options, UInteractableComponent* Caller);
 
+	UFUNCTION(BlueprintCallable, Category = "Clear Dialogue")
+	void ClearDialogueOptions();
+
 	void SetDialogueChoiceVisible();
 	void SetDialogueChoiceInvisible();
 
@@ -96,6 +99,15 @@ public:
 	UMaterial* StandardMaterial;
 
 	float Mass = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
+	bool ResetPlayerCanClickAfterNextRightClick = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
+	bool ResetDialogueMenuOpenAfterNextRightClick = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
+	bool ResetCanClickRayCastAfterNextRightClick = false;
 private:
 	TArray<FString> CurrentDialogueOptions;
 
