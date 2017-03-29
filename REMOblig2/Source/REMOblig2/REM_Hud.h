@@ -93,12 +93,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool MainMenuLevel = true;
+
+	void TogglePauseMenuVisibility();
+
 private:
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;
 
 	UClass* MainMenuWidgetClassTemplate = nullptr;
 	UUserWidget* MainMenuWidget = nullptr;
+
+	UClass* PauseMenuWidgetClassTemplate = nullptr;
+	UUserWidget* PauseMenuWidget = nullptr;
 
 	TArray<InteractionWidget> SubMenues;
 

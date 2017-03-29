@@ -321,6 +321,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(FName("MouseClickRight"), EInputEvent::IE_Pressed, this, &AMainCharacter::MouseRightClick);
 	PlayerInputComponent->BindAction(FName("SpaceBar"), EInputEvent::IE_Pressed, this, &AMainCharacter::SpaceBarPressed);
 	PlayerInputComponent->BindAction(FName("SpaceBar"), EInputEvent::IE_Released, this, &AMainCharacter::SpaceBarReleased);
+	PlayerInputComponent->BindAction(FName("Pause"), EInputEvent::IE_Pressed, this, &AMainCharacter::TogglePauseMenu);
 }
 
 float AMainCharacter::GetDistanceBetweenActors(AActor* Actor1, AActor* Actor2)
@@ -726,6 +727,14 @@ void AMainCharacter::SpaceBarPressed()
 void AMainCharacter::SpaceBarReleased()
 {
 	SpaceBarDown = false;
+}
+
+void AMainCharacter::TogglePauseMenu()
+{
+	if (OurHud)
+	{
+		OurHud->TogglePauseMenuVisibility();
+	}
 }
 
 // For setting the dialogue options the player has when interacting with an object

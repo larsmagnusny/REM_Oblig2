@@ -11,6 +11,7 @@ AREM_Hud::AREM_Hud()
 	// Last inn Inventory Widgeten
 	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
 	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/MainMenu.MainMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/PauseMenu.PauseMenu_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
 	{
@@ -20,6 +21,11 @@ AREM_Hud::AREM_Hud()
 	if (MainMenuWidgetLoader.Succeeded())
 	{
 		MainMenuWidgetClassTemplate = MainMenuWidgetLoader.Class;
+	}
+
+	if (PauseMenuWidgetLoader.Succeeded())
+	{
+		PauseMenuWidgetClassTemplate = PauseMenuWidgetLoader.Class;
 	}
 }
 
@@ -67,7 +73,16 @@ void AREM_Hud::BeginPlay()
 	{
 		MainMenuWidget = CreateWidget < UUserWidget>(GetWorld()->GetFirstPlayerController(), MainMenuWidgetClassTemplate);
 
-		MainMenuWidget->AddToViewport(0);
+		MainMenuWidget->AddToViewport(1);
+	}
+
+	if (PauseMenuWidgetClassTemplate)
+	{
+		PauseMenuWidget = CreateWidget < UUserWidget>(GetWorld()->GetFirstPlayerController(), PauseMenuWidgetClassTemplate);
+
+		PauseMenuWidget->AddToViewport(0);
+
+		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	// Hent en peker til GameMode
@@ -220,6 +235,22 @@ void AREM_Hud::RemoveInteractionWidget(UInteractableComponent* Component)
 			//SubMenues.Remove(IW);
 			break;
 		}
+	}
+}
+
+void AREM_Hud::TogglePauseMenuVisibility()
+{
+	if (PauseMenuWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+	}
+
+	if (PauseMenuWidget->GetVisibility() == ESlateVisibility::Hidden)
+	{
+		PauseMenuWidget->SetVisibility(ESlateVisibility::Visible);
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 }
 
