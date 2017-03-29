@@ -261,6 +261,12 @@ UUserWidget* AREM_Hud::HUDCreateWidget(UClass* Template)
 	return CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), Template);
 }
 
+void AREM_Hud::ResetRightClickMenu()
+{
+	RightClickMenu = nullptr;
+	ShowRightClickMenu = false;
+}
+
 void AREM_Hud::SwapElements(int32 index1, int32 index2)
 {
 

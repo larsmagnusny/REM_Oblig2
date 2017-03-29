@@ -4,6 +4,7 @@
 #include "REM_GameMode.h"
 #include "REM_Hud.h"
 #include "InventoryItem.h"
+#include "MainCharacter.h"
 #include "LockedDoor.h"
 #include "ChestSpot.h"
 
@@ -60,7 +61,14 @@ void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 					{
 						ULockedDoor* DoorInteractor = Cast<ULockedDoor>(GameMode->GetInteractor(Door));
 						DoorInteractor->SetPuzzleSolved();
-						print("You hear the door open!");
+						
+						TArray<FString> Conversation;
+						Conversation.Add("You hear the door open.");
+
+						Cast<AMainCharacter>(GameMode->GetMainCharacter())->Conversation = Conversation;
+						Cast<AMainCharacter>(GameMode->GetMainCharacter())->ShouldShowConversation = true;
+						Cast<AMainCharacter>(GameMode->GetMainCharacter())->SetDialogueChoiceVisible();
+
 						PuzzleSolved = true;
 					}
 				}
@@ -101,7 +109,12 @@ void UChestSpot::ActivateObject(AActor* Player)
 
 void UChestSpot::ExamineObject(AActor* Player)
 {
-	print("There's an x marking the spot. I wonder if i place something here something will happen?");
+	TArray<FString> Conversation;
+	Conversation.Add("There's an x marking the spot. I wonder if i place something here something will happen?");
+
+	Cast<AMainCharacter>(Player)->Conversation = Conversation;
+	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
 FBufferArchive UChestSpot::GetSaveData()

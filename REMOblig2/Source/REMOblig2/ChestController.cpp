@@ -112,7 +112,13 @@ void UChestController::ActivateObject(AActor* Player)
 // Når spilleren trykker "Examine" Meny valget
 void UChestController::ExamineObject(AActor* Player)
 {
-	print("It's a toy chest, something seems strange about it.");
+	TArray<FString> Conversation;
+
+	Conversation.Add("It's a toy chest, something seems strange about it.");
+
+	Cast<AMainCharacter>(Player)->Conversation = Conversation;
+	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
 // Når spilleren trykker "OpenInventory" Meny valget
@@ -256,10 +262,6 @@ void UChestController::DialogueOptionPressed(UUserWidget* Caller, int optioninde
 	default:
 		print("This option is not possible!");
 	}
-
-	// Fortell Hudden at den du kan trykke på ting i scenen igjen...
-	if (Hud)
-		Hud->canPlayerClick = true;
 }
 
 AActor* UChestController::SlotToGoTo()

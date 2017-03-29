@@ -3,6 +3,7 @@
 #include "REMOblig2.h"
 #include "LockedDoor.h"
 #include "REM_GameMode.h"
+#include "MainCharacter.h"
 #include "REM_Hud.h"
 
 ULockedDoor::ULockedDoor()
@@ -119,22 +120,27 @@ void ULockedDoor::ActivateObject(AActor* Player)
 
 void ULockedDoor::ExamineObject(AActor* Player)
 {
+	TArray<FString> Conversation;
 	if (DoorOpenCondition == OpenCondition::OPEN_NORMAL)
 	{
-		print("The door is unlocked, why not open it?!");
+		Conversation.Add("The door is unlocked...");
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_KEY)
 	{
-		print("The door is locked. There must be a key somewhere.");
+		Conversation.Add("A key is required to open this door.");
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_COMPLETE_PUZZLE)
 	{
-		print("The door is locked, there's no keyhole.");
+		Conversation.Add("The door is locked, but there is no keyhole.");
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_TRIGGER)
 	{
-		print("There seems to be wires connected to the door, it leads to the pressurepad.");
+		Conversation.Add("There are wires coming out of the edge of the door seemingly connecting to a mechanism.");
 	}
+
+	Cast<AMainCharacter>(Player)->Conversation = Conversation;
+	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
 void ULockedDoor::OpenDoor()
