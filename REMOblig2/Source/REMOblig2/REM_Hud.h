@@ -96,12 +96,15 @@ public:
 
 	void TogglePauseMenuVisibility();
 
+	UPROPERTY(BlueprintReadWrite, Category = "MainMenuWidget")
+	UUserWidget* MainMenuWidget = nullptr;
+
 private:
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;
 
 	UClass* MainMenuWidgetClassTemplate = nullptr;
-	UUserWidget* MainMenuWidget = nullptr;
+	
 
 	UClass* PauseMenuWidgetClassTemplate = nullptr;
 	UUserWidget* PauseMenuWidget = nullptr;
