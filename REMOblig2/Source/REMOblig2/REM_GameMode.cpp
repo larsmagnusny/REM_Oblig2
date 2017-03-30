@@ -5,6 +5,7 @@
 #include "InventoryItemObject.h"
 #include "REM_Hud.h"
 #include "MainCharacter.h"
+#include "FadeController.h"
 
 AREM_GameMode::AREM_GameMode()
 {
@@ -36,10 +37,20 @@ void AREM_GameMode::BeginPlay()
 
 	// Load Inventory from the GameInstance if its not empty...
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(GameInstance->PersistentInventory->Num()));
+
+	
 }
+
 void AREM_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if (FadeController && FadeIn)
+	{
+		FadeIn = false;
+		Cast<UFadeController>(FadeController)->FadeIn();
+	}
 
 	if (GameInstance->LoadCheckpoint)
 	{
@@ -303,8 +314,13 @@ void AREM_GameMode::SpawnMap(FName MapName)
 {
 	SaveAllData();
 
+	if (FadeController)
+	{
+		Cast<UFadeController>(FadeController)->FadeOut(true, MapName);
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("All Data Saved"));
-	UGameplayStatics::OpenLevel(GetWorld(), MapName);
+	
 }
 
 void AREM_GameMode::SetMainCharacter(ACharacter* Character)

@@ -29,7 +29,4 @@ public:
 	FName LevelName;
 
 	AREM_GameMode* GameMode = nullptr;
-
-	UPROPERTY(EditAnywhere)
-	FVector ConnectedPosition;
 };

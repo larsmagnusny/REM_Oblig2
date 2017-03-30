@@ -44,7 +44,4 @@ void ULevelChangeActor::ActivateObject(AActor* Player)
 	GameMode->UnloadMap(GameMode->CurrentLoadedMap);
 
 	ACharacter* OurCharacter = GameMode->GetMainCharacter();
-
-	OurCharacter->SetActorLocation(ConnectedPosition);
-	
 }

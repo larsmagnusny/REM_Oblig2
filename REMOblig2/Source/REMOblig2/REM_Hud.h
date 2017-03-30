@@ -99,6 +99,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "MainMenuWidget")
 	UUserWidget* MainMenuWidget = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, Category = "TotalFadeValue")
+	float CurrentOpacity = 0.f;
+
 private:
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;

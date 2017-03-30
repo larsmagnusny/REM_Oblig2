@@ -80,7 +80,7 @@ void AREM_Hud::BeginPlay()
 	{
 		PauseMenuWidget = CreateWidget < UUserWidget>(GetWorld()->GetFirstPlayerController(), PauseMenuWidgetClassTemplate);
 
-		PauseMenuWidget->AddToViewport(0);
+		PauseMenuWidget->AddToViewport(2);
 
 		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -106,6 +106,21 @@ void AREM_Hud::DrawHUD()
 	AMainCharacter* MainCharacter = nullptr;
 	if(GameMode && !MainMenuLevel)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	if (CurrentOpacity > 0.8f)
+	{
+		if (InventoryWidget->IsVisible())
+		{
+			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+	else if (CurrentOpacity < 0.8f)
+	{
+		if (!InventoryWidget->IsVisible())
+		{
+			InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 
 	if (MainCharacter && !MainMenuLevel)
 	{
