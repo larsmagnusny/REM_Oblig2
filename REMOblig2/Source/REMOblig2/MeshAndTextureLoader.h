@@ -17,9 +17,12 @@ public:
 	UStaticMesh* GetStaticMeshByItemID(ItemIDs ID);
 	UTexture2D* GetTextureByItemID(ItemIDs ID);
 private:
-	TArray<UStaticMesh*> StaticMeshes;
 	TArray<FString> MeshRefString;
-
-	TArray<UTexture2D*> ItemIconTextures;
+	TArray<FString*> MatRefStrings;
+	TArray<int> NumMats;
 	TArray<FString> ItemIconRefString;
+
+	TArray<UStaticMesh*> StaticMeshes;
+	TArray<UTexture2D*> ItemIconTextures;
+	TArray<UMaterial**> MaterialReference;
 };

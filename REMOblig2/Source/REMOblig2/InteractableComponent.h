@@ -38,7 +38,7 @@ public:
 	virtual FBufferArchive GetSaveData();
 
 	// Data to load about this object, can be overriden
-	virtual void LoadSaveData(FBufferArchive &BinaryData);
+	virtual void LoadSaveData(FMemoryReader &Ar);
 
 	// Item interacts with the object, when dropping an item from inventory to the object you want to interact with.
 	UFUNCTION(BlueprintCallable, Category = "Item Interact with object...")

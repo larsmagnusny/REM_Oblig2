@@ -220,10 +220,8 @@ FBufferArchive UChestController::GetSaveData()
 	return BinaryData;
 }
 
-void UChestController::LoadSaveData(FBufferArchive & BinaryData)
+void UChestController::LoadSaveData(FMemoryReader &Ar)
 {
-	FMemoryReader Ar = FMemoryReader(BinaryData, true);
-
 	// Load variables connected to this object...
 	Ar << isOpen;
 	Ar << FollowWhenActivate;

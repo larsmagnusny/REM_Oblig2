@@ -93,12 +93,24 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool MainMenuLevel = true;
+
+	void TogglePauseMenuVisibility();
+
+	UPROPERTY(BlueprintReadWrite, Category = "MainMenuWidget")
+	UUserWidget* MainMenuWidget = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, Category = "TotalFadeValue")
+	float CurrentOpacity = 0.f;
+
 private:
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;
 
 	UClass* MainMenuWidgetClassTemplate = nullptr;
-	UUserWidget* MainMenuWidget = nullptr;
+	
+
+	UClass* PauseMenuWidgetClassTemplate = nullptr;
+	UUserWidget* PauseMenuWidget = nullptr;
 
 	TArray<InteractionWidget> SubMenues;
 

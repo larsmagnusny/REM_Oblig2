@@ -29,7 +29,7 @@ public:
 	virtual FBufferArchive GetSaveData() override;
 
 	// Data to load about this object, can be overriden
-	virtual void LoadSaveData(FBufferArchive &BinaryData) override;
+	virtual void LoadSaveData(FMemoryReader &Ar) override;
 
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player) override;

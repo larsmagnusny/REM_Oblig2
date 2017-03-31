@@ -8,6 +8,7 @@
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
 #include "REM_GameInstance.h"
+
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -70,6 +71,8 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	void SaveAllData();
+
 	UFUNCTION()
 	void SpawnMap(FName MapName);
 
@@ -87,6 +90,9 @@ public:
 	bool LoadSave = true;
 
 	float counter = 0.f;
+
+	USceneComponent* FadeController = nullptr;
+	bool FadeIn = true;
 private:
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
