@@ -62,6 +62,18 @@ AMainCharacter::AMainCharacter()
 			}
 		}
 	}
+
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> RadioMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Radio/RadioRigged.RadioRigged'"));
+
+	USkeletalMeshComponent* RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
+	RadioComponent->AttachTo(SkeletalMeshComponent, FName("Hold"), EAttachLocation::SnapToTarget);
+	RadioComponent->RegisterComponent();
+
+	if (RadioMeshLoader.Succeeded())
+	{
+		RadioComponent->SetSkeletalMesh(RadioMeshLoader.Object);
+		RadioComponent->SetAllBodiesSimulatePhysics(true);
+	}
 }
 
 // Called when the game starts or when spawned
