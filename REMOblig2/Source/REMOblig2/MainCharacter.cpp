@@ -65,14 +65,9 @@ AMainCharacter::AMainCharacter()
 
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> RadioMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Radio/RadioRigged.RadioRigged'"));
 
-	USkeletalMeshComponent* RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
-	RadioComponent->AttachTo(SkeletalMeshComponent, FName("Hold"), EAttachLocation::SnapToTarget);
-	RadioComponent->RegisterComponent();
-
 	if (RadioMeshLoader.Succeeded())
 	{
-		RadioComponent->SetSkeletalMesh(RadioMeshLoader.Object);
-		RadioComponent->SetAllBodiesSimulatePhysics(true);
+		RadioMesh = RadioMeshLoader.Object;
 	}
 }
 
@@ -80,6 +75,22 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
+	
+	//RadioComponent->AttachTo(SkeletalMeshComponent, FName("Hold"), EAttachLocation::SnapToTarget, true);
+	
+	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, true);
+	
+	RadioComponent->AttachToComponent(SkeletalMeshComponent, Rules, FName("Hold"));
+
+	RadioComponent->RegisterComponent();
+
+	if(RadioMesh)
+		RadioComponent->SetSkeletalMesh(RadioMesh);
+	
+	RadioComponent->SetAllBodiesSimulatePhysics(true);
+	
 
 	// Set the viewtarget of this camera to look at the Main Character
 	GetWorld()->GetFirstPlayerController()->SetViewTarget(this);

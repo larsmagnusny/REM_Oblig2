@@ -162,4 +162,7 @@ private:
 	UUserWidget* DialogueWidget = nullptr;
 
 	UInteractableComponent* TalkingTo = nullptr;
+
+	USkeletalMesh* RadioMesh = nullptr;
+	USkeletalMeshComponent* RadioComponent = nullptr;
 };
