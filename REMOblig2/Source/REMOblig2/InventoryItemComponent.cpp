@@ -92,3 +92,8 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 		}
 	}
 }
+
+FVector UInventoryItemComponent::GetActivatePosition(AActor * Player)
+{
+	return GetOwner()->GetActorLocation();
+}

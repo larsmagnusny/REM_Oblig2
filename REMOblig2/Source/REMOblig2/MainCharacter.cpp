@@ -272,6 +272,8 @@ void AMainCharacter::Tick(float DeltaTime)
 		if (lastDistanceCounter > 5)
 		{
 			MoveTo = GetActorLocation();
+			if (DelayActivate)
+				ActivatePosition = GetActorLocation();
 		}
 
 		if (NavSys && (Distance > 25.0f))
@@ -283,9 +285,6 @@ void AMainCharacter::Tick(float DeltaTime)
 			MouseMove = false;
 
 			float const ActivateDist = FVector2D::Distance(FVector2D(ActivatePosition), FVector2D(GetActorLocation()));
-
-			if (ActivateDist > 30.f)
-				return;
 
 			if (DelayClimb)
 			{
@@ -301,6 +300,9 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			if (DelayActivate)
 			{
+				if (ActivateDist > 50.f)
+					return;
+
 				DelayActivate = false;
 				if (DelayActivateObject.OwningActor)
 				{
@@ -369,8 +371,8 @@ void AMainCharacter::DropItem(int32 SlotIndex, FVector2D WorldLocation)
 	Rotation = FVector(0, 0, 0);
 	Scale = FVector(1, 1, 1);
 
-	GameMode->PutObjectInWorld(PlayerInventory->GetItem(SlotIndex), Position, Rotation, Scale);
-	PlayerInventory->DiscardItem(SlotIndex);
+GameMode->PutObjectInWorld(PlayerInventory->GetItem(SlotIndex), Position, Rotation, Scale);
+PlayerInventory->DiscardItem(SlotIndex);
 }
 
 void AMainCharacter::DiscardItem(int32 SlotNum)
@@ -466,6 +468,29 @@ void AMainCharacter::MouseLeftClick()
 
 	AActor* HitActor = Hit.GetActor();
 
+	// We are in a puzzleGameMode...
+	if (IsInPuzzleGameMode)
+	{
+		if (HitActor)
+		{
+			if (GameMode->IsInteractble(HitActor))
+			{
+				InteractableObject* Obj = GameMode->GetInteractableObject(HitActor);
+
+				if (Obj->ScriptComponent)
+				{
+					Obj->ScriptComponent->ActivateObject(this);
+				}
+				if (Obj->StaticMeshInstance)
+				{
+					Obj->StaticMeshInstance->ActivateObject(this);
+				}
+			}
+		}
+		return;
+	}
+
+
 	if (HitActor)
 	{
 		if (GameMode->IsInteractble(HitActor))
@@ -477,13 +502,16 @@ void AMainCharacter::MouseLeftClick()
 			DelayActivateObject.StaticMeshInstance = Obj->StaticMeshInstance;
 
 			if (Obj->StaticMeshInstance)
-			{
+			{	
 				MoveTo = Hit.ImpactPoint;
 			}
+
 			if (Obj->ScriptComponent)
 			{
 				MoveTo = Obj->ScriptComponent->GetActivatePosition(this);
+				
 			}
+
 			ActivatePosition = MoveTo;
 			DelayActivate = true;
 			//MouseMove = true;
