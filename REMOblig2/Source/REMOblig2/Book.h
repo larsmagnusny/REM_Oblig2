@@ -64,4 +64,8 @@ private:
 
 	float MoveCounter = 0.f;
 	float Interval = 0.01f;
+
+	bool Wait = false;
+	float TimeToWait = 0.5f;
+	float TimeCounter = 0.f;
 };

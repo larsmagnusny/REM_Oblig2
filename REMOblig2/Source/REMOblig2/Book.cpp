@@ -27,11 +27,25 @@ void UBook::BeginPlay()
 void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (Wait)
+	{
+		if (TimeCounter > TimeToWait)
+		{
+			TimeCounter = 0.f;
+			Wait = false;
+			CanOverlap = true;
+		}
+		else {
+			TimeCounter += DeltaTime;
+		}
+	}
 
 	GetOwner()->SetActorLocation(CurrentPosition);
 
 	if (!CanOverlap)
-		CanOverlap = true;
+	{
+		Wait = true;
+	}
 }
 
 void UBook::ActivateObject(AActor * Player)
@@ -40,9 +54,11 @@ void UBook::ActivateObject(AActor * Player)
 
 	if (BookCase->DraggingBook)
 	{
+		UBook* OtherComponent = BookCase->GetBookComponentByActor(BookCase->BookToDrag);
+		OtherComponent->CurrentPosition = BookCase->GetPositionFromSlot(OtherComponent->OccupyingIndex);
+
 		BookCase->DraggingBook = false;
 		BookCase->BookToDrag = nullptr;
-		CurrentPosition = BookCase->GetPositionFromSlot(OccupyingIndex);
 	}
 	else
 	{
@@ -68,9 +84,8 @@ void UBook::LoadSaveData(FMemoryReader & Ar)
 {
 	Ar << OccupyingIndex;
 
-	//CurrentPosition = Cast<UBookCase>(ParentComponent)->GetPositionFromSlot(OccupyingIndex);
-
-	
+	CanOverlap = false;
+	CurrentPosition = Cast<UBookCase>(ParentComponent)->GetPositionFromSlot(OccupyingIndex);
 }
 
 void UBook::SetInteractable()
@@ -94,14 +109,16 @@ void UBook::BeginOverlap(AActor* MyOverlappedActor, AActor* OtherActor)
 		//return;
 
 	if (!CanOverlap)
+	{
+		CanOverlap = true;
 		return;
+	}
 
 	UBookCase* Parent = Cast<UBookCase>(ParentComponent);
 
 	if (Cast<UBookCase>(ParentComponent)->BookToDrag != MyOverlappedActor && Parent->GetBookComponentByActor(OtherActor) && Parent->GetBookComponentByActor(MyOverlappedActor))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Being Overlapped!"));
-		
 
 		UBook* OtherComponent = Parent->GetBookComponentByActor(OtherActor);
 

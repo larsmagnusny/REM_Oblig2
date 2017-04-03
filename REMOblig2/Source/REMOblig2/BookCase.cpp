@@ -74,14 +74,6 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		LoadGameInit = false;
 
-		for (UBook* BookComp : BookComponents)
-		{
-			BookComp->CanOverlap = false;
-			BookComp->CurrentPosition = GetPositionFromSlot(BookComp->OccupyingIndex);
-
-			UE_LOG(LogTemp, Error, TEXT("Load: %s Position: %s"), *FString::FromInt(BookComp->OccupyingIndex), *BookComp->CurrentPosition.ToString());
-		}
-
 		if (PuzzleSolved)
 		{
 			if (GameMode->IsInteractble(GetOwner()))
@@ -162,6 +154,9 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		StopCameraAnimation = false;
 		RunCameraAnimation = false;
 	}
+
+	if (!CurrentCamera)
+		return;
 
 	if (RunCameraAnimation)
 	{
@@ -309,6 +304,7 @@ FBufferArchive UBookCase::GetSaveData()
 
 	BinaryData << CanRunAnimation;
 	BinaryData << PuzzleSolved;
+	BinaryData << SnapPositions;
 
 	UE_LOG(LogTemp, Error, TEXT("Saved: %s"), *FString::FromInt(CanRunAnimation));
 	UE_LOG(LogTemp, Error, TEXT("Saved: %s"), *FString::FromInt(PuzzleSolved));
@@ -320,6 +316,7 @@ void UBookCase::LoadSaveData(FMemoryReader & Ar)
 {
 	Ar << CanRunAnimation;
 	Ar << PuzzleSolved;
+	Ar << SnapPositions;
 }
 
 void UBookCase::MakeAllBooksInteractable()
