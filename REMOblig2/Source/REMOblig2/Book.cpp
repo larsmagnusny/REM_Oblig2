@@ -86,6 +86,7 @@ void UBook::LoadSaveData(FMemoryReader & Ar)
 
 	CanOverlap = false;
 	CurrentPosition = Cast<UBookCase>(ParentComponent)->GetPositionFromSlot(OccupyingIndex);
+	GetOwner()->SetActorLocation(CurrentPosition);
 }
 
 void UBook::SetInteractable()
