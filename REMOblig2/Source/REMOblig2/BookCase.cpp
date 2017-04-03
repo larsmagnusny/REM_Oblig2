@@ -59,15 +59,38 @@ void UBookCase::BeginPlay()
 	for (UBook* BookComp : BookComponents)
 	{
 		BookComp->SetParent(this);
+
 		BookComp->OccupyingIndex = counter++;
 	}
 }
 
 
 // Called every frame
-void UBookCase::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (LoadGameInit)
+	{
+		LoadGameInit = false;
+
+		for (UBook* BookComp : BookComponents)
+		{
+			BookComp->CanOverlap = false;
+			BookComp->CurrentPosition = GetPositionFromSlot(BookComp->OccupyingIndex);
+
+			UE_LOG(LogTemp, Error, TEXT("Load: %s Position: %s"), *FString::FromInt(BookComp->OccupyingIndex), *BookComp->CurrentPosition.ToString());
+		}
+
+		if (PuzzleSolved)
+		{
+			if (GameMode->IsInteractble(GetOwner()))
+			{
+				GameMode->RemoveInteractableObject(GetOwner());
+			}
+		}
+
+	}
 
 	if (!CanRunAnimation)
 		return;
@@ -196,7 +219,6 @@ void UBookCase::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 				Direction.Normalize();
 
 				CurrentCamera->SetActorLocation(CurrentCamera->GetActorLocation() + Direction*5.0f);
-				UE_LOG(LogTemp, Warning, TEXT("Running Animation!"));
 
 				CurrentCamera->FollowCharacter = true;
 			}
@@ -226,7 +248,8 @@ void UBookCase::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
 				}
 				else {
-					GameMode->AddInteractableObject(GetOwner(), this);
+					if(!GameMode->IsInteractble(GetOwner()))
+						GameMode->AddInteractableObject(GetOwner(), this);
 				}
 
 				Cast<AMainCharacter>(MCharacter)->IsInPuzzleGameMode = false;
@@ -280,6 +303,25 @@ FVector UBookCase::GetActivatePosition(AActor * Player)
 	return GetOwner()->GetActorLocation();
 }
 
+FBufferArchive UBookCase::GetSaveData()
+{
+	FBufferArchive BinaryData;
+
+	BinaryData << CanRunAnimation;
+	BinaryData << PuzzleSolved;
+
+	UE_LOG(LogTemp, Error, TEXT("Saved: %s"), *FString::FromInt(CanRunAnimation));
+	UE_LOG(LogTemp, Error, TEXT("Saved: %s"), *FString::FromInt(PuzzleSolved));
+
+	return BinaryData;
+}
+
+void UBookCase::LoadSaveData(FMemoryReader & Ar)
+{
+	Ar << CanRunAnimation;
+	Ar << PuzzleSolved;
+}
+
 void UBookCase::MakeAllBooksInteractable()
 {
 	for (int i = 0; i < BookComponents.Num(); i++)
@@ -309,13 +351,9 @@ FVector UBookCase::GetPositionFromSlot(int Index)
 
 void UBookCase::SwapPositions(int index1, int index2)
 {
-	UBook* Temp = BookComponents[index1];
-	BookComponents[index1] = BookComponents[index2];
-	BookComponents[index2] = Temp;
+	//BookComponents.Swap(index1, index2);
 
-	AActor* Temp2 = Books[index1];
-	Books[index1] = Books[index2];
-	Books[index2] = Temp2;
+	//Books.Swap(index1, index2);
 }
 
 UBook * UBookCase::GetBookComponentByActor(AActor * BookObject)
@@ -331,11 +369,22 @@ UBook * UBookCase::GetBookComponentByActor(AActor * BookObject)
 
 bool UBookCase::CheckSolution()
 {
-	TArray<FString> Array;
+	TArray<FString> Array3;
+	TArray<int> IndexArray;
+
 
 	for (UBook* Book : BookComponents)
 	{
-		Array.Add(Book->BookTitle);
+		IndexArray.Add(Book->OccupyingIndex);
+		Array3.Add(Book->BookTitle);
+	}
+
+	TArray<FString> Array;
+	Array.SetNum(IndexArray.Num(), false);
+
+	for (int i = 0; i < IndexArray.Num(); i++)
+	{
+		Array[IndexArray[i]] = Array3[i];
 	}
 
 	TArray<FString> Array2 = Array;
@@ -344,7 +393,6 @@ bool UBookCase::CheckSolution()
 
 	for (int i = 0; i < Array.Num(); i++)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s == %s"), *Array[i], *Array2[i])
 		if (!Array[i].Equals(Array2[i]))
 		{
 			return false;

@@ -28,6 +28,12 @@ public:
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player) override;
 
+	// Data to save about this object, can be overriden
+	virtual FBufferArchive GetSaveData() override;
+
+	// Data to load about this object, can be overriden
+	virtual void LoadSaveData(FMemoryReader &Ar) override;
+
 	void SetInteractable();
 	void UnsetInteractable();
 
@@ -46,11 +52,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	FString BookTitle = "";
 
+	bool CanOverlap = true;
+
 private:
 	AREM_GameMode* GameMode = nullptr;
 	AREM_Hud* Hud = nullptr;
 
 	UInteractableComponent* ParentComponent = nullptr;
+
+	
 
 	float MoveCounter = 0.f;
 	float Interval = 0.01f;

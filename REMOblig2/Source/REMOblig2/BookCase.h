@@ -32,6 +32,12 @@ public:
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player) override;
 
+	// Data to save about this object, can be overriden
+	virtual FBufferArchive GetSaveData() override;
+
+	// Data to load about this object, can be overriden
+	virtual void LoadSaveData(FMemoryReader &Ar) override;
+
 	void MakeAllBooksInteractable();
 	void MakeAllBooksNonInteractable();
 
@@ -94,4 +100,6 @@ private:
 
 	bool ShouldWait = false;
 	float Wait = 2.f;
+
+	bool LoadGameInit = true;
 };

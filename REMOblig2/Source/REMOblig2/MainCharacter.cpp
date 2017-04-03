@@ -497,6 +497,14 @@ void AMainCharacter::MouseLeftClick()
 					Obj->StaticMeshInstance->ActivateObject(this);
 				}
 			}
+			else {
+				UInteractableComponent* Component = Cast<UInteractableComponent>(HitActor->GetComponentByClass(UInteractableComponent::StaticClass()));
+
+				if (Component)
+				{
+					Component->ActivateObject(this);
+				}
+			}
 		}
 		return;
 	}

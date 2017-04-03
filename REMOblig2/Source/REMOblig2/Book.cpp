@@ -28,14 +28,10 @@ void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//if (MoveCounter > Interval)
-	//{
-		GetOwner()->SetActorLocation(CurrentPosition);
-		//MoveCounter = 0.f;
-	//}
-	//GetOwner()->UpdateOverlaps();
+	GetOwner()->SetActorLocation(CurrentPosition);
 
-	//MoveCounter += DeltaTime;
+	if (!CanOverlap)
+		CanOverlap = true;
 }
 
 void UBook::ActivateObject(AActor * Player)
@@ -60,6 +56,23 @@ FVector UBook::GetActivatePosition(AActor * Player)
 	return FVector();
 }
 
+FBufferArchive UBook::GetSaveData()
+{
+	FBufferArchive BinaryData;
+	BinaryData << OccupyingIndex;
+	UE_LOG(LogTemp, Error, TEXT("Save: %s"), *FString::FromInt(OccupyingIndex));
+	return BinaryData;
+}
+
+void UBook::LoadSaveData(FMemoryReader & Ar)
+{
+	Ar << OccupyingIndex;
+
+	//CurrentPosition = Cast<UBookCase>(ParentComponent)->GetPositionFromSlot(OccupyingIndex);
+
+	
+}
+
 void UBook::SetInteractable()
 {
 	GameMode->AddInteractableObject(GetOwner(), this);
@@ -77,10 +90,18 @@ void UBook::SetParent(UInteractableComponent * Parent)
 
 void UBook::BeginOverlap(AActor* MyOverlappedActor, AActor* OtherActor)
 {
-	if (Cast<UBookCase>(ParentComponent)->BookToDrag != MyOverlappedActor)
+	//if (!OtherActor->IsA(UBook::StaticClass()))
+		//return;
+
+	if (!CanOverlap)
+		return;
+
+	UBookCase* Parent = Cast<UBookCase>(ParentComponent);
+
+	if (Cast<UBookCase>(ParentComponent)->BookToDrag != MyOverlappedActor && Parent->GetBookComponentByActor(OtherActor) && Parent->GetBookComponentByActor(MyOverlappedActor))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Being Overlapped!"));
-		UBookCase* Parent = Cast<UBookCase>(ParentComponent);
+		
 
 		UBook* OtherComponent = Parent->GetBookComponentByActor(OtherActor);
 
@@ -90,8 +111,6 @@ void UBook::BeginOverlap(AActor* MyOverlappedActor, AActor* OtherActor)
 		int index2 = OccupyingIndex;
 		OtherComponent->OccupyingIndex = OccupyingIndex;
 		OccupyingIndex = OtherIndex;
-
-		Parent->SwapPositions(index1, index2);
 
 		CurrentPosition = Parent->GetPositionFromSlot(OccupyingIndex);
 	}
