@@ -166,6 +166,17 @@ void AREM_GameMode::UnloadMap(FName MapName)
 	
 }
 
+void AREM_GameMode::SortArray(TArray<UInteractableComponent*>& Array)
+{
+	Array.Sort([&](UInteractableComponent& A, UInteractableComponent& B)
+	{
+		const FString& AName = A.ParentName;
+		const FString& BName = B.ParentName;
+
+		return AName.Compare(BName) < 0;
+	});
+}
+
 void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 {
 	AMainCharacter* Char = Cast<AMainCharacter>(MainCharacter);
@@ -213,8 +224,14 @@ void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 	TArray<UInteractableComponent*> InteractableComponents;
 	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
 	{
-		InteractableComponents.Add(*Itr);
+		if (*Itr)
+		{
+			InteractableComponents.Add(*Itr);
+			(*Itr)->ParentName = (*Itr)->GetOwner()->GetName();
+		}
 	}
+
+	SortArray(InteractableComponents);
 
 	size = InteractableComponents.Num();
 
@@ -285,8 +302,14 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 	TArray<UInteractableComponent*> InteractableComponents;
 	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
 	{
-		InteractableComponents.Add(*Itr);
+		if (*Itr)
+		{
+			InteractableComponents.Add(*Itr);
+			(*Itr)->ParentName = (*Itr)->GetOwner()->GetName();
+		}
 	}
+
+	SortArray(InteractableComponents);
 
 	for (int32 i = 0; i < InteractableComponents.Num(); i++)
 	{

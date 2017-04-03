@@ -28,6 +28,7 @@ public:
 
 	// This function all interactable components inherit
 	// This can be triggered from anywhere
+
 	virtual void ActivateObject(AActor* Player);
 	virtual void ExamineObject(AActor* Player);
 	virtual void PickupObject(AActor* Player);
@@ -96,5 +97,7 @@ public:
 	// Used in Inherited Classes
 	UClass* SubMenuWidgetClassTemplate = nullptr;
 	UUserWidget* SubMenuWidget = nullptr;
+
+	FString ParentName = "None";
 private:
 };

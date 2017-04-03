@@ -79,6 +79,7 @@ public:
 	UFUNCTION()
 	void UnloadMap(FName MapName);
 
+	void SortArray(TArray<UInteractableComponent*>& Array);
 	void GetRelevantSaveData(FBufferArchive &BinaryData);
 	void LoadDataFromBinary(FBufferArchive &BinaryData);
 
