@@ -32,7 +32,7 @@ AMainCharacter::AMainCharacter()
 	{
 		SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Mannequin/Character/Mesh/SK_Mannequin.SK_Mannequin'"));
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/MainCharacter/Walk.Walk'"));
 		if (SkeletalMeshLoader.Succeeded())
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
@@ -43,7 +43,7 @@ AMainCharacter::AMainCharacter()
 			{
 				SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
-				static ConstructorHelpers::FObjectFinder<UClass> AnimationBP(TEXT("Class'/Game/Meshes/Mannequin/Animations/ThirdPerson_AnimBP.ThirdPerson_AnimBP_C'"));
+				static ConstructorHelpers::FObjectFinder<UClass> AnimationBP(TEXT("Class'/Game/Meshes/MainCharacter/AnimationBlueprint.AnimationBlueprint_C'"));
 
 				if (AnimationBP.Succeeded())
 				{
@@ -52,7 +52,7 @@ AMainCharacter::AMainCharacter()
 			}
 
 			static ConstructorHelpers::FObjectFinder<UMaterial> Mat1(TEXT("Material'/Game/Materials/Camo_Mat.Camo_Mat'"));
-			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/Mannequin/Character/Materials/M_UE4Man_Body.M_UE4Man_Body'"));
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/MainCharacter/lambert2.lambert2'"));
 
 			if (Mat1.Succeeded() && Mat2.Succeeded())
 			{
@@ -62,12 +62,35 @@ AMainCharacter::AMainCharacter()
 			}
 		}
 	}
+
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> RadioMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Radio/RadioRigged.RadioRigged'"));
+
+	if (RadioMeshLoader.Succeeded())
+	{
+		RadioMesh = RadioMeshLoader.Object;
+	}
 }
 
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
+	
+	//RadioComponent->AttachTo(SkeletalMeshComponent, FName("Hold"), EAttachLocation::SnapToTarget, true);
+	
+	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, true);
+	
+	RadioComponent->AttachToComponent(SkeletalMeshComponent, Rules, FName("Hold"));
+
+	RadioComponent->RegisterComponent();
+
+	if(RadioMesh)
+		RadioComponent->SetSkeletalMesh(RadioMesh);
+	
+	RadioComponent->SetAllBodiesSimulatePhysics(true);
+	
 
 	// Set the viewtarget of this camera to look at the Main Character
 	GetWorld()->GetFirstPlayerController()->SetViewTarget(this);
@@ -260,6 +283,8 @@ void AMainCharacter::Tick(float DeltaTime)
 		if (lastDistanceCounter > 5)
 		{
 			MoveTo = GetActorLocation();
+			if (DelayActivate)
+				ActivatePosition = GetActorLocation();
 		}
 
 		if (NavSys && (Distance > 25.0f))
@@ -271,9 +296,6 @@ void AMainCharacter::Tick(float DeltaTime)
 			MouseMove = false;
 
 			float const ActivateDist = FVector2D::Distance(FVector2D(ActivatePosition), FVector2D(GetActorLocation()));
-
-			if (ActivateDist > 30.f)
-				return;
 
 			if (DelayClimb)
 			{
@@ -289,6 +311,9 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			if (DelayActivate)
 			{
+				if (ActivateDist > 50.f)
+					return;
+
 				DelayActivate = false;
 				if (DelayActivateObject.OwningActor)
 				{
@@ -357,8 +382,8 @@ void AMainCharacter::DropItem(int32 SlotIndex, FVector2D WorldLocation)
 	Rotation = FVector(0, 0, 0);
 	Scale = FVector(1, 1, 1);
 
-	GameMode->PutObjectInWorld(PlayerInventory->GetItem(SlotIndex), Position, Rotation, Scale);
-	PlayerInventory->DiscardItem(SlotIndex);
+GameMode->PutObjectInWorld(PlayerInventory->GetItem(SlotIndex), Position, Rotation, Scale);
+PlayerInventory->DiscardItem(SlotIndex);
 }
 
 void AMainCharacter::DiscardItem(int32 SlotNum)
@@ -454,6 +479,37 @@ void AMainCharacter::MouseLeftClick()
 
 	AActor* HitActor = Hit.GetActor();
 
+	// We are in a puzzleGameMode...
+	if (IsInPuzzleGameMode)
+	{
+		if (HitActor)
+		{
+			if (GameMode->IsInteractble(HitActor))
+			{
+				InteractableObject* Obj = GameMode->GetInteractableObject(HitActor);
+
+				if (Obj->ScriptComponent)
+				{
+					Obj->ScriptComponent->ActivateObject(this);
+				}
+				if (Obj->StaticMeshInstance)
+				{
+					Obj->StaticMeshInstance->ActivateObject(this);
+				}
+			}
+			else {
+				UInteractableComponent* Component = Cast<UInteractableComponent>(HitActor->GetComponentByClass(UInteractableComponent::StaticClass()));
+
+				if (Component)
+				{
+					Component->ActivateObject(this);
+				}
+			}
+		}
+		return;
+	}
+
+
 	if (HitActor)
 	{
 		if (GameMode->IsInteractble(HitActor))
@@ -465,13 +521,16 @@ void AMainCharacter::MouseLeftClick()
 			DelayActivateObject.StaticMeshInstance = Obj->StaticMeshInstance;
 
 			if (Obj->StaticMeshInstance)
-			{
+			{	
 				MoveTo = Hit.ImpactPoint;
 			}
+
 			if (Obj->ScriptComponent)
 			{
 				MoveTo = Obj->ScriptComponent->GetActivatePosition(this);
+				
 			}
+
 			ActivatePosition = MoveTo;
 			DelayActivate = true;
 			//MouseMove = true;

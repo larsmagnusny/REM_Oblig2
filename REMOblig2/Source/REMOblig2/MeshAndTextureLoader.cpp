@@ -27,6 +27,13 @@ MeshAndTextureLoader::MeshAndTextureLoader()
 	MatRefStrings.Add(Mats);
 	ItemIconRefString.Add("Texture2D'/Game/Textures/SpinnerToy.SpinnerToy'");
 
+	MeshRefString.Add("StaticMesh'/Game/Meshes/Pliers/pliers.pliers'");
+	NumMats.Add(1);
+	Mats = new FString[NumMats[1]];
+	Mats[0] = "Material'/Game/Meshes/Pliers/lambert1.lambert1'";
+	MatRefStrings.Add(Mats);
+	ItemIconRefString.Add("Texture2D'/Game/Textures/pliers.pliers'");
+
 
 	for (uint8 i = 0; i < MeshRefString.Num(); i++)
 	{

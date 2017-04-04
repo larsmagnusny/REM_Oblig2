@@ -7,7 +7,7 @@
 
 UInventoryItemComponent::UInventoryItemComponent()
 {
-	
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UInventoryItemComponent::BeginPlay()
@@ -24,25 +24,42 @@ void UInventoryItemComponent::BeginPlay()
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
 	Actions.Add(ActionType::INTERACT_ACTIVATE);
 
+	UE_LOG(LogTemp, Warning, TEXT("Buttons Added!"));
+
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
-	if (SubMenuWidgetClassTemplate)
+	UE_LOG(LogTemp, Warning, TEXT("References gotten..."));
+
+	if (SubMenuWidgetClassTemplate && Hud)
 	{
+
 		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
+		UE_LOG(LogTemp, Warning, TEXT("Widget Created"));
 
 		if (SubMenuWidget)
 		{
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
-			SubMenuWidget->AddToViewport();
+			UE_LOG(LogTemp, Warning, TEXT("Added Interaction Widget"));
+			SubMenuWidget->AddToViewport(11);
+			UE_LOG(LogTemp, Warning, TEXT("Added to viewport"));
 		}
 	}
+	
 
 	GameMode->AddInteractableObject(GetOwner(), this, nullptr);
+
+	UE_LOG(LogTemp, Warning, TEXT("Set Interactable!"));
 }
 void UInventoryItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (ShouldDie)
+	{
+		ShouldDie = false;
+		Cast<AInventoryItemObject>(GetOwner())->NeedDelete = true;
+	}
 }
 
 void UInventoryItemComponent::ActivateObject(AActor* Player)
@@ -67,28 +84,40 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 	// Hent en referanse til denne itemet ifra parenten som er et objekt vi spawner inn i verden
 	InventoryItem* ThisItem = Cast<AInventoryItemObject>(GetOwner())->InvItemRef;
 
+	UE_LOG(LogTemp, Warning, TEXT("ItemRef Got"));
+
 	if (ThisItem)
 	{
 		// Fortell HovedKarakteren at han skal legge til ThisItem til inventoryen hans
 		AMainCharacter* Character = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+		UE_LOG(LogTemp, Warning, TEXT("Character Found"));
 
 		bool SuccessfullyAdded = Character->AddItemToInventory(ThisItem);
-		//Cast<AMainCharacter>(GameMode->GetMainCharacter())->AddItemToInventory(ThisItem);
+		UE_LOG(LogTemp, Warning, TEXT("Added To Inventory"));
 
 
 		if (SuccessfullyAdded)
 		{
 			// Hvis jeg ikke fjerner denne så kan spillet krashe
-			GameMode->RemoveInteractableObject(GetOwner());
+			UE_LOG(LogTemp, Warning, TEXT("Checking Interactable"));
+			if(GameMode->IsInteractble(GetOwner()))
+				GameMode->RemoveInteractableObject(GetOwner());
+
+			UE_LOG(LogTemp, Warning, TEXT("Removed if found"));
 
 			if (Hud)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Trying to remove interactionWidget"));
 				Hud->RemoveInteractionWidget(this);
 				UE_LOG(LogTemp, Warning, TEXT("Should show animation backwards..."));
 			}
 
-			// Ødelegg deg selv!
-			GetOwner()->Destroy();
+			ShouldDie = true;
 		}
 	}
+}
+
+FVector UInventoryItemComponent::GetActivatePosition(AActor * Player)
+{
+	return GetOwner()->GetActorLocation();
 }

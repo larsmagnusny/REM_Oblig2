@@ -101,26 +101,36 @@ void AREM_GameMode::AddInteractableObject(AActor* Actor, UInteractableComponent*
 	Object.OwningActor = Actor;
 	Object.ScriptComponent = Component;
 	Object.StaticMeshInstance = StaticMeshInstance;
-
+	ArrayInUse = true;
 	InteractableObjects.Add(Object);
+	ArrayInUse = false;
 }
 
 void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
 {
+	ArrayInUse = true;
 	for (int32 i = 0; i < InteractableObjects.Num(); i++)
 	{
 		if (InteractableObjects[i].OwningActor == Actor)
 		{
 			InteractableObjects.RemoveAt(i);
+			ArrayInUse = false;
 			return;
 		}
 	}
+	ArrayInUse = false;
 }
 
 bool AREM_GameMode::IsInteractble(AActor* Actor)
 {
+	if (ArrayInUse)
+		return false;
+
 	for (InteractableObject obj : InteractableObjects)
 	{
+		if (ArrayInUse)
+			return false;
+
 		if (obj.OwningActor == Actor)
 			return true;
 	}
@@ -164,6 +174,17 @@ InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
 void AREM_GameMode::UnloadMap(FName MapName)
 {
 	
+}
+
+void AREM_GameMode::SortArray(TArray<UInteractableComponent*>& Array)
+{
+	Array.Sort([&](UInteractableComponent& A, UInteractableComponent& B)
+	{
+		const FString& AName = A.ParentName;
+		const FString& BName = B.ParentName;
+
+		return AName.Compare(BName) < 0;
+	});
 }
 
 void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
@@ -213,8 +234,14 @@ void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 	TArray<UInteractableComponent*> InteractableComponents;
 	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
 	{
-		InteractableComponents.Add(*Itr);
+		if (*Itr)
+		{
+			InteractableComponents.Add(*Itr);
+			(*Itr)->ParentName = (*Itr)->GetOwner()->GetName();
+		}
 	}
+
+	SortArray(InteractableComponents);
 
 	size = InteractableComponents.Num();
 
@@ -285,8 +312,14 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 	TArray<UInteractableComponent*> InteractableComponents;
 	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
 	{
-		InteractableComponents.Add(*Itr);
+		if (*Itr)
+		{
+			InteractableComponents.Add(*Itr);
+			(*Itr)->ParentName = (*Itr)->GetOwner()->GetName();
+		}
 	}
+
+	SortArray(InteractableComponents);
 
 	for (int32 i = 0; i < InteractableComponents.Num(); i++)
 	{

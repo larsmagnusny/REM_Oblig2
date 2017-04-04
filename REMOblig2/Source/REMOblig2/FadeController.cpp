@@ -79,7 +79,6 @@ void UFadeController::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 			float InOut = 0.f;
 			if (track->Eval(CurrentPosition, LastPosition, InOut))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::SanitizeFloat(InOut));
 				if (HudInstance)
 				{
 					HudInstance->CurrentOpacity = InOut;

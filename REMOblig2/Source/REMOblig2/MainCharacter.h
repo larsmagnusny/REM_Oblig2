@@ -110,8 +110,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
 	bool ResetCanClickRayCastAfterNextRightClick = false;
+
+	bool IsInPuzzleGameMode = false;
 private:
 	TArray<FString> CurrentDialogueOptions;
+
+
 
 	// This can be toggled when hovering over a UI element
 	bool CanClickRayCast = true;
@@ -158,4 +162,7 @@ private:
 	UUserWidget* DialogueWidget = nullptr;
 
 	UInteractableComponent* TalkingTo = nullptr;
+
+	USkeletalMesh* RadioMesh = nullptr;
+	USkeletalMeshComponent* RadioComponent = nullptr;
 };

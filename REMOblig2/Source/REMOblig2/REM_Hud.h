@@ -102,7 +102,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "TotalFadeValue")
 	float CurrentOpacity = 0.f;
 
+	// Only way to tell the bookpuzzle who owns him at the moment...
+	// Should set up a baseclass for the blueprint...
+	UPROPERTY(BlueprintReadWrite)
+	UActorComponent* BookPuzzleParent = nullptr;
+
 private:
+	bool SubMenuesInUse = false;
+
+
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;
 

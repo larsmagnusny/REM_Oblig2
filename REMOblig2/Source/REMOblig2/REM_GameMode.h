@@ -71,6 +71,7 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	UFUNCTION(BlueprintCallable, Category = "Save All Data")
 	void SaveAllData();
 
 	UFUNCTION()
@@ -79,6 +80,7 @@ public:
 	UFUNCTION()
 	void UnloadMap(FName MapName);
 
+	void SortArray(TArray<UInteractableComponent*>& Array);
 	void GetRelevantSaveData(FBufferArchive &BinaryData);
 	void LoadDataFromBinary(FBufferArchive &BinaryData);
 
@@ -94,6 +96,8 @@ public:
 	USceneComponent* FadeController = nullptr;
 	bool FadeIn = true;
 private:
+	bool ArrayInUse = false;
+
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
 

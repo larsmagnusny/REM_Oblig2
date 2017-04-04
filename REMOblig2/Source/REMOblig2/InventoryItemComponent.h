@@ -23,9 +23,12 @@ public:
 	virtual void ActivateObject(AActor* Player) override;
 	virtual void ExamineObject(AActor* Player) override;
 	virtual void PickupObject(AActor* Player) override;
+
+	// The position relative to the object to move when activating the object.
+	virtual FVector GetActivatePosition(AActor* Player);
 	
 private:
 	AREM_Hud* Hud = nullptr;
 	AREM_GameMode* GameMode = nullptr;
-	
+	bool ShouldDie = false;
 };
