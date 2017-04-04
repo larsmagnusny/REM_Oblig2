@@ -35,7 +35,7 @@ void ULockedDoor::BeginPlay()
 		if (SubMenuWidget)
 		{
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
-			SubMenuWidget->AddToViewport();
+			SubMenuWidget->AddToViewport(11);
 		}
 	}
 

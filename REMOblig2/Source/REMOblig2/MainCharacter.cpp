@@ -32,7 +32,7 @@ AMainCharacter::AMainCharacter()
 	{
 		SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/Mannequin/Character/Mesh/SK_Mannequin.SK_Mannequin'"));
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/MainCharacter/Walk.Walk'"));
 		if (SkeletalMeshLoader.Succeeded())
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
@@ -43,7 +43,7 @@ AMainCharacter::AMainCharacter()
 			{
 				SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
-				static ConstructorHelpers::FObjectFinder<UClass> AnimationBP(TEXT("Class'/Game/Meshes/Mannequin/Animations/ThirdPerson_AnimBP.ThirdPerson_AnimBP_C'"));
+				static ConstructorHelpers::FObjectFinder<UClass> AnimationBP(TEXT("Class'/Game/Meshes/MainCharacter/AnimationBlueprint.AnimationBlueprint_C'"));
 
 				if (AnimationBP.Succeeded())
 				{
@@ -52,7 +52,7 @@ AMainCharacter::AMainCharacter()
 			}
 
 			static ConstructorHelpers::FObjectFinder<UMaterial> Mat1(TEXT("Material'/Game/Materials/Camo_Mat.Camo_Mat'"));
-			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/Mannequin/Character/Materials/M_UE4Man_Body.M_UE4Man_Body'"));
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/MainCharacter/lambert2.lambert2'"));
 
 			if (Mat1.Succeeded() && Mat2.Succeeded())
 			{

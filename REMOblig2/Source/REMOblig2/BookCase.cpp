@@ -39,7 +39,7 @@ void UBookCase::BeginPlay()
 		if (SubMenuWidget)
 		{
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
-			SubMenuWidget->AddToViewport();
+			SubMenuWidget->AddToViewport(11);
 		}
 	}
 
@@ -69,6 +69,9 @@ void UBookCase::BeginPlay()
 void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!CurrentCamera)
+		return;
 
 	if (LoadGameInit)
 	{
@@ -155,9 +158,6 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		RunCameraAnimation = false;
 	}
 
-	if (!CurrentCamera)
-		return;
-
 	if (RunCameraAnimation)
 	{
 		if (Forward)
@@ -219,19 +219,25 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 			}
 			else
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Making All books non-interactable..."));
 				MakeAllBooksNonInteractable();
+				UE_LOG(LogTemp, Warning, TEXT("Sucess..."));
 				CurrentCamera->SetActorLocation(MainCameraOrigPosition);
 				CurrentCamera->SetActorRotation(MainCameraOrigRotation);
+				UE_LOG(LogTemp, Warning, TEXT("Set Camera Back where it belongs"));
 				RunCameraAnimation = false;
 				Forward = true;
 
 				if (PuzzleSolved)
 				{
+					UE_LOG(LogTemp, Warning, TEXT("Puzzle has been solved"));
 					CanRunAnimation = false;
 					if (GameMode->IsInteractble(GetOwner()))
 					{
 						GameMode->RemoveInteractableObject(GetOwner());
 					}
+
+					UE_LOG(LogTemp, Warning, TEXT("Interactor Removed..."));
 
 					// Spawn an inventoryitemobject here...
 					UStaticMesh* Mesh = GameMode->MeshesAndTextures->GetStaticMeshByItemID(ItemToDrop);
@@ -240,7 +246,7 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 					// Spawn ett objekt
 					GameMode->PutObjectInWorld(Item, PositionToDrop, FVector(0, 0, 0), FVector(1, 1, 1));
-
+					UE_LOG(LogTemp, Warning, TEXT("Item Spawned..."));
 				}
 				else {
 					if(!GameMode->IsInteractble(GetOwner()))
@@ -317,6 +323,14 @@ void UBookCase::LoadSaveData(FMemoryReader & Ar)
 	Ar << CanRunAnimation;
 	Ar << PuzzleSolved;
 	Ar << SnapPositions;
+
+	if (PuzzleSolved)
+	{
+		if (GameMode->IsInteractble(GetOwner()))
+		{
+			GameMode->RemoveInteractableObject(GetOwner());
+		}
+	}
 }
 
 void UBookCase::MakeAllBooksInteractable()

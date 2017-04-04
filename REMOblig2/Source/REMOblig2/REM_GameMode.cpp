@@ -101,26 +101,36 @@ void AREM_GameMode::AddInteractableObject(AActor* Actor, UInteractableComponent*
 	Object.OwningActor = Actor;
 	Object.ScriptComponent = Component;
 	Object.StaticMeshInstance = StaticMeshInstance;
-
+	ArrayInUse = true;
 	InteractableObjects.Add(Object);
+	ArrayInUse = false;
 }
 
 void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
 {
+	ArrayInUse = true;
 	for (int32 i = 0; i < InteractableObjects.Num(); i++)
 	{
 		if (InteractableObjects[i].OwningActor == Actor)
 		{
 			InteractableObjects.RemoveAt(i);
+			ArrayInUse = false;
 			return;
 		}
 	}
+	ArrayInUse = false;
 }
 
 bool AREM_GameMode::IsInteractble(AActor* Actor)
 {
+	if (ArrayInUse)
+		return false;
+
 	for (InteractableObject obj : InteractableObjects)
 	{
+		if (ArrayInUse)
+			return false;
+
 		if (obj.OwningActor == Actor)
 			return true;
 	}

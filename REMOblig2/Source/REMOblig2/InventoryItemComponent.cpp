@@ -7,7 +7,7 @@
 
 UInventoryItemComponent::UInventoryItemComponent()
 {
-	
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UInventoryItemComponent::BeginPlay()
@@ -34,7 +34,7 @@ void UInventoryItemComponent::BeginPlay()
 		if (SubMenuWidget)
 		{
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
-			SubMenuWidget->AddToViewport();
+			SubMenuWidget->AddToViewport(11);
 		}
 	}
 
@@ -42,7 +42,13 @@ void UInventoryItemComponent::BeginPlay()
 }
 void UInventoryItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (ShouldDie)
+	{
+		ShouldDie = false;
+		GetOwner()->Destroy();
+	}
 }
 
 void UInventoryItemComponent::ActivateObject(AActor* Player)
@@ -79,7 +85,8 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 		if (SuccessfullyAdded)
 		{
 			// Hvis jeg ikke fjerner denne så kan spillet krashe
-			GameMode->RemoveInteractableObject(GetOwner());
+			if(GameMode->IsInteractble(GetOwner()))
+				GameMode->RemoveInteractableObject(GetOwner());
 
 			if (Hud)
 			{
@@ -87,8 +94,7 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 				UE_LOG(LogTemp, Warning, TEXT("Should show animation backwards..."));
 			}
 
-			// Ødelegg deg selv!
-			GetOwner()->Destroy();
+			ShouldDie = true;
 		}
 	}
 }

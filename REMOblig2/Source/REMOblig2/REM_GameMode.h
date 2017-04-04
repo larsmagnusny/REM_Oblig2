@@ -95,6 +95,8 @@ public:
 	USceneComponent* FadeController = nullptr;
 	bool FadeIn = true;
 private:
+	bool ArrayInUse = false;
+
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
 

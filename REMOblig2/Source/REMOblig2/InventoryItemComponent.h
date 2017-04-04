@@ -30,5 +30,5 @@ public:
 private:
 	AREM_Hud* Hud = nullptr;
 	AREM_GameMode* GameMode = nullptr;
-	
+	bool ShouldDie = false;
 };
