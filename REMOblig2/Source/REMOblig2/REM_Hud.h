@@ -108,6 +108,9 @@ public:
 	UActorComponent* BookPuzzleParent = nullptr;
 
 private:
+	bool SubMenuesInUse = false;
+
+
 	UClass* InventoryWidgetClassTemplate = nullptr;
 	UUserWidget* InventoryWidget = nullptr;
 

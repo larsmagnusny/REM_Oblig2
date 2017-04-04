@@ -71,6 +71,7 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	UFUNCTION(BlueprintCallable, Category = "Save All Data")
 	void SaveAllData();
 
 	UFUNCTION()

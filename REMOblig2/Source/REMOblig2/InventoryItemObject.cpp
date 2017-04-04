@@ -65,17 +65,19 @@ void AInventoryItemObject::Tick(float DeltaTime)
 	if (NeedDelete)
 	{
 		Destroy();
-		UE_LOG(LogTemp, Warning, TEXT("DELETED MYSELF!"));
 	}
 }
 
 void AInventoryItemObject::Init(InventoryItem* Item)
 {
-	InvItemRef = Item;
-	ItemID = Item->ItemID;
-	INTERACT_ID = Item->INTERACT_ID;
-	Name = Item->Name;
+	if (Item)
+	{
+		InvItemRef = Item;
+		ItemID = Item->ItemID;
+		INTERACT_ID = Item->INTERACT_ID;
+		Name = Item->Name;
 
-	Mesh = Item->Mesh;
-	InventoryIcon = Item->InventoryIcon;
+		Mesh = Item->Mesh;
+		InventoryIcon = Item->InventoryIcon;
+	}
 }
