@@ -28,6 +28,7 @@ public:
 
 	// This function all interactable components inherit
 	// This can be triggered from anywhere
+
 	virtual void ActivateObject(AActor* Player);
 	virtual void ExamineObject(AActor* Player);
 	virtual void PickupObject(AActor* Player);
@@ -38,7 +39,7 @@ public:
 	virtual FBufferArchive GetSaveData();
 
 	// Data to load about this object, can be overriden
-	virtual void LoadSaveData(FBufferArchive &BinaryData);
+	virtual void LoadSaveData(FMemoryReader &Ar);
 
 	// Item interacts with the object, when dropping an item from inventory to the object you want to interact with.
 	UFUNCTION(BlueprintCallable, Category = "Item Interact with object...")
@@ -96,5 +97,7 @@ public:
 	// Used in Inherited Classes
 	UClass* SubMenuWidgetClassTemplate = nullptr;
 	UUserWidget* SubMenuWidget = nullptr;
+
+	FString ParentName = "None";
 private:
 };

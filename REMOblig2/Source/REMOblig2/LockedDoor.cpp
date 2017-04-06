@@ -35,7 +35,7 @@ void ULockedDoor::BeginPlay()
 		if (SubMenuWidget)
 		{
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
-			SubMenuWidget->AddToViewport();
+			SubMenuWidget->AddToViewport(11);
 		}
 	}
 
@@ -172,22 +172,52 @@ FBufferArchive ULockedDoor::GetSaveData()
 {
 	FBufferArchive BinaryData;
 
-	BinaryData << Open;
-	BinaryData << PuzzleSolved;
-	BinaryData << InitialRotation;
-	BinaryData << CurrentRotation;
+	int Op = (int)Open;
+	int PSolved = (int)PuzzleSolved;
+	FRotator IRotation = InitialRotation;
+	float CRotation = CurrentRotation;
+
+	BinaryData << Op;
+	BinaryData << PSolved;
+	BinaryData << IRotation;
+	BinaryData << CRotation;
+
+	UE_LOG(LogTemp, Warning, TEXT("Saved Data for Open: %s"), *FString::FromInt(Op));
+	UE_LOG(LogTemp, Warning, TEXT("Saved Data for PuzzleSolved: %s"), *FString::FromInt(PSolved));
+	UE_LOG(LogTemp, Warning, TEXT("Saved Data for InitialRotation: %s"), *IRotation.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Saved Data for PuzzleSolved: %s"), *FString::SanitizeFloat(CRotation));
 
 	return BinaryData;
 }
 
-void ULockedDoor::LoadSaveData(FBufferArchive & BinaryData)
-{
-	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+void ULockedDoor::LoadSaveData(FMemoryReader &Ar)
+{	
+	int Op;
+	int PSolved;
+	FRotator IRotation;
+	float CRotation;
+
+	Ar << Op;
+	Ar << PSolved;
+	Ar << IRotation;
+	Ar << CRotation;
+
+	if (Op > 0)
+		Open = true;
+	if (Op == 0)
+		Open = false;
+	if (PSolved > 0)
+		PuzzleSolved = true;
+	if (PSolved == 0)
+		PuzzleSolved = false;
 	
-	Ar << Open;
-	Ar << PuzzleSolved;
-	Ar << InitialRotation;
-	Ar << CurrentRotation;
+	InitialRotation = IRotation;
+	CurrentRotation = CRotation;
+
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for Open: %s"), *FString::FromInt(Op));
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for PuzzleSolved: %s"), *FString::FromInt(PSolved));
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for InitialRotation: %s"), *IRotation.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for CurrentRotation: %s"), *FString::SanitizeFloat(CRotation));
 }
 
 FVector ULockedDoor::GetActivatePosition(AActor* Player)

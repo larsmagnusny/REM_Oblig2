@@ -56,7 +56,7 @@ void UChestController::BeginPlay()
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
 
 			// Add på øverste lag på viewporten
-			SubMenuWidget->AddToViewport();
+			SubMenuWidget->AddToViewport(11);
 		}
 	}
 
@@ -166,20 +166,25 @@ void UChestController::ItemInteract(int32 SlotNum)
 	// Hent itemet som er i den slotten vi slapp ifra, ( Se på blueprintet InventorySlot )
 	InventoryItem* Item = MainCharacter->GetItemBySlot(SlotNum);
 
+
+	TArray<FString> Conversation;
+
 	// Hvis pekeren ikke er NULL
 	if (Item)
 	{
 		// Hvis det er en leke og kisten er åpen
 		if (Item->INTERACT_ID == 666 && isOpen)
 		{
-			print("It likes toys!");
 			toysfilled++;
 			MainCharacter->DiscardItem(SlotNum);
 			return;
 		}
 		else if (Item->INTERACT_ID == 666)
 		{
-			print("The chest is closed.");
+			Conversation.Add("I need to open the chest before i can put something in there.");
+			MainCharacter->Conversation = Conversation;
+			MainCharacter->ShouldShowConversation = true;
+			MainCharacter->SetDialogueChoiceVisible();
 		}
 
 
@@ -188,11 +193,17 @@ void UChestController::ItemInteract(int32 SlotNum)
 		{
 			locked = false;
 			MainCharacter->DiscardItem(SlotNum);
-			print("You hear a clicking noise!");
+			Conversation.Add("You hear the chest open with a \"click\" of the lock.");
+			MainCharacter->Conversation = Conversation;
+			MainCharacter->ShouldShowConversation = true;
+			MainCharacter->SetDialogueChoiceVisible();
 		}
 		else if(Item->INTERACT_ID == OPENID)
 		{
-			print("You have a key, but it has the wrong ID!");
+			Conversation.Add("The key you have doesn't fit the lock?!");
+			MainCharacter->Conversation = Conversation;
+			MainCharacter->ShouldShowConversation = true;
+			MainCharacter->SetDialogueChoiceVisible();
 		}
 	} 
 	else
@@ -220,10 +231,8 @@ FBufferArchive UChestController::GetSaveData()
 	return BinaryData;
 }
 
-void UChestController::LoadSaveData(FBufferArchive & BinaryData)
+void UChestController::LoadSaveData(FMemoryReader &Ar)
 {
-	FMemoryReader Ar = FMemoryReader(BinaryData, true);
-
 	// Load variables connected to this object...
 	Ar << isOpen;
 	Ar << FollowWhenActivate;

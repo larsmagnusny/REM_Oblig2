@@ -80,7 +80,7 @@ void AREM_Hud::BeginPlay()
 	{
 		PauseMenuWidget = CreateWidget < UUserWidget>(GetWorld()->GetFirstPlayerController(), PauseMenuWidgetClassTemplate);
 
-		PauseMenuWidget->AddToViewport(0);
+		PauseMenuWidget->AddToViewport(2);
 
 		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -106,6 +106,21 @@ void AREM_Hud::DrawHUD()
 	AMainCharacter* MainCharacter = nullptr;
 	if(GameMode && !MainMenuLevel)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	if (CurrentOpacity > 0.8f)
+	{
+		if (InventoryWidget->IsVisible())
+		{
+			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+	else if (CurrentOpacity < 0.8f)
+	{
+		if (!InventoryWidget->IsVisible())
+		{
+			InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 
 	if (MainCharacter && !MainMenuLevel)
 	{
@@ -214,26 +229,30 @@ void AREM_Hud::CallActivate(ActionType Action)
 
 void AREM_Hud::AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UInteractableComponent* Component, AInteractableObject* Object)
 {
+	SubMenuesInUse = true;
 	InteractionWidget InterWidget;
 	InterWidget.Owner = OwnerObject;
 	InterWidget.MenuWidget = Widget;
 	InterWidget.ParentComponent = Component;
 	InterWidget.ParentObject = Object;
 	SubMenues.Add(InterWidget);
+	SubMenuesInUse = false;
 }
 
 void AREM_Hud::RemoveInteractionWidget(UInteractableComponent* Component)
 {
-	for (InteractionWidget IW : SubMenues)
+	for(int i = 0; i < SubMenues.Num(); i++)
 	{
-		if (IW.ParentComponent == Component)
+		if (SubMenues[i].ParentComponent == Component)
 		{
-			IW.MenuWidget->RemoveFromViewport();
+			SubMenues[i].MenuWidget->SetVisibility(ESlateVisibility::Hidden);
+
+			SubMenues.RemoveAt(i);
 
 			canPlayerClick = true;
 
-			//SubMenues.Remove(IW);
-			break;
+			SubMenuesInUse = false;
+			return;
 		}
 	}
 }

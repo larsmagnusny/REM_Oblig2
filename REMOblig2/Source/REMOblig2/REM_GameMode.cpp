@@ -5,6 +5,7 @@
 #include "InventoryItemObject.h"
 #include "REM_Hud.h"
 #include "MainCharacter.h"
+#include "FadeController.h"
 
 AREM_GameMode::AREM_GameMode()
 {
@@ -36,10 +37,20 @@ void AREM_GameMode::BeginPlay()
 
 	// Load Inventory from the GameInstance if its not empty...
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(GameInstance->PersistentInventory->Num()));
+
+	
 }
+
 void AREM_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if (FadeController && FadeIn)
+	{
+		FadeIn = false;
+		Cast<UFadeController>(FadeController)->FadeIn();
+	}
 
 	if (GameInstance->LoadCheckpoint)
 	{
@@ -90,26 +101,36 @@ void AREM_GameMode::AddInteractableObject(AActor* Actor, UInteractableComponent*
 	Object.OwningActor = Actor;
 	Object.ScriptComponent = Component;
 	Object.StaticMeshInstance = StaticMeshInstance;
-
+	ArrayInUse = true;
 	InteractableObjects.Add(Object);
+	ArrayInUse = false;
 }
 
 void AREM_GameMode::RemoveInteractableObject(AActor* Actor)
 {
+	ArrayInUse = true;
 	for (int32 i = 0; i < InteractableObjects.Num(); i++)
 	{
 		if (InteractableObjects[i].OwningActor == Actor)
 		{
 			InteractableObjects.RemoveAt(i);
+			ArrayInUse = false;
 			return;
 		}
 	}
+	ArrayInUse = false;
 }
 
 bool AREM_GameMode::IsInteractble(AActor* Actor)
 {
+	if (ArrayInUse)
+		return false;
+
 	for (InteractableObject obj : InteractableObjects)
 	{
+		if (ArrayInUse)
+			return false;
+
 		if (obj.OwningActor == Actor)
 			return true;
 	}
@@ -153,6 +174,17 @@ InteractableObject* AREM_GameMode::GetInteractableObject(AActor* Actor)
 void AREM_GameMode::UnloadMap(FName MapName)
 {
 	
+}
+
+void AREM_GameMode::SortArray(TArray<UInteractableComponent*>& Array)
+{
+	Array.Sort([&](UInteractableComponent& A, UInteractableComponent& B)
+	{
+		const FString& AName = A.ParentName;
+		const FString& BName = B.ParentName;
+
+		return AName.Compare(BName) < 0;
+	});
 }
 
 void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
@@ -202,18 +234,22 @@ void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 	TArray<UInteractableComponent*> InteractableComponents;
 	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
 	{
-		InteractableComponents.Add(*Itr);
+		if (*Itr)
+		{
+			InteractableComponents.Add(*Itr);
+			(*Itr)->ParentName = (*Itr)->GetOwner()->GetName();
+		}
 	}
 
-	size = InteractableComponents.Num();
+	SortArray(InteractableComponents);
 
-	BinaryData << size;
+	size = InteractableComponents.Num();
 
 	for (int i = 0; i < size; i++)
 	{
 		FBufferArchive ObjectData = InteractableComponents[i]->GetSaveData();
 
-		BinaryData << ObjectData;
+		BinaryData.Append(ObjectData);
 	}
 
 	// Get all interactable components that exist in the scene
@@ -227,7 +263,7 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 	FVector CharacterLocation;
 	FRotator CharacterRotation;
 
-	FMemoryReader Ar = FMemoryReader(BinaryData, true);
+	FMemoryReader Ar = FMemoryReader(BinaryData, false);
 	Ar.Seek(0);
 
 	Ar << CharacterLocation;
@@ -276,16 +312,18 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 	TArray<UInteractableComponent*> InteractableComponents;
 	for (TObjectIterator<UInteractableComponent> Itr; Itr; ++Itr)
 	{
-		InteractableComponents.Add(*Itr);
+		if (*Itr)
+		{
+			InteractableComponents.Add(*Itr);
+			(*Itr)->ParentName = (*Itr)->GetOwner()->GetName();
+		}
 	}
 
-	Ar << size;
+	SortArray(InteractableComponents);
 
 	for (int32 i = 0; i < InteractableComponents.Num(); i++)
 	{
-		FBufferArchive ObjectData;
-		Ar << ObjectData;
-		InteractableComponents[i]->LoadSaveData(ObjectData);
+		InteractableComponents[i]->LoadSaveData(Ar);
 	}
 }
 
@@ -296,16 +334,26 @@ FName AREM_GameMode::LoadAllData()
 	return LastLevel;
 }
 
-void AREM_GameMode::SpawnMap(FName MapName)
+void AREM_GameMode::SaveAllData()
 {
 	GameInstance->DeleteLevelData(GameInstance->CurrentLevelLoaded);
 	GetRelevantSaveData(*GameInstance->LevelData[GameInstance->CurrentLevelLoaded]);
 
 	GameInstance->DeletePersistentInventory();
 	Cast<AMainCharacter>(MainCharacter)->SaveInventory(*GameInstance->PersistentInventory);
+}
+
+void AREM_GameMode::SpawnMap(FName MapName)
+{
+	SaveAllData();
+
+	if (FadeController)
+	{
+		Cast<UFadeController>(FadeController)->FadeOut(true, MapName);
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("All Data Saved"));
-	UGameplayStatics::OpenLevel(GetWorld(), MapName);
+	
 }
 
 void AREM_GameMode::SetMainCharacter(ACharacter* Character)

@@ -8,6 +8,7 @@
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
 #include "REM_GameInstance.h"
+
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
 
@@ -70,12 +71,16 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	UFUNCTION(BlueprintCallable, Category = "Save All Data")
+	void SaveAllData();
+
 	UFUNCTION()
 	void SpawnMap(FName MapName);
 
 	UFUNCTION()
 	void UnloadMap(FName MapName);
 
+	void SortArray(TArray<UInteractableComponent*>& Array);
 	void GetRelevantSaveData(FBufferArchive &BinaryData);
 	void LoadDataFromBinary(FBufferArchive &BinaryData);
 
@@ -87,7 +92,12 @@ public:
 	bool LoadSave = true;
 
 	float counter = 0.f;
+
+	USceneComponent* FadeController = nullptr;
+	bool FadeIn = true;
 private:
+	bool ArrayInUse = false;
+
 	// Pointer to the main camera
 	UCameraComponent* MainCamera = nullptr;
 

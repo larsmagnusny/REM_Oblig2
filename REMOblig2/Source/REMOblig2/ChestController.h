@@ -37,7 +37,7 @@ public:
 	virtual FBufferArchive GetSaveData() override;
 
 	// Data to load about this object, can be overriden
-	virtual void LoadSaveData(FBufferArchive &BinaryData) override;
+	virtual void LoadSaveData(FMemoryReader &Ar) override;
 
 	// En Funksjon som kalles ifra blueprint for å vite hvor kisten skal gå når du sier at den skal gå til et sted
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
