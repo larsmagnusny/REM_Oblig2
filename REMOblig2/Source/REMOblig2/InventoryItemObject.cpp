@@ -41,7 +41,13 @@ void AInventoryItemObject::BeginPlay()
 		InventoryIcon = GameMode->MeshesAndTextures->GetTextureByItemID(ItemID);
 
 	// Sett kollisjonsprofilen
-	Component->SetCollisionProfileName(FName("BlockAll"));
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Ignore);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Block);
+	Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Component->bGenerateOverlapEvents = true;
 	Component->BodyInstance.bUseCCD = true;
 	Component->SetNotifyRigidBodyCollision(true);

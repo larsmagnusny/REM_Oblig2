@@ -205,6 +205,14 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 			}
 		}
 		else {
+			if (DraggingBook)
+			{
+				UBook* Component = GetBookComponentByActor(BookToDrag);
+				Component->CurrentPosition = GetPositionFromSlot(Component->OccupyingIndex);
+				DraggingBook = false;
+				BookToDrag = nullptr;
+			}
+
 			FVector Direction = MainCameraOrigPosition - CurrentCamera->GetActorLocation();
 
 			float Distance = Direction.Size();
@@ -357,7 +365,10 @@ void UBookCase::MakeAllBooksNonInteractable()
 
 FVector UBookCase::GetPositionFromSlot(int Index)
 {
-	return SnapPositions[Index];
+	if (Index < SnapPositions.Num())
+		return SnapPositions[Index];
+	else
+		return FVector(0, 0, 0);
 }
 
 void UBookCase::SwapPositions(int index1, int index2)
