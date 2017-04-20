@@ -39,8 +39,7 @@ public:
 
 	void SetParent(UInteractableComponent* Parent);
 
-	UFUNCTION()
-	void BeginOverlap(AActor* MyOverlappedActor, AActor* OtherActor);
+	void Overlap(AActor* MyOverlappedActor, AActor* OtherActor);
 
 	FVector OriginalPosition;
 	FRotator OriginalRotation;

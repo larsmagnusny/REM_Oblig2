@@ -329,7 +329,22 @@ void AREM_Hud::DropItem(int32 SlotIndex, FVector2D HitPoint)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
 
 	if (MainCharacter)
+	{
+		// Drop item if we get a hitresult under the item...
+		FHitResult Hit[4];
+		FVector Start = MainCharacter->GetActorLocation();
+
+		Start.X = HitPoint.X;
+		Start.Y = HitPoint.Y;
+
+		GetWorld()->LineTraceSingleByChannel(Hit[0], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[1], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[2], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[3], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Hit point: %s"), *ImpactPoint.ToString());
 		MainCharacter->DropItem(SlotIndex, HitPoint);
+	}
 }
 
 bool AREM_Hud::IsActorInteractable(AActor* Actor)

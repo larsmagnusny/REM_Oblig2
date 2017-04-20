@@ -85,28 +85,20 @@ void UREM_GameInstance::SaveAllData(REMSaveGame * SaveGameInstance)
 
 void UREM_GameInstance::LoadAllData(FName & LastLevel, REMSaveGame* SaveGameInstance)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Trying to load all data..."));
 	FBufferArchive TotalSaveData;
 	SaveGameInstance->LoadGameDataFromFile("SaveFile", TotalSaveData);
-
-	UE_LOG(LogTemp, Warning, TEXT("Data Loaded from file..."));
 
 	FMemoryReader Ar = FMemoryReader(TotalSaveData, false);
 
 	DeletePersistentInventory();
-	UE_LOG(LogTemp, Warning, TEXT("Cleared persistent memory"));
 	Ar << *PersistentInventory;
-	UE_LOG(LogTemp, Warning, TEXT("Read data from save file into inventory"));
 
 	Ar << LastLevel;
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Last level"));
-	
+
 	for (int i = 0; i < NUM_LEVELS; i++)
 	{
 		DeleteLevelData((uint8)i);
-		UE_LOG(LogTemp, Warning, TEXT("Deleted LevelData Cache"));
 		Ar << *LevelData[i];
-		UE_LOG(LogTemp, Warning, TEXT("LevelData sucessfully loaded"));
 	}
 }
 

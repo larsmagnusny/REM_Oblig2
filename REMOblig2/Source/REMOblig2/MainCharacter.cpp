@@ -466,7 +466,10 @@ void AMainCharacter::MouseLeftClick()
 		if (!OurHud->canPlayerClick)
 			return;
 		if (OurHud->DialogueMenuOpen)
+		{
+			// Send to our dialogue menu...
 			return;
+		}
 	}
 
 	if (SpaceBarDown)
@@ -654,6 +657,35 @@ void AMainCharacter::MouseRightClick()
 		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
 
 		AActor* HitActor = Hit.GetActor();
+
+		if (IsInPuzzleGameMode)
+		{
+			if (HitActor)
+			{
+				if (GameMode->IsInteractble(HitActor))
+				{
+					InteractableObject* Obj = GameMode->GetInteractableObject(HitActor);
+
+					if (Obj->ScriptComponent)
+					{
+						Obj->ScriptComponent->ActivateObject(this);
+					}
+					if (Obj->StaticMeshInstance)
+					{
+						Obj->StaticMeshInstance->ActivateObject(this);
+					}
+				}
+				else {
+					UInteractableComponent* Component = Cast<UInteractableComponent>(HitActor->GetComponentByClass(UInteractableComponent::StaticClass()));
+
+					if (Component)
+					{
+						Component->ActivateObject(this);
+					}
+				}
+			}
+			return;
+		}
 
 		if (HitActor)
 		{
