@@ -331,18 +331,52 @@ void AREM_Hud::DropItem(int32 SlotIndex, FVector2D HitPoint)
 	if (MainCharacter)
 	{
 		// Drop item if we get a hitresult under the item...
-		FHitResult Hit[4];
+		FHitResult Hit[6];
 		FVector Start = MainCharacter->GetActorLocation();
 
 		Start.X = HitPoint.X;
 		Start.Y = HitPoint.Y;
 
 		GetWorld()->LineTraceSingleByChannel(Hit[0], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
-		GetWorld()->LineTraceSingleByChannel(Hit[1], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
-		GetWorld()->LineTraceSingleByChannel(Hit[2], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
-		GetWorld()->LineTraceSingleByChannel(Hit[3], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[1], Start, Start + FVector(0, 1, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[2], Start, Start + FVector(-1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[3], Start, Start + FVector(0, -1, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[4], Start, Start + FVector(0, 0, 1)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[5], Start, Start + FVector(0, 0, -1)*10000.f, ECollisionChannel::ECC_Visibility);
 
-		//UE_LOG(LogTemp, Warning, TEXT("Hit point: %s"), *ImpactPoint.ToString());
+		float Distances[6];
+
+		for (int i = 0; i < 6; i++)
+		{
+			if (Hit[i].GetActor())
+			{
+				Distances[i] = (Hit[i].ImpactPoint - Start).Size();
+			}
+			else {
+				Distances[i] = 10000.f;
+			}
+
+			UE_LOG(LogTemp, Warning, TEXT("RayCastLength: %s"), *FString::SanitizeFloat(Distances[i]));
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (Distances[i] == 0.f)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Inside OBJECT!"));
+				return;
+			}
+		}
+
+		//if (Distances[0] < 50.f && Distances[2] < 50.f)
+			//return;
+		//if (Distances[1] < 50.f && Distances[3] < 50.f)
+			//return;
+		if (Distances[4] < 10000.f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Inside OBJECT!"));
+			return;
+		}
 		MainCharacter->DropItem(SlotIndex, HitPoint);
 	}
 }

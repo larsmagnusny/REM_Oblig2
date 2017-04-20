@@ -94,6 +94,7 @@ void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* Othe
 			if(OurCharacter && Target != CameraToSwitchTo)
 			{
 				OurCharacter->ChangeCameraView(CameraToSwitchTo);
+
 				SetMousePositionNextFrame = true;
 			}
 		}

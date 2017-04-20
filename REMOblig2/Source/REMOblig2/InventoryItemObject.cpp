@@ -55,6 +55,13 @@ void AInventoryItemObject::BeginPlay()
 	// Sett Meshen
 	Component->SetStaticMesh(Mesh);
 
+	// Sett Materialene
+	TArray<UMaterial*> Mats = GameMode->MeshesAndTextures->GetMaterialsByItemID(ItemID);
+	for (int i = 0; i < Mats.Num(); i++)
+	{
+		Component->SetMaterial(i, Mats[i]);
+	}
+
 	// Sett stor masse på objektet så spilleren ikke får den til å gå gjennom golvet når han går på den.
 	Component->SetMassOverrideInKg(NAME_None, 100.f, true);
 
