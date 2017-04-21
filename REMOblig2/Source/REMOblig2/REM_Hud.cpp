@@ -156,7 +156,7 @@ void AREM_Hud::DrawHUD()
 		FVector2D ScreenPos;
 		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), MenuSnapToActor->GetActorLocation(), ScreenPos, false);
 		
-		ScreenPos += FVector2D(-112, -122)*ViewportScale;
+		ScreenPos += FVector2D(-160, -160)*ViewportScale;
 
 		RightClickMenu->SetPositionInViewport(ScreenPos, true);
 	}
