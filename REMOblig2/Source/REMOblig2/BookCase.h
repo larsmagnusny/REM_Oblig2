@@ -74,14 +74,14 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	FVector PositionToDrop;
-
+	bool PuzzleSolved = false;
 private:
 	bool CanRunAnimation = true;
 	bool RunCameraAnimation = false;
 	bool Forward = true;
 	bool StopCameraAnimation = false;
 
-	bool PuzzleSolved = false;
+	
 
 	bool OrigPositionAndRotationSet = false;
 

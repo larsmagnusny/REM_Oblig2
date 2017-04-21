@@ -309,6 +309,71 @@ void AMainCharacter::Tick(float DeltaTime)
 					SetActorLocation(ClimbTo, false, nullptr, ETeleportType::TeleportPhysics);
 			}
 
+			if (DelayRunF)
+			{
+				DelayRunF = false;
+				UE_LOG(LogTemp, Warning, TEXT("Should run the switch now..."));
+				UE_LOG(LogTemp, Warning, TEXT("ActivateDist: %s"), *FString::SanitizeFloat(ActivateDist));
+
+				if (DelayObject)
+				{
+					switch (DelayAction)
+					{
+					case ActionType::INTERACT_ACTIVATE:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ActivateObject(this);
+						}
+						if (DelayObject->StaticMeshInstance)
+						{
+							DelayObject->StaticMeshInstance->ActivateObject(this);
+						}
+						break;
+					case ActionType::INTERACT_EXAMINE:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ExamineObject(this);
+						}
+						else {
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					case ActionType::INTERACT_OPENINVENTORY:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->OpenInventory(this);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					case ActionType::INTERACT_PICKUP:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->PickupObject(this);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					case ActionType::INTERACT_DIALOGUE:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ActivateDialogue(this);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					default:
+						UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));
+					}
+				}
+			}
+
 			if (DelayActivate)
 			{
 				if (ActivateDist > 50.f)
@@ -434,42 +499,20 @@ void AMainCharacter::SaveInventory(FBufferArchive & BinaryData)
 
 void AMainCharacter::MouseLeftClick()
 {
+	DelayActivate = false;
+	DelayRunF = false;
+	DelayClimb = false;
 	if (OurHud)
 	{
-		bool ShouldReturn = false;
-		if (ResetPlayerCanClickAfterNextRightClick)
+		if (OurHud->DialogueMenuOpen)
 		{
-			OurHud->canPlayerClick = true;
-			ResetPlayerCanClickAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetDialogueMenuOpenAfterNextRightClick)
-		{
-			OurHud->DialogueMenuOpen = false;
-			ResetDialogueMenuOpenAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetCanClickRayCastAfterNextRightClick)
-		{
-			SetCanRayCast(true);
-			ResetCanClickRayCastAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ShouldReturn)
-		{
+			// Send to our dialogue menu...
+			AnywhereClicked = true;
 			return;
 		}
 
 		if (!OurHud->canPlayerClick)
 			return;
-		if (OurHud->DialogueMenuOpen)
-		{
-			// Send to our dialogue menu...
-			return;
-		}
 	}
 
 	if (SpaceBarDown)
@@ -613,32 +656,6 @@ void AMainCharacter::MouseRightClick()
 {
 	if (OurHud)
 	{
-		bool ShouldReturn = false;
-		if (ResetPlayerCanClickAfterNextRightClick)
-		{
-			OurHud->canPlayerClick = true;
-			ResetPlayerCanClickAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetDialogueMenuOpenAfterNextRightClick)
-		{
-			OurHud->DialogueMenuOpen = false;
-			ResetDialogueMenuOpenAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetCanClickRayCastAfterNextRightClick)
-		{
-			SetCanRayCast(true);
-			ResetCanClickRayCastAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ShouldReturn)
-		{
-			return;
-		}
 
 
 		if (SpaceBarDown)

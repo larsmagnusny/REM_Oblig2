@@ -71,6 +71,18 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	UFUNCTION(BlueprintCallable, Category = "Get StaticMeshByItemID")
+	UStaticMesh* GetStaticMeshByItemID(ItemIDs ID)
+	{
+		return MeshesAndTextures->GetStaticMeshByItemID(ID);
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Get MaterialsByItemID")
+	TArray<UMaterial*> GetMaterialsByItemID(ItemIDs ID)
+	{
+		return MeshesAndTextures->GetMaterialsByItemID(ID);
+	}
+
 	UFUNCTION(BlueprintCallable, Category = "Save All Data")
 	void SaveAllData();
 

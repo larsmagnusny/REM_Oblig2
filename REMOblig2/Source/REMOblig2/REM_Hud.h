@@ -107,6 +107,25 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	UActorComponent* BookPuzzleParent = nullptr;
 
+	UFUNCTION(BlueprintCallable, Category = "Pointer to ToggleObjectDisplay")
+	bool GetToggleObjectDisplay()
+	{
+		return ToggleObjectDisplay;
+	}
+	UFUNCTION(BlueprintCallable, Category = "Pointer to ToggleObjectDisplay")
+	void SetToggleObjectDisplay(bool val)
+	{
+		ToggleObjectDisplay = val;
+	}
+
+	bool ToggleObjectDisplay = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	ItemIDs ItemToDisplay = ItemIDs::ITEM_SPINNER;
+
+	UFUNCTION(BlueprintCallable, Category = "Set StaticMesh Movable...")
+	void SetMovable(AStaticMeshActor* Actor);
+
 private:
 	bool SubMenuesInUse = false;
 

@@ -166,63 +166,12 @@ void AREM_Hud::CallActivate(ActionType Action)
 {
 	// For å håntere hvilken knapp du trykte på og sende kommandoen videre til InteractableObject
 	InteractableObject* Obj = GameMode->GetInteractableObject(MenuSnapToActor);
-	if (Obj)
-	{
-		switch (Action)
-		{
-		case ActionType::INTERACT_ACTIVATE:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->ActivateObject(GameMode->GetMainCharacter());
-			}
-			if (Obj->StaticMeshInstance)
-			{
-				Obj->StaticMeshInstance->ActivateObject(GameMode->GetMainCharacter());
-			}
-			break;
-		case ActionType::INTERACT_EXAMINE:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->ExamineObject(GameMode->GetMainCharacter());
-			}
-			else {
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		case ActionType::INTERACT_OPENINVENTORY:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->OpenInventory(GameMode->GetMainCharacter());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		case ActionType::INTERACT_PICKUP:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->PickupObject(GameMode->GetMainCharacter());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		case ActionType::INTERACT_DIALOGUE:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->ActivateDialogue(GameMode->GetMainCharacter());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));
-		}
-	}
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	if(Obj->ScriptComponent)
+		MainCharacter->DelayCallFunctionFromWidget(Obj->ScriptComponent->GetActivatePosition(MainCharacter), Obj, Action);
+	if (Obj->StaticMeshInstance)
+		MainCharacter->DelayCallFunctionFromWidget(Obj->StaticMeshInstance->GetActivatePosition(), Obj, Action);
 
 	return;
 }
@@ -271,6 +220,12 @@ void AREM_Hud::TogglePauseMenuVisibility()
 
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
+}
+
+void AREM_Hud::SetMovable(AStaticMeshActor * Actor)
+{
+	UStaticMeshComponent* Component = Actor->StaticMeshComponent;
+	Component->SetMobility(EComponentMobility::Movable);
 }
 
 InteractionWidget* AREM_Hud::GetParentInteractorI(UUserWidget* Widget)

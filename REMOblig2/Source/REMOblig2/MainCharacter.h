@@ -111,7 +111,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerCanClick")
 	bool ResetCanClickRayCastAfterNextRightClick = false;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Anywhere Clicked")
+	bool AnywhereClicked = false;
+
 	bool IsInPuzzleGameMode = false;
+	bool DelayRunF = false;
+
+	InteractableObject* DelayObject;
+	ActionType DelayAction;
+
+	void DelayCallFunctionFromWidget(FVector Destination, InteractableObject* DelayObject, ActionType DelayAction)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetDelayActivate, and should start moving towards now.."))
+		MouseMove = true;
+		MoveTo = Destination;
+		this->DelayObject = DelayObject;
+		this->DelayAction = DelayAction;
+		DelayRunF = true;
+		OurHud->canPlayerClick = true;
+	}
 private:
 	TArray<FString> CurrentDialogueOptions;
 

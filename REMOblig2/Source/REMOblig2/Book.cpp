@@ -30,6 +30,9 @@ void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 
 	UBookCase* BookCase = Cast<UBookCase>(ParentComponent);
 
+	if(BookCase->PuzzleSolved)
+		PrimaryComponentTick.bCanEverTick = false;
+
 	if (Wait)
 	{
 		if (TimeCounter > TimeToWait)
