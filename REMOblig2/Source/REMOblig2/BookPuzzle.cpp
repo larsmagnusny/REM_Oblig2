@@ -8,7 +8,7 @@ UBookPuzzle::UBookPuzzle()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	ConstructorHelpers::FClassFinder<UUserWidget> WidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/BookPuzzle.BookPuzzle_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> WidgetLoader(TEXT("WidgetBlueprint'/Game/UI/BookPuzzle.BookPuzzle_C'"));
 
 	if (WidgetLoader.Succeeded())
 	{

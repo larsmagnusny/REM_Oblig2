@@ -107,6 +107,8 @@ public:
 
 	USceneComponent* FadeController = nullptr;
 	bool FadeIn = true;
+
+	REMSaveGame* SaveGameInstance = nullptr;
 private:
 	bool ArrayInUse = false;
 
@@ -123,8 +125,6 @@ private:
 	ACharacter* MainCharacter = nullptr;
 
 	UREM_GameInstance* GameInstance = nullptr;
-
-	REMSaveGame* SaveGameInstance;
 
 	FString GlobalSaveFile = "CharacterData.bin";
 };

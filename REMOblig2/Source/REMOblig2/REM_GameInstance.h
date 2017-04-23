@@ -35,6 +35,10 @@ public:
 
 	void LoadAllData(FName& LastLevel, REMSaveGame* SaveGameInstance);
 
+	UFUNCTION(BlueprintCallable, Category = "Save Settings")
+	void SaveSettings(AGameModeBase* GameMode);
+	void LoadSettings(REMSaveGame* SaveGameInstance);
+
 	UFUNCTION(BlueprintCallable, Category = "Check if savefile exists")
 	bool FileExists(FString Path);
 
@@ -54,5 +58,11 @@ public:
 
 	FString CurrentLevel;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Volume Control")
+	float MasterVolume = 0.5f;
+	UPROPERTY(BlueprintReadWrite, Category = "Volume Control")
+	float SFXVolume = 0.5f;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Resolution")
+	FVector2D Resolution = FVector2D(720, 1280);
 };

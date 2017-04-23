@@ -8,7 +8,7 @@
 UInteractableComponent::UInteractableComponent()
 {
 	// Last inn right click menyen
-	ConstructorHelpers::FClassFinder<UUserWidget> SubMenuClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/InteractMenu.InteractMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> SubMenuClass(TEXT("WidgetBlueprint'/Game/UI/InteractMenu.InteractMenu_C'"));
 
 	if (SubMenuClass.Succeeded())
 	{

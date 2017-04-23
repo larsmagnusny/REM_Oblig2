@@ -9,9 +9,9 @@
 AREM_Hud::AREM_Hud()
 {
 	// Last inn Inventory Widgeten
-	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
-	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/MainMenu.MainMenu_C'"));
-	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/PauseMenu.PauseMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/Inventory.Inventory_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/MainMenu.MainMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/PauseMenu.PauseMenu_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
 	{

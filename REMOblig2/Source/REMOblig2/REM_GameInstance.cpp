@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "REM_GameInstance.h"
+#include "REM_GameMode.h"
 
 UREM_GameInstance::UREM_GameInstance()
 {
@@ -99,6 +100,35 @@ void UREM_GameInstance::LoadAllData(FName & LastLevel, REMSaveGame* SaveGameInst
 	{
 		DeleteLevelData((uint8)i);
 		Ar << *LevelData[i];
+	}
+}
+
+void UREM_GameInstance::SaveSettings(AGameModeBase* GameMode)
+{
+	REMSaveGame * SaveGameInstance = Cast<AREM_GameMode>(GameMode)->SaveGameInstance;
+
+	if (SaveGameInstance)
+	{
+		FBufferArchive BinaryData;
+
+		BinaryData << Resolution;
+		BinaryData << MasterVolume;
+		BinaryData << SFXVolume;
+
+		SaveGameInstance->SaveGameDataToFile("Config", BinaryData);
+	}
+}
+
+void UREM_GameInstance::LoadSettings(REMSaveGame * SaveGameInstance)
+{
+	FBufferArchive BinaryData;
+	if (SaveGameInstance->LoadGameDataFromFile("Config", BinaryData))
+	{
+		FMemoryReader Ar = FMemoryReader(BinaryData, false);
+
+		Ar << Resolution;
+		Ar << MasterVolume;
+		Ar << SFXVolume;
 	}
 }
 

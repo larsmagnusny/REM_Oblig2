@@ -10,7 +10,7 @@ AMainCharacter::AMainCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FClassFinder<UUserWidget> DialogueBlueprintClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/DialogueMenu.DialogueMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> DialogueBlueprintClass(TEXT("WidgetBlueprint'/Game/UI/DialogueMenu.DialogueMenu_C'"));
 
 	if (DialogueBlueprintClass.Succeeded())
 	{

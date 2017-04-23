@@ -26,6 +26,8 @@ void AREM_GameMode::BeginPlay()
 
 	SaveGameInstance = new REMSaveGame();
 
+	GameInstance->LoadSettings(SaveGameInstance);
+
 	FString LevelSaveFile = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
 
 	GlobalSaveFile = LevelSaveFile;
