@@ -126,6 +126,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Set StaticMesh Movable...")
 	void SetMovable(AStaticMeshActor* Actor);
 
+	UFUNCTION(BlueprintCallable, Category = "Custom Conversion")
+	FString IntegerToString(int Integer)
+	{
+		FString String = "0";
+
+		if (Integer == 0)
+		{
+			String[0] = (char)32;
+		}
+		else {
+			String[0] = (char)('A' + Integer - 1);
+		}
+
+		return String;
+	}
+
 private:
 	bool SubMenuesInUse = false;
 

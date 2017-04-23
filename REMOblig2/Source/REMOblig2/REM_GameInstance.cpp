@@ -114,6 +114,7 @@ void UREM_GameInstance::SaveSettings(AGameModeBase* GameMode)
 		BinaryData << Resolution;
 		BinaryData << MasterVolume;
 		BinaryData << SFXVolume;
+		BinaryData << WindowMode;
 
 		SaveGameInstance->SaveGameDataToFile("Config", BinaryData);
 	}
@@ -129,7 +130,15 @@ void UREM_GameInstance::LoadSettings(REMSaveGame * SaveGameInstance)
 		Ar << Resolution;
 		Ar << MasterVolume;
 		Ar << SFXVolume;
+		Ar << WindowMode;
 	}
+
+	// ApplySettings
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	MyGameSettings->SetFullscreenMode((EWindowMode::Type)(WindowMode));
+	MyGameSettings->SetScreenResolution(FIntPoint(Resolution.X, Resolution.Y));
+	MyGameSettings->ApplySettings(true);
 }
 
 bool UREM_GameInstance::FileExists(FString Path)

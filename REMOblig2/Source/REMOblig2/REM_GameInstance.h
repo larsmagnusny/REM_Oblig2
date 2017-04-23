@@ -65,4 +65,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Resolution")
 	FVector2D Resolution = FVector2D(720, 1280);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Window Mode")
+	uint8 WindowMode = EWindowMode::WindowedFullscreen;
 };
