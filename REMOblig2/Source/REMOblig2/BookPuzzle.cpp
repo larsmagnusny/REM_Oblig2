@@ -22,7 +22,7 @@ void UBookPuzzle::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CreatePossibleSolution(5);
+	CreatePossibleSolution(4);
 
 	// Legg til Meny-valg dynamisk så vi slipper å lage en ny widget for hver eneste item
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
@@ -103,6 +103,8 @@ void UBookPuzzle::ActivateObject(AActor * Player)
 	if (PuzzleWidget->GetVisibility() == ESlateVisibility::Hidden)
 	{
 		PuzzleWidget->SetVisibility(ESlateVisibility::Visible);
+		AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+		Hud->canPlayerClick = false;
 	}
 }
 
@@ -143,7 +145,7 @@ void UBookPuzzle::CreatePossibleSolution(int size)
 		for (int j = 0; j < size; j++)
 			PossibleSolution[i][j] = 0;
 
-	int value = FMath::RandRange(1, 7);
+	int value = FMath::RandRange(1, 5);
 
 	for (int row = 0; row < size; row++)
 	{
@@ -151,7 +153,7 @@ void UBookPuzzle::CreatePossibleSolution(int size)
 		{
 			if (ExistsAnyOtherInColumn(row, value, 0) || ExistsAnyOtherInRow(column, value, 0))
 			{
-				if (value > size + 2)
+				if (value > size + 1)
 				{
 					UE_LOG(LogTemp, Error, TEXT("Too big! row: %s column: %s"), *FString::FromInt(row), *FString::FromInt(column));
 				}
