@@ -305,6 +305,7 @@ void UBookCase::ActivateObject(AActor * Player)
 
 void UBookCase::ExamineObject(AActor * Player)
 {
+
 }
 
 FVector UBookCase::GetActivatePosition(AActor * Player)
