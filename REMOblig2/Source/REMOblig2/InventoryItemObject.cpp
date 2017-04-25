@@ -77,6 +77,18 @@ void AInventoryItemObject::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!CanPlaySound)
+	{
+		if (HitTimer < MaxHitTime)
+		{
+			HitTimer += DeltaTime;
+		}
+		else {
+			HitTimer = 0.f;
+			CanPlaySound = true;
+		}
+	}
+
 	if (NeedDelete)
 	{
 		Destroy();
@@ -99,6 +111,11 @@ void AInventoryItemObject::Init(InventoryItem* Item)
 
 void AInventoryItemObject::OnHit(AActor* OtherActor, AActor* MyActor, FVector Normal, const FHitResult& Hit)
 {
+	if (!CanPlaySound)
+		return;
+
+	CanPlaySound = false;
+
 	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 
 	// Play a random sound sound...
@@ -114,5 +131,6 @@ void AInventoryItemObject::OnHit(AActor* OtherActor, AActor* MyActor, FVector No
 
 	int RandomSound = FMath::RandRange(0, RandMax);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundsToPlay[RandomSound], GetActorLocation(), GameMode->GameInstance->SFXVolume);
+	
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundsToPlay[RandomSound], GetActorLocation(), GameMode->GameInstance->SFXVolume*10);
 }
