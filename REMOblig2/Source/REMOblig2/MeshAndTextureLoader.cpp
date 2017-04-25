@@ -32,6 +32,12 @@ MeshAndTextureLoader::MeshAndTextureLoader()
 	MaterialReference.Add(new MaterialStorage(Mats));
 	ItemIconRefString.Add("Texture2D'/Game/Textures/pliers.pliers'");
 
+	MeshRefString.Add("StaticMesh'/Game/Meshes/Feather/Feather.Feather'");
+	Mats.Empty();
+	Mats.Add("Material'/Game/Materials/FeatherMat.FeatherMat'");
+	MaterialReference.Add(new MaterialStorage(Mats));
+	ItemIconRefString.Add("Texture2D'/Game/Textures/FeatherIcon.FeatherIcon'");
+
 
 	for (uint8 i = 0; i < MeshRefString.Num(); i++)
 	{

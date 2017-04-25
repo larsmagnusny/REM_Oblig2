@@ -16,6 +16,7 @@ AREM_GameMode::AREM_GameMode()
 	HUDClass = AREM_Hud::StaticClass();
 
 	MeshesAndTextures = new MeshAndTextureLoader();
+	SoundLoaderInstance = new SoundLoader();
 }
 
 void AREM_GameMode::BeginPlay()

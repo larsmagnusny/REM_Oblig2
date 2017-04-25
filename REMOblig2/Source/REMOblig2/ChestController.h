@@ -100,4 +100,6 @@ public:
 private:
 	// Tell hvor mange leker vi har puttet i kisten
 	int toysfilled = 0;	// Save this
+
+	bool RunStandupAnimation = false;
 };

@@ -293,3 +293,19 @@ void UBookPuzzle::FromRowAndColumnToIndex(int & index, int column, int row, int 
 {
 	index = column + row*size;
 }
+
+void UBookPuzzle::FromIndexToRowAndColumn(int index, int & column, int & row, int size)
+{
+	int r = 0;
+	int c = 0;
+
+	while (index > size)
+	{
+		index -= size;
+		r++;
+	}
+
+	c = index;
+	column = c;
+	row = r;
+}

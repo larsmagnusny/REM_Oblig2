@@ -21,6 +21,8 @@ void AInventoryItemObject::BeginPlay()
 {
 	Super::BeginPlay();
 
+	this->OnActorHit.AddDynamic(this, &AInventoryItemObject::OnHit);
+
 	// Hent Static Mesh Komponenten
 	UStaticMeshComponent* Component = GetStaticMeshComponent();
 
@@ -93,4 +95,24 @@ void AInventoryItemObject::Init(InventoryItem* Item)
 		Mesh = Item->Mesh;
 		InventoryIcon = Item->InventoryIcon;
 	}
+}
+
+void AInventoryItemObject::OnHit(AActor* OtherActor, AActor* MyActor, FVector Normal, const FHitResult& Hit)
+{
+	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+
+	// Play a random sound sound...
+	TArray<USoundWave*> SoundsToPlay;
+
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT1]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT2]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT3]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT4]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT5]);
+
+	int RandMax = SoundsToPlay.Num() - 1;
+
+	int RandomSound = FMath::RandRange(0, RandMax);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundsToPlay[RandomSound], GetActorLocation(), GameMode->GameInstance->SFXVolume);
 }

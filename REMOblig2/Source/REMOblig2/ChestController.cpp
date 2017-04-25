@@ -27,14 +27,14 @@ void UChestController::BeginPlay()
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::OPEN]);
 	Actions.Add(ActionType::INTERACT_OPENINVENTORY);
 
-	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::PICKUP]);
-	Actions.Add(ActionType::INTERACT_PICKUP);
+	//ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::PICKUP]);
+	//Actions.Add(ActionType::INTERACT_PICKUP);
 
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
 	Actions.Add(ActionType::INTERACT_ACTIVATE);
 
-	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::DIALOGUE]);
-	Actions.Add(ActionType::INTERACT_DIALOGUE);
+	//ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::DIALOGUE]);
+	//Actions.Add(ActionType::INTERACT_DIALOGUE);
 
 	// Hent peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
@@ -86,7 +86,6 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		if (toysfilled >= 6)
 		{
 			// Lukk kisten og gjør det umulig å åpne den med en item
-			print("The chest is full it wants to rest now...");
 			isOpen = false;
 			locked = true;
 			OPENID = -1;
@@ -95,30 +94,60 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 			filled = true;
 		}
 	}
+
+	if (FollowingPlayer)
+	{
+		float DistToSlot = (Slot1->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
+
+		if (DistToSlot < 200)
+		{
+			Slot = 0;
+			GoToSlot = true;
+			FollowingPlayer = false;
+			SnappedToSlot = false;
+		}
+	}
 }
 
 // Det som skjer når spilleren trykker med venstre mus-knapp på et objekt i scenen
 void UChestController::ActivateObject(AActor* Player)
 {
 	// Følg etter spilleren hvis du har blitt aktivert
-	if (FollowWhenActivate)
-	{
-		PlayerToFollow = Player;
-		FollowingPlayer = true;
-		SnappedToSlot = false;
-	}
+	ExamineObject(Player);
 }
 
 // Når spilleren trykker "Examine" Meny valget
 void UChestController::ExamineObject(AActor* Player)
 {
-	TArray<FString> Conversation;
+	if (FollowingPlayer)
+	{
+		TArray<FString> Conversation;
 
-	Conversation.Add("It's a toy chest. I can't open it. Seems to be locked.");
+		Conversation.Add("The chest is following me. I can't open it. Seems to be locked.");
 
-	Cast<AMainCharacter>(Player)->Conversation = Conversation;
-	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
-	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
+		Cast<AMainCharacter>(Player)->Conversation = Conversation;
+		Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+		Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
+	}
+	else if (SnappedToSlot)
+	{
+		TArray<FString> Conversation;
+
+		Conversation.Add("The chest is sitting on some kind of mechanism...");
+
+		Cast<AMainCharacter>(Player)->Conversation = Conversation;
+		Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+		Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
+	}
+	else {
+		TArray<FString> Conversation;
+
+		Conversation.Add("You can see toes sticking up from underneath the chest. That is very strange.");
+
+		Cast<AMainCharacter>(Player)->Conversation = Conversation;
+		Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+		Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
+	}
 }
 
 // Når spilleren trykker "OpenInventory" Meny valget
@@ -127,6 +156,16 @@ void UChestController::OpenInventory(AActor* Player)
 	// Åpne kisten hvis den ikke er låst
 	if (!locked)
 		isOpen = !isOpen;
+	else
+	{
+		TArray<FString> Conversation;
+
+		Conversation.Add("I can't open it. The chest is locked...");
+
+		Cast<AMainCharacter>(Player)->Conversation = Conversation;
+		Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+		Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
+	}
 }
 
 // Når spilleren trykker "PickupObject" Meny valget
@@ -172,6 +211,22 @@ void UChestController::ItemInteract(int32 SlotNum)
 	// Hvis pekeren ikke er NULL
 	if (Item)
 	{
+		if (Item->INTERACT_ID == 10101)
+		{
+			RunStandupAnimation = true;
+			PlayerToFollow = GameMode->GetMainCharacter();
+			FollowingPlayer = true;
+			MainCharacter->DiscardItem(SlotNum);
+
+			TArray<FString> Conversation;
+
+			Conversation.Add("You tickle the toes of the chest. It suddenly stands up. It seems set on following you.");
+
+			MainCharacter->Conversation = Conversation;
+			MainCharacter->ShouldShowConversation = true;
+			MainCharacter->SetDialogueChoiceVisible();
+		}
+
 		// Hvis det er en leke og kisten er åpen
 		if (Item->INTERACT_ID == 666 && isOpen)
 		{

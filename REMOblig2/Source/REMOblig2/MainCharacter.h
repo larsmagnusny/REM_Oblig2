@@ -130,6 +130,9 @@ public:
 		DelayRunF = true;
 		OurHud->canPlayerClick = true;
 	}
+
+	UPROPERTY(BlueprintReadOnly, Category = "Is Scared")
+	bool isScared = false;
 private:
 	TArray<FString> CurrentDialogueOptions;
 
@@ -183,4 +186,8 @@ private:
 
 	USkeletalMesh* RadioMesh = nullptr;
 	USkeletalMeshComponent* RadioComponent = nullptr;
+
+	UStaticMesh* EyeMesh = nullptr;
+	UStaticMeshComponent* EyeComponent1 = nullptr;
+	UStaticMeshComponent* EyeComponent2 = nullptr;
 };

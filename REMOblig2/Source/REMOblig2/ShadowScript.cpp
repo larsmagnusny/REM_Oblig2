@@ -27,6 +27,20 @@ void UShadowScript::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
+	if (StartScareCounter)
+	{
+		if (ScareCounter < ScareTimer)
+		{
+			ScareCounter += DeltaTime;
+
+			Cast<AMainCharacter>(Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode())->GetMainCharacter())->isScared = true;
+		}
+		else {
+			StartScareCounter = false;
+			Cast<AMainCharacter>(Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode())->GetMainCharacter())->isScared = false;
+		}
+	}
+
 	if (Animating)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Animating"));
@@ -112,6 +126,13 @@ void UShadowScript::OnOverlapBegin(AActor* MyOverlappedActor, AActor* OtherActor
 		if (CanEverTrigger)
 		{
 			Animating = true;
+			StartScareCounter = true;
+
+			AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+
+			USoundWave* SoundWave = GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_MYSTERIOUS];
+
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundWave, GetActivatePosition(nullptr), GameMode->GameInstance->SFXVolume*2);
 		}
 	}
 }

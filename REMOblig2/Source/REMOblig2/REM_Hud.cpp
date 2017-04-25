@@ -116,16 +116,15 @@ void AREM_Hud::DrawHUD()
 		const float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
 		FVector2D ScreenPos;
+		if(HintSnapToActor)
 		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), HintSnapToActor->GetActorLocation(), ScreenPos, false);
 
 		ScreenPos += FVector2D(-25, -35)*ViewportScale;
 
 		UserTipsWidget->SetPositionInViewport(ScreenPos, true);
-		UE_LOG(LogTemp, Error, TEXT("Showing!"));
 	}
 	else if (!HintSnapToActor)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Not Showing!"));
 		UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
@@ -190,7 +189,7 @@ void AREM_Hud::DrawHUD()
 		FVector2D ScreenPos;
 		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), MenuSnapToActor->GetActorLocation(), ScreenPos, false);
 		
-		ScreenPos += FVector2D(-160, -160)*ViewportScale;
+		ScreenPos += FVector2D(-130, -130)*ViewportScale;
 
 		RightClickMenu->SetPositionInViewport(ScreenPos, true);
 	}

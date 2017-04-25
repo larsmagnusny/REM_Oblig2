@@ -7,6 +7,7 @@
 UBook::UBook()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	CanRightClick = false;
 }
 
 void UBook::BeginPlay()

@@ -8,6 +8,7 @@
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
 #include "REM_GameInstance.h"
+#include "SoundLoader.h"
 
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
@@ -109,6 +110,10 @@ public:
 	bool FadeIn = true;
 
 	REMSaveGame* SaveGameInstance = nullptr;
+
+	SoundLoader* SoundLoaderInstance = nullptr;
+
+	UREM_GameInstance* GameInstance = nullptr;
 private:
 	bool ArrayInUse = false;
 
@@ -124,7 +129,7 @@ private:
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
 
-	UREM_GameInstance* GameInstance = nullptr;
+
 
 	FString GlobalSaveFile = "CharacterData.bin";
 };

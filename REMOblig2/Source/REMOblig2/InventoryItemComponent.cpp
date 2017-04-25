@@ -112,7 +112,18 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 				UE_LOG(LogTemp, Warning, TEXT("Should show animation backwards..."));
 			}
 
+			// Show a illustration of the item...
 			ShouldDie = true;
+			Hud->HintSnapToActor = nullptr;
+		}
+		else {
+			TArray<FString> Conversation;
+
+			Conversation.Add("My inventory is full, i need to drop something to pick this up...");
+
+			Cast<AMainCharacter>(Player)->Conversation = Conversation;
+			Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+			Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 		}
 	}
 }

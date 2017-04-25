@@ -131,7 +131,7 @@ void ULockedDoor::ExamineObject(AActor* Player)
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_COMPLETE_PUZZLE)
 	{
-		Conversation.Add("The door is locked, but there is no keyhole.");
+		Conversation.Add("The door wont budge, maybe i still need to do something in this room.");
 	}
 	if (DoorOpenCondition == OpenCondition::OPEN_TRIGGER)
 	{

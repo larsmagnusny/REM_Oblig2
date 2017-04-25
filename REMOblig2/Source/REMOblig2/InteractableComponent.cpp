@@ -76,13 +76,13 @@ void UInteractableComponent::LoadSaveData(FMemoryReader &Ar)
 
 void UInteractableComponent::ItemInteract(int32 SlotNum)
 {
-	AMainCharacter* MainCharacter = Cast<AMainCharacter>((Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode())->GetMainCharacter()));
-	TArray<FString> Conversation;
-	Conversation.Add("Nothing Happenes..");
+	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 
-	MainCharacter->Conversation = Conversation;
-	MainCharacter->ShouldShowConversation = true;
-	MainCharacter->SetDialogueChoiceVisible();
+	USoundWave* Sound = GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_IDUNNO];
+
+	UREM_GameInstance* GameInstance = GameMode->GameInstance;
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, GetActivatePosition(nullptr), GameInstance->SFXVolume);
 }
 
 UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()

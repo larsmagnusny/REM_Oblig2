@@ -27,6 +27,8 @@ public:
 	virtual void ActivateDialogue(AActor* Player) override;
 	virtual void ItemInteract(int32 SlotNum) override;
 
+	virtual FVector GetActivatePosition(AActor* Player);
+
 	virtual FBufferArchive GetSaveData() override;
 	virtual void LoadSaveData(FMemoryReader& Ar) override;
 

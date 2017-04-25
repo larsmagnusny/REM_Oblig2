@@ -32,7 +32,7 @@ AMainCharacter::AMainCharacter()
 	{
 		SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/MainCharacter/Walk.Walk'"));
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/MainCharacter/CharacterMesh.CharacterMesh'"));
 		if (SkeletalMeshLoader.Succeeded())
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
@@ -69,6 +69,13 @@ AMainCharacter::AMainCharacter()
 	{
 		RadioMesh = RadioMeshLoader.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> EyeMeshLoader(TEXT("StaticMesh'/Game/Meshes/MainCharacter/EYE.EYE'"));
+
+	if (EyeMeshLoader.Succeeded())
+	{
+		EyeMesh = EyeMeshLoader.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -77,17 +84,34 @@ void AMainCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
-	
-	//RadioComponent->AttachTo(SkeletalMeshComponent, FName("Hold"), EAttachLocation::SnapToTarget, true);
+
+	EyeComponent1 = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
+	EyeComponent2 = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
 	
 	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, true);
 	
+
+	EyeComponent1->AttachToComponent(SkeletalMeshComponent, Rules, FName("EyeSocket1"));
+	EyeComponent2->AttachToComponent(SkeletalMeshComponent, Rules, FName("EyeSocket2"));
 	RadioComponent->AttachToComponent(SkeletalMeshComponent, Rules, FName("Hold"));
+
+
+	EyeComponent1->RegisterComponent();
+	EyeComponent2->RegisterComponent();
 
 	RadioComponent->RegisterComponent();
 
+	EyeComponent1->SetMobility(EComponentMobility::Movable);
+	EyeComponent2->SetMobility(EComponentMobility::Movable);
+
 	if(RadioMesh)
 		RadioComponent->SetSkeletalMesh(RadioMesh);
+
+	if (EyeMesh)
+	{
+		EyeComponent1->SetStaticMesh(EyeMesh);
+		EyeComponent2->SetStaticMesh(EyeMesh);
+	}
 	
 	RadioComponent->SetAllBodiesSimulatePhysics(true);
 	
@@ -125,7 +149,7 @@ void AMainCharacter::BeginPlay()
 	// Add til viewport
 	if (DialogueWidget)
 	{
-		DialogueWidget->AddToViewport();
+		DialogueWidget->AddToViewport(4);
 	}
 
 	// Set den til usynelig

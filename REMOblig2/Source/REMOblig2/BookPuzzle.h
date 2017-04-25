@@ -50,6 +50,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Conversion")
 	void FromRowAndColumnToIndex(int& index, int column, int row, int size);
+	UFUNCTION(BlueprintCallable, Category = "Conversion")
+	void FromIndexToRowAndColumn(int index, int& column, int& row, int size);
 	
 private:
 	UClass* PuzzleWidgetClassTemplate = nullptr;
