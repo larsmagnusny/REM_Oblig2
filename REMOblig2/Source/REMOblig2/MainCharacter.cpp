@@ -162,6 +162,17 @@ void AMainCharacter::Tick(float DeltaTime)
 			UStaticMeshComponent* MeshComponent = nullptr;
 			USkeletalMeshComponent* TSkeletalMeshComponent = nullptr;
 
+			if (InteractableComponent)
+			{
+				if (InteractableComponent->CanRightClick)
+					OurHud->HintSnapToActor = Hit.GetActor();
+				else
+					OurHud->HintSnapToActor = nullptr;
+			}
+			else
+			{
+				OurHud->HintSnapToActor = nullptr;
+			}
 
 			if (!InteractableComponent && InteractableObj)
 			{
@@ -211,6 +222,8 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			LastSkeletalMeshComponentMousedOver = nullptr;
 			LastComponentMousedOver = nullptr;
+
+			OurHud->HintSnapToActor = nullptr;
 		}
 	}
 	else
@@ -223,6 +236,8 @@ void AMainCharacter::Tick(float DeltaTime)
 
 		LastSkeletalMeshComponentMousedOver = nullptr;
 		LastComponentMousedOver = nullptr;
+
+		OurHud->HintSnapToActor = nullptr;
 	}
 
 	if (SpaceBarDown)
@@ -708,6 +723,11 @@ void AMainCharacter::MouseRightClick()
 		{
 			if (GameMode->IsInteractble(HitActor))
 			{
+				UInteractableComponent* Component = GameMode->GetInteractor(HitActor);
+
+				if (!Component->CanRightClick)
+					return;
+
 				InteractionWidget* IWidget = OurHud->GetParentInteractorI(HitActor);
 				if (IWidget)
 				{

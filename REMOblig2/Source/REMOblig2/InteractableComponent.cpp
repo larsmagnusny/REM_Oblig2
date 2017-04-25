@@ -2,6 +2,8 @@
 
 #include "REMOblig2.h"
 #include "InteractableComponent.h"
+#include "MainCharacter.h"
+#include "REM_GameMode.h"
 
 
 // Sets default values for this component's properties
@@ -74,7 +76,13 @@ void UInteractableComponent::LoadSaveData(FMemoryReader &Ar)
 
 void UInteractableComponent::ItemInteract(int32 SlotNum)
 {
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>((Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode())->GetMainCharacter()));
+	TArray<FString> Conversation;
+	Conversation.Add("Nothing Happenes..");
 
+	MainCharacter->Conversation = Conversation;
+	MainCharacter->ShouldShowConversation = true;
+	MainCharacter->SetDialogueChoiceVisible();
 }
 
 UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()

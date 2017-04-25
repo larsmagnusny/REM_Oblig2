@@ -114,7 +114,7 @@ void UChestController::ExamineObject(AActor* Player)
 {
 	TArray<FString> Conversation;
 
-	Conversation.Add("It's a toy chest, something seems strange about it.");
+	Conversation.Add("It's a toy chest. I can't open it. Seems to be locked.");
 
 	Cast<AMainCharacter>(Player)->Conversation = Conversation;
 	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;

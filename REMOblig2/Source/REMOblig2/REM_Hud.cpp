@@ -12,6 +12,7 @@ AREM_Hud::AREM_Hud()
 	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/Inventory.Inventory_C'"));
 	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/MainMenu.MainMenu_C'"));
 	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/PauseMenu.PauseMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> UserTipsWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/UserTipsWidget.UserTipsWidget_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
 	{
@@ -26,6 +27,11 @@ AREM_Hud::AREM_Hud()
 	if (PauseMenuWidgetLoader.Succeeded())
 	{
 		PauseMenuWidgetClassTemplate = PauseMenuWidgetLoader.Class;
+	}
+
+	if (UserTipsWidgetLoader.Succeeded())
+	{
+		UserTipsWidgetClassTemplate = UserTipsWidgetLoader.Class;
 	}
 }
 
@@ -85,6 +91,14 @@ void AREM_Hud::BeginPlay()
 		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	if (PauseMenuWidgetClassTemplate)
+	{
+		UserTipsWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), UserTipsWidgetClassTemplate);
+
+		UserTipsWidget->AddToViewport(3);
+		//UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 	// Hent en peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 }
@@ -94,6 +108,26 @@ void AREM_Hud::DrawHUD()
 	Super::DrawHUD();
 
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt((int32)GameInstance->MainMenu));
+
+	if (HintSnapToActor && !MainMenuLevel)
+	{
+		UserTipsWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+		const float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+
+		FVector2D ScreenPos;
+		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), HintSnapToActor->GetActorLocation(), ScreenPos, false);
+
+		ScreenPos += FVector2D(-25, -35)*ViewportScale;
+
+		UserTipsWidget->SetPositionInViewport(ScreenPos, true);
+		UE_LOG(LogTemp, Error, TEXT("Showing!"));
+	}
+	else if (!HintSnapToActor)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Not Showing!"));
+		UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 
 	if(!GameInstance->MainMenu) {
 		MainMenuLevel = false;
@@ -160,6 +194,8 @@ void AREM_Hud::DrawHUD()
 
 		RightClickMenu->SetPositionInViewport(ScreenPos, true);
 	}
+
+	
 }
 
 void AREM_Hud::CallActivate(ActionType Action)

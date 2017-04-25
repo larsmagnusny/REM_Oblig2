@@ -7,6 +7,8 @@
 ULightSwitchComponent::ULightSwitchComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	CanRightClick = false;
 }
 
 void ULightSwitchComponent::BeginPlay()

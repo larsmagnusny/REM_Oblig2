@@ -11,6 +11,7 @@
 UChestSpot::UChestSpot()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	CanRightClick = false;
 }
 
 void UChestSpot::BeginPlay()

@@ -51,6 +51,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorMenuSnap")
 	AActor* MenuSnapToActor = nullptr;
 
+	AActor* HintSnapToActor = nullptr;
+
 	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool canPlayerClick = true;
@@ -123,6 +125,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	ItemIDs ItemToDisplay = ItemIDs::ITEM_SPINNER;
 
+	UPROPERTY(BlueprintReadWrite, Category = "ShouldDisplayTip")
+	bool DisplayTip = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Set StaticMesh Movable...")
 	void SetMovable(AStaticMeshActor* Actor);
 
@@ -154,6 +159,9 @@ private:
 
 	UClass* PauseMenuWidgetClassTemplate = nullptr;
 	UUserWidget* PauseMenuWidget = nullptr;
+
+	UClass* UserTipsWidgetClassTemplate = nullptr;
+	UUserWidget* UserTipsWidget = nullptr;
 
 	TArray<InteractionWidget> SubMenues;
 
