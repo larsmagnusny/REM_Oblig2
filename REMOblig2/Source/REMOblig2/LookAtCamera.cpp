@@ -41,7 +41,29 @@ void ALookAtCamera::Tick(float DeltaTime)
 
 	FVector Dir = LookAtPosition - OurPosition;
 
-	FRotator EventualRotation = Dir.Rotation();
+	FRotator EventualRotation = GetActorForwardVector().Rotation();
+
+	FVector CameraNorm = OrigRotation.Vector();
+
+	float Angle = FMath::Acos((FVector::DotProduct(Dir, CameraNorm)) / (Dir.Size()*CameraNorm.Size()));
+
+	float NormLen = FMath::Cos(Angle)*Dir.Size();
+	FVector Norm = CameraNorm*NormLen;
+
+	float LenFromCenter = FMath::Sin(Angle)*Dir.Size();
+
+	if (LenFromCenter > KeepCameraStillInThisRadius)
+	{
+		FVector Pos1 = GetActorLocation() + Dir;
+		FVector Pos2 = GetActorLocation() + Norm;
+		FVector FromCenterVec = Pos1 - Pos2;
+		FVector LookAtPos = Pos2 + FromCenterVec;
+		FromCenterVec.Normalize();
+		LookAtPos -= FromCenterVec*KeepCameraStillInThisRadius;
+		FVector LookAt = LookAtPos - GetActorLocation();
+
+		EventualRotation = LookAt.Rotation();
+	}
 
 	if (LockX)
 		EventualRotation.Roll = OrigRotation.Roll;

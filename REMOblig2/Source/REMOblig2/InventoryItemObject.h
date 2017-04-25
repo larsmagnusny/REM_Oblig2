@@ -39,6 +39,9 @@ public:
 	// Brukes når vi legger til dette objektet i spiller-inventory
 	InventoryItem* InvItemRef = nullptr;
 
+	UFUNCTION()
+	void OnHit(AActor* OtherActor, AActor* MyActor, FVector Normal, const FHitResult& Hit);
+
 	bool NeedDelete = false;
 private:
 	// Peker til komponenten vi lager

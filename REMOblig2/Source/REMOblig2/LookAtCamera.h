@@ -18,6 +18,9 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
+	float KeepCameraStillInThisRadius = 70.f;
+
+	UPROPERTY(EditAnywhere)
 	bool MainCamera = false;
 
 	UPROPERTY(EditAnywhere)

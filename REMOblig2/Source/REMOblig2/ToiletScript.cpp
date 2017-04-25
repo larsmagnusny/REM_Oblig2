@@ -54,18 +54,30 @@ void UToiletScript::ActivateObject(AActor * Player)
 	else {
 		if (!ItemAddedToInventory)
 		{
+			// Check if inventory is full, if it is, drop it to the ground
 			TArray<FString> Conversation;
-
-			Conversation.Add("Oh... You find a pair of pliers in the toiled reservoir. That's unexpected. *Pliers Added To Inventory*");
-
-			MainCharacter->Conversation = Conversation;
-			MainCharacter->ShouldShowConversation = true;
-			MainCharacter->SetDialogueChoiceVisible();
 
 			InventoryItem* Pliers = new InventoryItem(ItemToAddToInventoryOnActivate, 911375, "Pliers", GameMode->MeshesAndTextures->GetStaticMeshByItemID(ItemToAddToInventoryOnActivate), GameMode->MeshesAndTextures->GetTextureByItemID(ItemToAddToInventoryOnActivate));
 
-			MainCharacter->AddItemToInventory(Pliers);
-			ItemAddedToInventory = true;
+			if (!MainCharacter->AddItemToInventory(Pliers))
+			{
+				GameMode->PutObjectInWorld(Pliers, GetActivatePosition(Player) + FVector(0, 0, 1)*100.f, FVector(0, 0, 0), FVector(1, 1, 1));
+
+				Conversation.Add("Oh... You find a pair of pliers in the toiled reservoir. That's unexpected. You try to put it in your backpack, but it's full, so it falls to the ground");
+
+				MainCharacter->Conversation = Conversation;
+				MainCharacter->ShouldShowConversation = true;
+				MainCharacter->SetDialogueChoiceVisible();
+			}
+			else {
+				Conversation.Add("Oh... You find a pair of pliers in the toiled reservoir. That's unexpected. *Pliers Added To Inventory*");
+
+				MainCharacter->Conversation = Conversation;
+				MainCharacter->ShouldShowConversation = true;
+				MainCharacter->SetDialogueChoiceVisible();
+
+				ItemAddedToInventory = true;
+			}
 		}
 	}
 }
@@ -77,7 +89,7 @@ void UToiletScript::ExamineObject(AActor * Player)
 
 	TArray<FString> Conversation;
 
-	Conversation.Add("It's a toilet, what do you expect to find here....");
+	Conversation.Add("The lid to the reservoir is rattling");
 
 	MainCharacter->Conversation = Conversation;
 	MainCharacter->ShouldShowConversation = true;

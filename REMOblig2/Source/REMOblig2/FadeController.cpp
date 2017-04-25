@@ -12,8 +12,8 @@ UFadeController::UFadeController()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	ConstructorHelpers::FObjectFinder<ULevelSequence> FadeInLoader(TEXT("LevelSequence'/Game/FadeIn.FadeIn'"));
-	ConstructorHelpers::FObjectFinder<ULevelSequence> FadeOutLoader(TEXT("LevelSequence'/Game/FadeOut.FadeOut'"));
+	ConstructorHelpers::FObjectFinder<ULevelSequence> FadeInLoader(TEXT("LevelSequence'/Game/Blueprints/FadeIn.FadeIn'"));
+	ConstructorHelpers::FObjectFinder<ULevelSequence> FadeOutLoader(TEXT("LevelSequence'/Game/Blueprints/FadeOut.FadeOut'"));
 
 	if (FadeInLoader.Succeeded())
 	{

@@ -10,7 +10,7 @@ AMainCharacter::AMainCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FClassFinder<UUserWidget> DialogueBlueprintClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/DialogueMenu.DialogueMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> DialogueBlueprintClass(TEXT("WidgetBlueprint'/Game/UI/DialogueMenu.DialogueMenu_C'"));
 
 	if (DialogueBlueprintClass.Succeeded())
 	{
@@ -32,7 +32,7 @@ AMainCharacter::AMainCharacter()
 	{
 		SkeletalMeshComponent = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/MainCharacter/Walk.Walk'"));
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshLoader(TEXT("SkeletalMesh'/Game/Meshes/MainCharacter/CharacterMesh.CharacterMesh'"));
 		if (SkeletalMeshLoader.Succeeded())
 		{
 			SkeletalMeshComponent->SetSkeletalMesh(SkeletalMeshLoader.Object);
@@ -69,6 +69,13 @@ AMainCharacter::AMainCharacter()
 	{
 		RadioMesh = RadioMeshLoader.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> EyeMeshLoader(TEXT("StaticMesh'/Game/Meshes/MainCharacter/EYE.EYE'"));
+
+	if (EyeMeshLoader.Succeeded())
+	{
+		EyeMesh = EyeMeshLoader.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -77,17 +84,34 @@ void AMainCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
-	
-	//RadioComponent->AttachTo(SkeletalMeshComponent, FName("Hold"), EAttachLocation::SnapToTarget, true);
+
+	EyeComponent1 = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
+	EyeComponent2 = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
 	
 	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, true);
 	
+
+	EyeComponent1->AttachToComponent(SkeletalMeshComponent, Rules, FName("EyeSocket1"));
+	EyeComponent2->AttachToComponent(SkeletalMeshComponent, Rules, FName("EyeSocket2"));
 	RadioComponent->AttachToComponent(SkeletalMeshComponent, Rules, FName("Hold"));
+
+
+	EyeComponent1->RegisterComponent();
+	EyeComponent2->RegisterComponent();
 
 	RadioComponent->RegisterComponent();
 
+	EyeComponent1->SetMobility(EComponentMobility::Movable);
+	EyeComponent2->SetMobility(EComponentMobility::Movable);
+
 	if(RadioMesh)
 		RadioComponent->SetSkeletalMesh(RadioMesh);
+
+	if (EyeMesh)
+	{
+		EyeComponent1->SetStaticMesh(EyeMesh);
+		EyeComponent2->SetStaticMesh(EyeMesh);
+	}
 	
 	RadioComponent->SetAllBodiesSimulatePhysics(true);
 	
@@ -125,7 +149,7 @@ void AMainCharacter::BeginPlay()
 	// Add til viewport
 	if (DialogueWidget)
 	{
-		DialogueWidget->AddToViewport();
+		DialogueWidget->AddToViewport(4);
 	}
 
 	// Set den til usynelig
@@ -162,6 +186,17 @@ void AMainCharacter::Tick(float DeltaTime)
 			UStaticMeshComponent* MeshComponent = nullptr;
 			USkeletalMeshComponent* TSkeletalMeshComponent = nullptr;
 
+			if (InteractableComponent)
+			{
+				if (InteractableComponent->CanRightClick)
+					OurHud->HintSnapToActor = Hit.GetActor();
+				else
+					OurHud->HintSnapToActor = nullptr;
+			}
+			else
+			{
+				OurHud->HintSnapToActor = nullptr;
+			}
 
 			if (!InteractableComponent && InteractableObj)
 			{
@@ -211,6 +246,8 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			LastSkeletalMeshComponentMousedOver = nullptr;
 			LastComponentMousedOver = nullptr;
+
+			OurHud->HintSnapToActor = nullptr;
 		}
 	}
 	else
@@ -223,6 +260,8 @@ void AMainCharacter::Tick(float DeltaTime)
 
 		LastSkeletalMeshComponentMousedOver = nullptr;
 		LastComponentMousedOver = nullptr;
+
+		OurHud->HintSnapToActor = nullptr;
 	}
 
 	if (SpaceBarDown)
@@ -307,6 +346,71 @@ void AMainCharacter::Tick(float DeltaTime)
 
 				if (!ObjectAbove.GetActor())
 					SetActorLocation(ClimbTo, false, nullptr, ETeleportType::TeleportPhysics);
+			}
+
+			if (DelayRunF)
+			{
+				DelayRunF = false;
+				UE_LOG(LogTemp, Warning, TEXT("Should run the switch now..."));
+				UE_LOG(LogTemp, Warning, TEXT("ActivateDist: %s"), *FString::SanitizeFloat(ActivateDist));
+
+				if (DelayObject)
+				{
+					switch (DelayAction)
+					{
+					case ActionType::INTERACT_ACTIVATE:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ActivateObject(this);
+						}
+						if (DelayObject->StaticMeshInstance)
+						{
+							DelayObject->StaticMeshInstance->ActivateObject(this);
+						}
+						break;
+					case ActionType::INTERACT_EXAMINE:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ExamineObject(this);
+						}
+						else {
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					case ActionType::INTERACT_OPENINVENTORY:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->OpenInventory(this);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					case ActionType::INTERACT_PICKUP:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->PickupObject(this);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					case ActionType::INTERACT_DIALOGUE:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ActivateDialogue(this);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
+						}
+						break;
+					default:
+						UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));
+					}
+				}
 			}
 
 			if (DelayActivate)
@@ -434,38 +538,19 @@ void AMainCharacter::SaveInventory(FBufferArchive & BinaryData)
 
 void AMainCharacter::MouseLeftClick()
 {
+	DelayActivate = false;
+	DelayRunF = false;
+	DelayClimb = false;
 	if (OurHud)
 	{
-		bool ShouldReturn = false;
-		if (ResetPlayerCanClickAfterNextRightClick)
+		if (OurHud->DialogueMenuOpen)
 		{
-			OurHud->canPlayerClick = true;
-			ResetPlayerCanClickAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetDialogueMenuOpenAfterNextRightClick)
-		{
-			OurHud->DialogueMenuOpen = false;
-			ResetDialogueMenuOpenAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetCanClickRayCastAfterNextRightClick)
-		{
-			SetCanRayCast(true);
-			ResetCanClickRayCastAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ShouldReturn)
-		{
+			// Send to our dialogue menu...
+			AnywhereClicked = true;
 			return;
 		}
 
 		if (!OurHud->canPlayerClick)
-			return;
-		if (OurHud->DialogueMenuOpen)
 			return;
 	}
 
@@ -610,32 +695,6 @@ void AMainCharacter::MouseRightClick()
 {
 	if (OurHud)
 	{
-		bool ShouldReturn = false;
-		if (ResetPlayerCanClickAfterNextRightClick)
-		{
-			OurHud->canPlayerClick = true;
-			ResetPlayerCanClickAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetDialogueMenuOpenAfterNextRightClick)
-		{
-			OurHud->DialogueMenuOpen = false;
-			ResetDialogueMenuOpenAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ResetCanClickRayCastAfterNextRightClick)
-		{
-			SetCanRayCast(true);
-			ResetCanClickRayCastAfterNextRightClick = false;
-			ShouldReturn = true;
-		}
-
-		if (ShouldReturn)
-		{
-			return;
-		}
 
 
 		if (SpaceBarDown)
@@ -655,10 +714,44 @@ void AMainCharacter::MouseRightClick()
 
 		AActor* HitActor = Hit.GetActor();
 
+		if (IsInPuzzleGameMode)
+		{
+			if (HitActor)
+			{
+				if (GameMode->IsInteractble(HitActor))
+				{
+					InteractableObject* Obj = GameMode->GetInteractableObject(HitActor);
+
+					if (Obj->ScriptComponent)
+					{
+						Obj->ScriptComponent->ActivateObject(this);
+					}
+					if (Obj->StaticMeshInstance)
+					{
+						Obj->StaticMeshInstance->ActivateObject(this);
+					}
+				}
+				else {
+					UInteractableComponent* Component = Cast<UInteractableComponent>(HitActor->GetComponentByClass(UInteractableComponent::StaticClass()));
+
+					if (Component)
+					{
+						Component->ActivateObject(this);
+					}
+				}
+			}
+			return;
+		}
+
 		if (HitActor)
 		{
 			if (GameMode->IsInteractble(HitActor))
 			{
+				UInteractableComponent* Component = GameMode->GetInteractor(HitActor);
+
+				if (!Component->CanRightClick)
+					return;
+
 				InteractionWidget* IWidget = OurHud->GetParentInteractorI(HitActor);
 				if (IWidget)
 				{

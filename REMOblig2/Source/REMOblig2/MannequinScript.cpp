@@ -125,7 +125,9 @@ void UMannequinScript::ItemInteract(int32 SlotNum)
 			// Spawn a toy...
 			InventoryItem* SpawnItem = new InventoryItem(ItemToDrop, 666, "Toy", GameMode->MeshesAndTextures->GetStaticMeshByItemID(ItemToDrop), GameMode->MeshesAndTextures->GetTextureByItemID(ItemToDrop));
 
-			GameMode->PutObjectInWorld(SpawnItem, GetActivatePosition(MainCharacter), FVector(0, 0, 0), FVector(1, 1, 1));
+			FVector Position = GetActivatePosition(MainCharacter) + GetOwner()->GetActorRightVector()*20.f;
+
+			GameMode->PutObjectInWorld(SpawnItem, Position, FVector(0, 0, 0), FVector(1, 1, 1));
 
 			MainCharacter->Conversation = Conversation;
 			MainCharacter->ShouldShowConversation = true;
@@ -134,6 +136,11 @@ void UMannequinScript::ItemInteract(int32 SlotNum)
 			ItemHasDropped = true;
 		}
 	}
+}
+
+FVector UMannequinScript::GetActivatePosition(AActor * Player)
+{
+	return GetOwner()->GetActorLocation();
 }
 
 FBufferArchive UMannequinScript::GetSaveData()

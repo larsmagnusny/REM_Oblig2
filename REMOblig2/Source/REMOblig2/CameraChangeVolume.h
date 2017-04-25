@@ -18,6 +18,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+
 	// Kamera vinkel som hoved kameraet skal settes til, kan endres i editoren
 	UPROPERTY(EditAnywhere)
 	FVector CameraAngle = FVector(0.f, -60.f, 45.f);
@@ -25,7 +27,16 @@ public:
 	UPROPERTY(EditAnywhere)
 	AActor* CameraToSwitchTo = nullptr;
 
+	void SetMousePosition(APlayerController* Controller, float X, float Y);
+
 	// Sjekk om vi overlapper noe
 	UFUNCTION()
 	void OnOverlapBegin(AActor* MyOverlappedActor, AActor* OtherActor);
+
+	bool SetMousePositionNextFrame = false;
+
+	int FramesToWait = 2;
+	int FrameCounter = 0;
+
+	FVector WorldPosition;
 };

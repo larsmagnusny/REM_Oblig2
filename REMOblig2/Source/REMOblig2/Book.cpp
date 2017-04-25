@@ -7,6 +7,7 @@
 UBook::UBook()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	CanRightClick = false;
 }
 
 void UBook::BeginPlay()
@@ -21,12 +22,18 @@ void UBook::BeginPlay()
 
 	CurrentPosition = OriginalPosition;
 
-	GetOwner()->OnActorBeginOverlap.AddDynamic(this, &UBook::BeginOverlap);
+	//GetOwner()->OnActorBeginOverlap.AddDynamic(this, &UBook::BeginOverlap);
 }
 
 void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	UBookCase* BookCase = Cast<UBookCase>(ParentComponent);
+
+	if(BookCase->PuzzleSolved)
+		PrimaryComponentTick.bCanEverTick = false;
+
 	if (Wait)
 	{
 		if (TimeCounter > TimeToWait)
@@ -41,6 +48,22 @@ void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 	}
 
 	GetOwner()->SetActorLocation(CurrentPosition);
+
+	TArray<AActor*> OverlappedActors;
+	GetOwner()->GetOverlappingActors(OverlappedActors);
+
+	for (AActor* OtherActor : OverlappedActors)
+	{
+		UBook* OtherBook = Cast<UBook>(OtherActor->GetComponentByClass(UBook::StaticClass()));
+
+		if (BookCase->BookToDrag == GetOwner())
+			OtherBook->Overlap(OtherActor, GetOwner());
+		else
+			Overlap(GetOwner(), OtherActor);
+
+		//Overlap(GetOwner(), OtherActor);
+		//OtherBook->Overlap(OtherActor, GetOwner());
+	}
 
 	if (!CanOverlap)
 	{
@@ -104,7 +127,7 @@ void UBook::SetParent(UInteractableComponent * Parent)
 	ParentComponent = Parent;
 }
 
-void UBook::BeginOverlap(AActor* MyOverlappedActor, AActor* OtherActor)
+void UBook::Overlap(AActor* MyOverlappedActor, AActor* OtherActor)
 {
 	//if (!OtherActor->IsA(UBook::StaticClass()))
 		//return;

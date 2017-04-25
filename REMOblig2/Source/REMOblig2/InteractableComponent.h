@@ -99,5 +99,7 @@ public:
 	UUserWidget* SubMenuWidget = nullptr;
 
 	FString ParentName = "None";
+
+	bool CanRightClick = true;
 private:
 };

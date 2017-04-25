@@ -8,6 +8,7 @@
 #include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
 #include "REM_GameInstance.h"
+#include "SoundLoader.h"
 
 #include "GameFramework/GameModeBase.h"
 #include "REM_GameMode.generated.h"
@@ -71,6 +72,18 @@ public:
 
 	MeshAndTextureLoader* MeshesAndTextures;
 
+	UFUNCTION(BlueprintCallable, Category = "Get StaticMeshByItemID")
+	UStaticMesh* GetStaticMeshByItemID(ItemIDs ID)
+	{
+		return MeshesAndTextures->GetStaticMeshByItemID(ID);
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Get MaterialsByItemID")
+	TArray<UMaterial*> GetMaterialsByItemID(ItemIDs ID)
+	{
+		return MeshesAndTextures->GetMaterialsByItemID(ID);
+	}
+
 	UFUNCTION(BlueprintCallable, Category = "Save All Data")
 	void SaveAllData();
 
@@ -95,6 +108,12 @@ public:
 
 	USceneComponent* FadeController = nullptr;
 	bool FadeIn = true;
+
+	REMSaveGame* SaveGameInstance = nullptr;
+
+	SoundLoader* SoundLoaderInstance = nullptr;
+
+	UREM_GameInstance* GameInstance = nullptr;
 private:
 	bool ArrayInUse = false;
 
@@ -110,9 +129,7 @@ private:
 	// Pointer to our main character
 	ACharacter* MainCharacter = nullptr;
 
-	UREM_GameInstance* GameInstance = nullptr;
 
-	REMSaveGame* SaveGameInstance;
 
 	FString GlobalSaveFile = "CharacterData.bin";
 };

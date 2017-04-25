@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "REM_GameInstance.h"
+#include "REM_GameMode.h"
 
 UREM_GameInstance::UREM_GameInstance()
 {
@@ -85,29 +86,59 @@ void UREM_GameInstance::SaveAllData(REMSaveGame * SaveGameInstance)
 
 void UREM_GameInstance::LoadAllData(FName & LastLevel, REMSaveGame* SaveGameInstance)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Trying to load all data..."));
 	FBufferArchive TotalSaveData;
 	SaveGameInstance->LoadGameDataFromFile("SaveFile", TotalSaveData);
-
-	UE_LOG(LogTemp, Warning, TEXT("Data Loaded from file..."));
 
 	FMemoryReader Ar = FMemoryReader(TotalSaveData, false);
 
 	DeletePersistentInventory();
-	UE_LOG(LogTemp, Warning, TEXT("Cleared persistent memory"));
 	Ar << *PersistentInventory;
-	UE_LOG(LogTemp, Warning, TEXT("Read data from save file into inventory"));
 
 	Ar << LastLevel;
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Last level"));
-	
+
 	for (int i = 0; i < NUM_LEVELS; i++)
 	{
 		DeleteLevelData((uint8)i);
-		UE_LOG(LogTemp, Warning, TEXT("Deleted LevelData Cache"));
 		Ar << *LevelData[i];
-		UE_LOG(LogTemp, Warning, TEXT("LevelData sucessfully loaded"));
 	}
+}
+
+void UREM_GameInstance::SaveSettings(AGameModeBase* GameMode)
+{
+	REMSaveGame * SaveGameInstance = Cast<AREM_GameMode>(GameMode)->SaveGameInstance;
+
+	if (SaveGameInstance)
+	{
+		FBufferArchive BinaryData;
+
+		BinaryData << Resolution;
+		BinaryData << MasterVolume;
+		BinaryData << SFXVolume;
+		BinaryData << WindowMode;
+
+		SaveGameInstance->SaveGameDataToFile("Config", BinaryData);
+	}
+}
+
+void UREM_GameInstance::LoadSettings(REMSaveGame * SaveGameInstance)
+{
+	FBufferArchive BinaryData;
+	if (SaveGameInstance->LoadGameDataFromFile("Config", BinaryData))
+	{
+		FMemoryReader Ar = FMemoryReader(BinaryData, false);
+
+		Ar << Resolution;
+		Ar << MasterVolume;
+		Ar << SFXVolume;
+		Ar << WindowMode;
+	}
+
+	// ApplySettings
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	MyGameSettings->SetFullscreenMode((EWindowMode::Type)(WindowMode));
+	MyGameSettings->SetScreenResolution(FIntPoint(Resolution.X, Resolution.Y));
+	MyGameSettings->ApplySettings(true);
 }
 
 bool UREM_GameInstance::FileExists(FString Path)

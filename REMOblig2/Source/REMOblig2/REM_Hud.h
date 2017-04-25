@@ -51,6 +51,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorMenuSnap")
 	AActor* MenuSnapToActor = nullptr;
 
+	AActor* HintSnapToActor = nullptr;
+
 	// Brukes i Blueprint
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CanPlayerClick?")
 	bool canPlayerClick = true;
@@ -107,6 +109,44 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	UActorComponent* BookPuzzleParent = nullptr;
 
+	UFUNCTION(BlueprintCallable, Category = "Pointer to ToggleObjectDisplay")
+	bool GetToggleObjectDisplay()
+	{
+		return ToggleObjectDisplay;
+	}
+	UFUNCTION(BlueprintCallable, Category = "Pointer to ToggleObjectDisplay")
+	void SetToggleObjectDisplay(bool val)
+	{
+		ToggleObjectDisplay = val;
+	}
+
+	bool ToggleObjectDisplay = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	ItemIDs ItemToDisplay = ItemIDs::ITEM_SPINNER;
+
+	UPROPERTY(BlueprintReadWrite, Category = "ShouldDisplayTip")
+	bool DisplayTip = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Set StaticMesh Movable...")
+	void SetMovable(AStaticMeshActor* Actor);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom Conversion")
+	FString IntegerToString(int Integer)
+	{
+		FString String = "0";
+
+		if (Integer == 0)
+		{
+			String[0] = (char)32;
+		}
+		else {
+			String[0] = (char)('A' + Integer - 1);
+		}
+
+		return String;
+	}
+
 private:
 	bool SubMenuesInUse = false;
 
@@ -119,6 +159,9 @@ private:
 
 	UClass* PauseMenuWidgetClassTemplate = nullptr;
 	UUserWidget* PauseMenuWidget = nullptr;
+
+	UClass* UserTipsWidgetClassTemplate = nullptr;
+	UUserWidget* UserTipsWidget = nullptr;
 
 	TArray<InteractionWidget> SubMenues;
 

@@ -31,6 +31,28 @@ public:
 	virtual FBufferArchive GetSaveData() override;
 	virtual void LoadSaveData(FMemoryReader& Ar) override;
 	
+	void CreatePossibleSolution(int size);
+
+	bool ExistsAnyOtherInRow(int column, int value, int AllowedOccurances);
+	bool ExistsAnyOtherInColumn(int row, int value, int AllowedOccurances);
+
+	bool ExistsAnyOtherInRow(int column, int value, int AllowedOccurances, int** ArrayToCheck);
+	bool ExistsAnyOtherInColumn(int row, int value, int AllowedOccurances, int** ArrayToCheck);
+
+	UFUNCTION(BlueprintCallable, Category = "Random Slot")
+	void RandomSlotToShow(int& column, int& row, int size);
+
+	UFUNCTION(BlueprintCallable, Category = "Check solution to puzzle")
+	bool CheckSolution(int size, TArray<int> Array);
+
+	UFUNCTION(BlueprintCallable, Category = "Get Value from slot")
+	int GetSlotValueFromGrid(int column, int row);
+
+	UFUNCTION(BlueprintCallable, Category = "Conversion")
+	void FromRowAndColumnToIndex(int& index, int column, int row, int size);
+	UFUNCTION(BlueprintCallable, Category = "Conversion")
+	void FromIndexToRowAndColumn(int index, int& column, int& row, int size);
+	
 private:
 	UClass* PuzzleWidgetClassTemplate = nullptr;
 	UUserWidget* PuzzleWidget = nullptr;
@@ -40,4 +62,7 @@ private:
 
 	AREM_GameMode* GameMode = nullptr;
 	AREM_Hud* Hud = nullptr;
+
+	int** PossibleSolution;
+	int size;
 };

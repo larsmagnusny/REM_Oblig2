@@ -162,6 +162,7 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		if (Forward)
 		{
+			Hud->canPlayerClick = false;
 			FVector Direction = MainCameraFinalPosition - CurrentCamera->GetActorLocation();
 
 			float Distance = Direction.Size();
@@ -197,14 +198,28 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 				CurrentCamera->SetActorLocation(CurrentCamera->GetActorLocation() + Direction*5.0f);
 			}
 			else {
+				while (GameMode->IsInteractble(GetOwner()))
+				{
+					GameMode->RemoveInteractableObject(GetOwner());
+				}
+
 				CurrentCamera->SetActorLocation(MainCameraFinalPosition);
 				CurrentCamera->SetActorRotation(MainCameraFinalRotation);
 				MakeAllBooksInteractable();
 				RunCameraAnimation = false;
 				Forward = false;
+				Hud->canPlayerClick = true;
 			}
 		}
 		else {
+			if (DraggingBook)
+			{
+				UBook* Component = GetBookComponentByActor(BookToDrag);
+				Component->CurrentPosition = GetPositionFromSlot(Component->OccupyingIndex);
+				DraggingBook = false;
+				BookToDrag = nullptr;
+			}
+
 			FVector Direction = MainCameraOrigPosition - CurrentCamera->GetActorLocation();
 
 			float Distance = Direction.Size();
@@ -232,7 +247,7 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 				{
 					UE_LOG(LogTemp, Warning, TEXT("Puzzle has been solved"));
 					CanRunAnimation = false;
-					if (GameMode->IsInteractble(GetOwner()))
+					while (GameMode->IsInteractble(GetOwner()))
 					{
 						GameMode->RemoveInteractableObject(GetOwner());
 					}
@@ -263,7 +278,18 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UBookCase::ActivateObject(AActor * Player)
 {
+
+
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(Player);
+
+	if (PuzzleSolved)
+	{
+		if (GameMode->IsInteractble(GetOwner()))
+		{
+			GameMode->RemoveInteractableObject(GetOwner());
+			MainCharacter->IsInPuzzleGameMode = false;
+		}
+	}
 
 	MCharacter = MainCharacter;
 
@@ -297,6 +323,13 @@ void UBookCase::ActivateObject(AActor * Player)
 
 void UBookCase::ExamineObject(AActor * Player)
 {
+	TArray<FString> Conversation;
+
+	Conversation.Add("My bookcase contains all my favorite books. Mom always tells it's too messy.");
+
+	Cast<AMainCharacter>(Player)->Conversation = Conversation;
+	Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
+	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
 FVector UBookCase::GetActivatePosition(AActor * Player)
@@ -357,7 +390,10 @@ void UBookCase::MakeAllBooksNonInteractable()
 
 FVector UBookCase::GetPositionFromSlot(int Index)
 {
-	return SnapPositions[Index];
+	if (Index < SnapPositions.Num())
+		return SnapPositions[Index];
+	else
+		return FVector(0, 0, 0);
 }
 
 void UBookCase::SwapPositions(int index1, int index2)

@@ -9,9 +9,10 @@
 AREM_Hud::AREM_Hud()
 {
 	// Last inn Inventory Widgeten
-	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/Inventory.Inventory_C'"));
-	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/MainMenu.MainMenu_C'"));
-	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/Blueprints/PauseMenu.PauseMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/Inventory.Inventory_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/MainMenu.MainMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/PauseMenu.PauseMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> UserTipsWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/UserTipsWidget.UserTipsWidget_C'"));
 
 	if (InventoryWidgetLoader.Succeeded())
 	{
@@ -26,6 +27,11 @@ AREM_Hud::AREM_Hud()
 	if (PauseMenuWidgetLoader.Succeeded())
 	{
 		PauseMenuWidgetClassTemplate = PauseMenuWidgetLoader.Class;
+	}
+
+	if (UserTipsWidgetLoader.Succeeded())
+	{
+		UserTipsWidgetClassTemplate = UserTipsWidgetLoader.Class;
 	}
 }
 
@@ -85,6 +91,14 @@ void AREM_Hud::BeginPlay()
 		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	if (PauseMenuWidgetClassTemplate)
+	{
+		UserTipsWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), UserTipsWidgetClassTemplate);
+
+		UserTipsWidget->AddToViewport(3);
+		//UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 	// Hent en peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 }
@@ -94,6 +108,25 @@ void AREM_Hud::DrawHUD()
 	Super::DrawHUD();
 
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt((int32)GameInstance->MainMenu));
+
+	if (HintSnapToActor && !MainMenuLevel)
+	{
+		UserTipsWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+		const float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+
+		FVector2D ScreenPos;
+		if(HintSnapToActor)
+		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), HintSnapToActor->GetActorLocation(), ScreenPos, false);
+
+		ScreenPos += FVector2D(-25, -35)*ViewportScale;
+
+		UserTipsWidget->SetPositionInViewport(ScreenPos, true);
+	}
+	else if (!HintSnapToActor)
+	{
+		UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 
 	if(!GameInstance->MainMenu) {
 		MainMenuLevel = false;
@@ -156,73 +189,24 @@ void AREM_Hud::DrawHUD()
 		FVector2D ScreenPos;
 		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), MenuSnapToActor->GetActorLocation(), ScreenPos, false);
 		
-		ScreenPos += FVector2D(-112, -122)*ViewportScale;
+		ScreenPos += FVector2D(-130, -130)*ViewportScale;
 
 		RightClickMenu->SetPositionInViewport(ScreenPos, true);
 	}
+
+	
 }
 
 void AREM_Hud::CallActivate(ActionType Action)
 {
 	// For å håntere hvilken knapp du trykte på og sende kommandoen videre til InteractableObject
 	InteractableObject* Obj = GameMode->GetInteractableObject(MenuSnapToActor);
-	if (Obj)
-	{
-		switch (Action)
-		{
-		case ActionType::INTERACT_ACTIVATE:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->ActivateObject(GameMode->GetMainCharacter());
-			}
-			if (Obj->StaticMeshInstance)
-			{
-				Obj->StaticMeshInstance->ActivateObject(GameMode->GetMainCharacter());
-			}
-			break;
-		case ActionType::INTERACT_EXAMINE:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->ExamineObject(GameMode->GetMainCharacter());
-			}
-			else {
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		case ActionType::INTERACT_OPENINVENTORY:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->OpenInventory(GameMode->GetMainCharacter());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		case ActionType::INTERACT_PICKUP:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->PickupObject(GameMode->GetMainCharacter());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		case ActionType::INTERACT_DIALOGUE:
-			if (Obj->ScriptComponent)
-			{
-				Obj->ScriptComponent->ActivateDialogue(GameMode->GetMainCharacter());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
-			}
-			break;
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));
-		}
-	}
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	if(Obj->ScriptComponent)
+		MainCharacter->DelayCallFunctionFromWidget(Obj->ScriptComponent->GetActivatePosition(MainCharacter), Obj, Action);
+	if (Obj->StaticMeshInstance)
+		MainCharacter->DelayCallFunctionFromWidget(Obj->StaticMeshInstance->GetActivatePosition(), Obj, Action);
 
 	return;
 }
@@ -271,6 +255,12 @@ void AREM_Hud::TogglePauseMenuVisibility()
 
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
+}
+
+void AREM_Hud::SetMovable(AStaticMeshActor * Actor)
+{
+	UStaticMeshComponent* Component = Actor->StaticMeshComponent;
+	Component->SetMobility(EComponentMobility::Movable);
 }
 
 InteractionWidget* AREM_Hud::GetParentInteractorI(UUserWidget* Widget)
@@ -329,7 +319,56 @@ void AREM_Hud::DropItem(int32 SlotIndex, FVector2D HitPoint)
 		MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
 
 	if (MainCharacter)
+	{
+		// Drop item if we get a hitresult under the item...
+		FHitResult Hit[6];
+		FVector Start = MainCharacter->GetActorLocation();
+
+		Start.X = HitPoint.X;
+		Start.Y = HitPoint.Y;
+
+		GetWorld()->LineTraceSingleByChannel(Hit[0], Start, Start + FVector(1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[1], Start, Start + FVector(0, 1, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[2], Start, Start + FVector(-1, 0, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[3], Start, Start + FVector(0, -1, 0)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[4], Start, Start + FVector(0, 0, 1)*10000.f, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit[5], Start, Start + FVector(0, 0, -1)*10000.f, ECollisionChannel::ECC_Visibility);
+
+		float Distances[6];
+
+		for (int i = 0; i < 6; i++)
+		{
+			if (Hit[i].GetActor())
+			{
+				Distances[i] = (Hit[i].ImpactPoint - Start).Size();
+			}
+			else {
+				Distances[i] = 10000.f;
+			}
+
+			UE_LOG(LogTemp, Warning, TEXT("RayCastLength: %s"), *FString::SanitizeFloat(Distances[i]));
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (Distances[i] == 0.f)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Inside OBJECT!"));
+				return;
+			}
+		}
+
+		//if (Distances[0] < 50.f && Distances[2] < 50.f)
+			//return;
+		//if (Distances[1] < 50.f && Distances[3] < 50.f)
+			//return;
+		if (Distances[4] < 10000.f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Inside OBJECT!"));
+			return;
+		}
 		MainCharacter->DropItem(SlotIndex, HitPoint);
+	}
 }
 
 bool AREM_Hud::IsActorInteractable(AActor* Actor)

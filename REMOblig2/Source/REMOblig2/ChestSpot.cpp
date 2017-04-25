@@ -11,6 +11,7 @@
 UChestSpot::UChestSpot()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	CanRightClick = false;
 }
 
 void UChestSpot::BeginPlay()
@@ -46,7 +47,7 @@ void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Dersom vi har en peker til Døren og kisten så vet vi at denne kan løse puzzelet dersom kisten er full
-	if (Door && Chest)
+	if (Door && ItemDropped)
 	{
 		if (!ChestScriptInstance)
 			ChestScriptInstance = Cast<UChestController>(Chest->GetComponentByClass(UChestController::StaticClass()));

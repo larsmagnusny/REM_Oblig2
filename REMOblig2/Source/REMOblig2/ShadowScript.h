@@ -45,6 +45,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Speed = 200.f;
 
+	// How long to keep character scared...
+	bool StartScareCounter = false;
+	float ScareTimer = 1.5f;
+	float ScareCounter = 0.f;
 private:
 	bool Animating = false;
 	bool TriggerDone = false;

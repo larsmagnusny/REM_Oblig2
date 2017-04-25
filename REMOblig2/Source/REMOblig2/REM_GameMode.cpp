@@ -16,6 +16,7 @@ AREM_GameMode::AREM_GameMode()
 	HUDClass = AREM_Hud::StaticClass();
 
 	MeshesAndTextures = new MeshAndTextureLoader();
+	SoundLoaderInstance = new SoundLoader();
 }
 
 void AREM_GameMode::BeginPlay()
@@ -25,6 +26,8 @@ void AREM_GameMode::BeginPlay()
 	GameInstance = Cast<UREM_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	SaveGameInstance = new REMSaveGame();
+
+	GameInstance->LoadSettings(SaveGameInstance);
 
 	FString LevelSaveFile = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
 

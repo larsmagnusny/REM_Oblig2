@@ -21,6 +21,8 @@ void AInventoryItemObject::BeginPlay()
 {
 	Super::BeginPlay();
 
+	this->OnActorHit.AddDynamic(this, &AInventoryItemObject::OnHit);
+
 	// Hent Static Mesh Komponenten
 	UStaticMeshComponent* Component = GetStaticMeshComponent();
 
@@ -41,13 +43,26 @@ void AInventoryItemObject::BeginPlay()
 		InventoryIcon = GameMode->MeshesAndTextures->GetTextureByItemID(ItemID);
 
 	// Sett kollisjonsprofilen
-	Component->SetCollisionProfileName(FName("BlockAll"));
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Ignore);
+	Component->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Block);
+	Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Component->bGenerateOverlapEvents = true;
 	Component->BodyInstance.bUseCCD = true;
 	Component->SetNotifyRigidBodyCollision(true);
 
 	// Sett Meshen
 	Component->SetStaticMesh(Mesh);
+
+	// Sett Materialene
+	TArray<UMaterial*> Mats = GameMode->MeshesAndTextures->GetMaterialsByItemID(ItemID);
+	for (int i = 0; i < Mats.Num(); i++)
+	{
+		Component->SetMaterial(i, Mats[i]);
+	}
 
 	// Sett stor masse på objektet så spilleren ikke får den til å gå gjennom golvet når han går på den.
 	Component->SetMassOverrideInKg(NAME_None, 100.f, true);
@@ -80,4 +95,24 @@ void AInventoryItemObject::Init(InventoryItem* Item)
 		Mesh = Item->Mesh;
 		InventoryIcon = Item->InventoryIcon;
 	}
+}
+
+void AInventoryItemObject::OnHit(AActor* OtherActor, AActor* MyActor, FVector Normal, const FHitResult& Hit)
+{
+	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+
+	// Play a random sound sound...
+	TArray<USoundWave*> SoundsToPlay;
+
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT1]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT2]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT3]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT4]);
+	SoundsToPlay.Add(GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_OBJECTHIT5]);
+
+	int RandMax = SoundsToPlay.Num() - 1;
+
+	int RandomSound = FMath::RandRange(0, RandMax);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundsToPlay[RandomSound], GetActorLocation(), GameMode->GameInstance->SFXVolume);
 }

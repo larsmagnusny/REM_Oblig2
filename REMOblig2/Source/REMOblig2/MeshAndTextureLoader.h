@@ -2,10 +2,12 @@
 
 #pragma once
 #include "StructsAndEnums.h"
+#include "MaterialStorage.h"
 
 /**
  * 
  */
+
 class REMOBLIG2_API MeshAndTextureLoader
 {
 public:
@@ -14,15 +16,16 @@ public:
 
 	void Init();
 
+	UPROPERTY(BlueprintCallable, Category = "Get Static Mesh")
 	UStaticMesh* GetStaticMeshByItemID(ItemIDs ID);
 	UTexture2D* GetTextureByItemID(ItemIDs ID);
+	UPROPERTY(BlueprintCallable, Category = "Get Materials")
+	TArray<UMaterial*> GetMaterialsByItemID(ItemIDs ID);
 private:
 	TArray<FString> MeshRefString;
-	TArray<FString*> MatRefStrings;
-	TArray<int> NumMats;
 	TArray<FString> ItemIconRefString;
 
 	TArray<UStaticMesh*> StaticMeshes;
 	TArray<UTexture2D*> ItemIconTextures;
-	TArray<UMaterial**> MaterialReference;
+	TArray<MaterialStorage*> MaterialReference;
 };

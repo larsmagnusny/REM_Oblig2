@@ -2,13 +2,15 @@
 
 #include "REMOblig2.h"
 #include "InteractableComponent.h"
+#include "MainCharacter.h"
+#include "REM_GameMode.h"
 
 
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
 {
 	// Last inn right click menyen
-	ConstructorHelpers::FClassFinder<UUserWidget> SubMenuClass(TEXT("WidgetBlueprint'/Game/Blueprints/Menues/InteractMenu.InteractMenu_C'"));
+	ConstructorHelpers::FClassFinder<UUserWidget> SubMenuClass(TEXT("WidgetBlueprint'/Game/UI/InteractMenu.InteractMenu_C'"));
 
 	if (SubMenuClass.Succeeded())
 	{
@@ -74,7 +76,13 @@ void UInteractableComponent::LoadSaveData(FMemoryReader &Ar)
 
 void UInteractableComponent::ItemInteract(int32 SlotNum)
 {
+	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 
+	USoundWave* Sound = GameMode->SoundLoaderInstance->Sounds[(uint8)Sounds::SOUND_IDUNNO];
+
+	UREM_GameInstance* GameInstance = GameMode->GameInstance;
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, GetActivatePosition(GameMode->GetMainCharacter()), GameInstance->SFXVolume);
 }
 
 UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()
