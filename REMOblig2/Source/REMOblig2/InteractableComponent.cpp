@@ -82,7 +82,7 @@ void UInteractableComponent::ItemInteract(int32 SlotNum)
 
 	UREM_GameInstance* GameInstance = GameMode->GameInstance;
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, GetActivatePosition(nullptr), GameInstance->SFXVolume);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, GetActivatePosition(GameMode->GetMainCharacter()), GameInstance->SFXVolume);
 }
 
 UStaticMeshComponent* UInteractableComponent::GetStaticMeshComponent()
