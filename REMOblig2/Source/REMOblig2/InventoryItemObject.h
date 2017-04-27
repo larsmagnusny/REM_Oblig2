@@ -52,4 +52,9 @@ private:
 
 	// Ikon den skal ha i inventoryen
 	UTexture2D* InventoryIcon = nullptr;
+
+	// If we havent hit anything in 1s, then we can play the sound again...
+	float MaxHitTime = 1.f;
+	float HitTimer = 0.f;
+	bool CanPlaySound = false;
 };

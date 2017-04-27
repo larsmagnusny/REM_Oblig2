@@ -1,5 +1,5 @@
-# REM_Oblig2
-Obligatorisk oppgave 2 i programmering II, prototype av spillet der vi beviser gameplay.
+# R.E.M ( Rapid Eye Movement )
+Obligatorisk oppgave 3 i programmering II, prototype av spillet der vi skal være i Beta.
 
 #Prototype Breakdown
 https://docs.google.com/document/d/1aIMjEL5PPkkIj1dKvpaKNuv06nIOuNOG6U1XHyYwIoc/edit
@@ -23,4 +23,4 @@ https://docs.google.com/document/d/1aIMjEL5PPkkIj1dKvpaKNuv06nIOuNOG6U1XHyYwIoc/
 #Point & click or walk with wasd or controller
 #Menu and inventory system prototype
 
-#Deadline: 1.3.2017
+#Deadline: 26.04.2017
