@@ -45,26 +45,6 @@ void ALookAtCamera::Tick(float DeltaTime)
 
 	FVector CameraNorm = OrigRotation.Vector();
 
-	float Angle = FMath::Acos((FVector::DotProduct(Dir, CameraNorm)) / (Dir.Size()*CameraNorm.Size()));
-
-	float NormLen = FMath::Cos(Angle)*Dir.Size();
-	FVector Norm = CameraNorm*NormLen;
-
-	float LenFromCenter = FMath::Sin(Angle)*Dir.Size();
-
-	if (LenFromCenter > KeepCameraStillInThisRadius)
-	{
-		FVector Pos1 = GetActorLocation() + Dir;
-		FVector Pos2 = GetActorLocation() + Norm;
-		FVector FromCenterVec = Pos1 - Pos2;
-		FVector LookAtPos = Pos2 + FromCenterVec;
-		FromCenterVec.Normalize();
-		LookAtPos -= FromCenterVec*KeepCameraStillInThisRadius;
-		FVector LookAt = LookAtPos - GetActorLocation();
-
-		EventualRotation = LookAt.Rotation();
-	}
-
 	if (LockX)
 		EventualRotation.Roll = OrigRotation.Roll;
 	if (LockY)
@@ -89,6 +69,32 @@ void ALookAtCamera::Tick(float DeltaTime)
 
 	if (FollowCharacter)
 	{
+		
+
+		float Angle = FMath::Acos((FVector::DotProduct(Dir, CameraNorm)) / (Dir.Size()*CameraNorm.Size()));
+
+		float NormLen = FMath::Cos(Angle)*Dir.Size();
+		FVector Norm = CameraNorm*NormLen;
+
+		float LenFromCenter = FMath::Sin(Angle)*Dir.Size();
+
+		if (LenFromCenter > KeepCameraStillInThisRadius)
+		{
+			FVector Pos1 = GetActorLocation() + Dir;
+			FVector Pos2 = GetActorLocation() + Norm;
+			FVector FromCenterVec = Pos1 - Pos2;
+			FVector LookAtPos = Pos2 + FromCenterVec;
+			FromCenterVec.Normalize();
+			LookAtPos -= FromCenterVec*KeepCameraStillInThisRadius;
+			FVector LookAt = LookAtPos - GetActorLocation();
+
+			EventualRotation = LookAt.Rotation();
+		}
+		else {
+			SetActorRotation(OrigRotation);
+		}
+
+
 		FVector NormDir = LookAtPosition - OrigPosition;
 
 		FVector FollowVector = FVector(0, 0, 0);
