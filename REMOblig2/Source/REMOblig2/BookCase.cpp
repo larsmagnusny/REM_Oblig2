@@ -180,22 +180,26 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 			float RotMag = RotDir.Size();
 
-			if (RotMag > 0.5f)
+			if (RotMag > 0.1f)
 			{
 				RotDir.Normalize();
 
-				RotDir *= 0.5f;
+				FVector CRot = WantedRotation - FVector(MainCameraOrigRotation.Pitch, MainCameraOrigRotation.Yaw, MainCameraOrigRotation.Roll);
+
+				RotDir *= CRot.Size()*DeltaTime;
 
 				FRotator NextRotation = FRotator(CurrentPitch + RotDir.X, CurrentYaw + RotDir.Y, CurrentRoll + RotDir.Z);
 
 				CurrentCamera->SetActorRotation(NextRotation);
 			}
 
-			if (Distance > 10)
+			if (Distance > 1.f)
 			{
 				Direction.Normalize();
 
 				CurrentCamera->SetActorLocation(CurrentCamera->GetActorLocation() + Direction*5.0f);
+
+				CurrentCamera->FollowCharacter = false;
 			}
 			else {
 				while (GameMode->IsInteractble(GetOwner()))
@@ -224,13 +228,23 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 			float Distance = Direction.Size();
 
-			if (Distance > 10)
+			if (Distance > 1.f)
 			{
 				Direction.Normalize();
 
 				CurrentCamera->SetActorLocation(CurrentCamera->GetActorLocation() + Direction*5.0f);
+				
+				CurrentCamera->FollowCharacter = false;
 
-				CurrentCamera->FollowCharacter = true;
+				FVector CharacterLocation = GameMode->GetMainCharacter()->GetActorLocation();
+				FVector CameraLocation = CurrentCamera->GetActorLocation();
+
+				FVector OrientationVector = CharacterLocation - CameraLocation;
+				OrientationVector.Normalize();
+
+
+				CurrentCamera->SetActorRotation(OrientationVector.ToOrientationQuat());
+
 			}
 			else
 			{
@@ -238,9 +252,10 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 				MakeAllBooksNonInteractable();
 				UE_LOG(LogTemp, Warning, TEXT("Sucess..."));
 				CurrentCamera->SetActorLocation(MainCameraOrigPosition);
-				CurrentCamera->SetActorRotation(MainCameraOrigRotation);
+				//CurrentCamera->SetActorRotation(MainCameraOrigRotation);
 				UE_LOG(LogTemp, Warning, TEXT("Set Camera Back where it belongs"));
 				RunCameraAnimation = false;
+				CurrentCamera->FollowCharacter = true;
 				Forward = true;
 
 				if (PuzzleSolved)

@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	AActor* CameraToSwitchTo = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	ATriggerVolume* IgnoreThisWhenOverlap = nullptr;
+
 	void SetMousePosition(APlayerController* Controller, float X, float Y);
 
 	// Sjekk om vi overlapper noe
@@ -39,4 +42,6 @@ public:
 	int FrameCounter = 0;
 
 	FVector WorldPosition;
+
+	bool IgnoreNextOverlap = false;
 };
