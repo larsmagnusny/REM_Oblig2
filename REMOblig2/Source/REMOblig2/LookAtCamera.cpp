@@ -69,8 +69,6 @@ void ALookAtCamera::Tick(float DeltaTime)
 
 	if (FollowCharacter)
 	{
-		
-
 		float Angle = FMath::Acos((FVector::DotProduct(Dir, CameraNorm)) / (Dir.Size()*CameraNorm.Size()));
 
 		float NormLen = FMath::Cos(Angle)*Dir.Size();
@@ -90,7 +88,7 @@ void ALookAtCamera::Tick(float DeltaTime)
 
 			EventualRotation = LookAt.Rotation();
 		}
-		else {
+		else  {
 			SetActorRotation(OrigRotation);
 		}
 
@@ -104,7 +102,10 @@ void ALookAtCamera::Tick(float DeltaTime)
 
 			if (YValue + FollowDistance > 0)
 			{
-				YValue = -FollowDistance;
+				if(FollowDistance > 0)
+					YValue = -FollowDistance;
+				if (FollowDistance < 0)
+					YValue = FollowDistance;
 			}
 
 			FollowVector = FVector(0, FollowDistance + YValue, 0);
@@ -115,7 +116,7 @@ void ALookAtCamera::Tick(float DeltaTime)
 			
 
 			SetActorLocation(OrigPosition + FollowVector);
-			//UE_LOG(LogTemp, Warning, TEXT("%s"), *FollowVector.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *FollowVector.ToString());
 		}
 
 		if (FollowAlongAxisX)
