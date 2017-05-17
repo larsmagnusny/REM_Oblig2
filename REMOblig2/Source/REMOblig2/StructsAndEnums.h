@@ -39,5 +39,6 @@ enum class ActionType : uint8
 	INTERACT_OPENINVENTORY UMETA(DisplayName = "Open Inventory"),
 	INTERACT_PICKUP UMETA(DisplayName = "Pickup Object"),
 	INTERACT_ACTIVATE UMETA(DisplayName = "Activate or Use Object"),
-	INTERACT_DIALOGUE UMETA(DisplayName = "Talk to npc")
+	INTERACT_DIALOGUE UMETA(DisplayName = "Talk to npc"),
+	INTERACT_ITEM UMETA(DisplayName = "Use item on object")
 };

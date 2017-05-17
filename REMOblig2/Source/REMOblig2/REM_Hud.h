@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="ActivateObect")
 	void CallActivate(ActionType Action);
 
+	UFUNCTION(BlueprintCallable, Category = "ItemInteract")
+	void ItemInteract(UInteractableComponent* Component, int SlotNum);
+
 	// Add widget to actorcomponent
 	void AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UInteractableComponent* Component, AInteractableObject* Object = nullptr);
 

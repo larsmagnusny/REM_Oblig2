@@ -61,9 +61,17 @@ void UREM_GameInstance::DeleteLevelData(uint8 LevelIndex)
 {
 	LevelData[LevelIndex]->FlushCache();
 	LevelData[LevelIndex]->Empty();
-	//delete LevelData[LevelIndex];
+	//delete[] LevelData[LevelIndex];
 
 	LevelData[LevelIndex] = new FBufferArchive();
+}
+
+void UREM_GameInstance::DeleteAllLevelData()
+{
+	for (int i = 0; i < (int)NUM_LEVELS; i++)
+	{
+		DeleteLevelData((uint8)i);
+	}
 }
 
 void UREM_GameInstance::SaveAllData(REMSaveGame * SaveGameInstance)

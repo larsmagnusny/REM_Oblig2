@@ -182,11 +182,6 @@ FBufferArchive ULockedDoor::GetSaveData()
 	BinaryData << IRotation;
 	BinaryData << CRotation;
 
-	UE_LOG(LogTemp, Warning, TEXT("Saved Data for Open: %s"), *FString::FromInt(Op));
-	UE_LOG(LogTemp, Warning, TEXT("Saved Data for PuzzleSolved: %s"), *FString::FromInt(PSolved));
-	UE_LOG(LogTemp, Warning, TEXT("Saved Data for InitialRotation: %s"), *IRotation.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Saved Data for PuzzleSolved: %s"), *FString::SanitizeFloat(CRotation));
-
 	return BinaryData;
 }
 
@@ -214,10 +209,6 @@ void ULockedDoor::LoadSaveData(FMemoryReader &Ar)
 	InitialRotation = IRotation;
 	CurrentRotation = CRotation;
 
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for Open: %s"), *FString::FromInt(Op));
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for PuzzleSolved: %s"), *FString::FromInt(PSolved));
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for InitialRotation: %s"), *IRotation.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Data for CurrentRotation: %s"), *FString::SanitizeFloat(CRotation));
 }
 
 FVector ULockedDoor::GetActivatePosition(AActor* Player)
