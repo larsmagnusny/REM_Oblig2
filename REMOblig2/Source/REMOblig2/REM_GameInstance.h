@@ -29,7 +29,11 @@ public:
 	void BeginPlay();
 
 	void DeletePersistentInventory();
+
 	void DeleteLevelData(uint8 LevelIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Clear all our persistent data...")
+	void DeleteAllLevelData();
 
 	void SaveAllData(REMSaveGame* SaveGameInstance);
 
@@ -46,6 +50,8 @@ public:
 	bool MainMenu;
 	bool LoadRoom;
 	bool LoadCheckpoint;
+
+	UPROPERTY(BlueprintReadWrite, Category = "If we should load the savefile next time we play")
 	bool LoadCheckpointNextLevel = false;
 
 	uint8 CurrentLevelLoaded = 0;

@@ -41,8 +41,6 @@ void AREM_GameMode::BeginPlay()
 
 	// Load Inventory from the GameInstance if its not empty...
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(GameInstance->PersistentInventory->Num()));
-
-	
 }
 
 void AREM_GameMode::Tick(float DeltaTime)

@@ -98,10 +98,16 @@ FVector ULightSwitchComponent::GetActivatePosition(AActor * Player)
 
 FBufferArchive ULightSwitchComponent::GetSaveData()
 {
-	return FBufferArchive();
+	FBufferArchive BinaryData;
+
+	BinaryData << On;
+
+	return BinaryData;
 }
 
 void ULightSwitchComponent::LoadSaveData(FMemoryReader & Ar)
 {
+	Ar << On;
 
+	LastState = !On;
 }
