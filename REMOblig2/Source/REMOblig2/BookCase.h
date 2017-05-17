@@ -41,6 +41,8 @@ public:
 	void MakeAllBooksInteractable();
 	void MakeAllBooksNonInteractable();
 
+	void UpdateBookDrag();
+
 	FVector GetPositionFromSlot(int Index);
 
 	void SwapPositions(int index1, int index2);
@@ -82,6 +84,8 @@ private:
 	bool StopCameraAnimation = false;
 
 	
+	bool AnimationRunning = false;
+
 
 	bool OrigPositionAndRotationSet = false;
 
@@ -102,4 +106,7 @@ private:
 	float Wait = 2.f;
 
 	bool LoadGameInit = true;
+
+	// Camera Animation
+	UCameraAnim* CamAnim = nullptr;
 };

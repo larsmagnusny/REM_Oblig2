@@ -120,6 +120,21 @@ public:
 	InteractableObject* DelayObject;
 	ActionType DelayAction;
 
+	bool GetMouseScreenPosition(FVector2D& MousePosition)
+	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+		UGameViewportClient* ViewportClient = PlayerController->GetLocalPlayer()->ViewportClient;
+
+		if (PlayerController && ViewportClient)
+		{
+			MousePosition = ViewportClient->GetMousePosition();
+			return true;
+		}
+
+		return false;
+	}
+
 	void DelayCallFunctionFromWidget(FVector Destination, InteractableObject* DelayObject, ActionType DelayAction)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SetDelayActivate, and should start moving towards now.."))
@@ -131,12 +146,37 @@ public:
 		OurHud->canPlayerClick = true;
 	}
 
+	void DelayCallFunctionFromWidget(FVector Destination, InteractableObject* DelayObject, ActionType DelayAction, int SlotNum)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetDelayActivate, and should start moving towards now.."))
+		MouseMove = true;
+		MoveTo = Destination;
+		this->DelayObject = DelayObject;
+		this->DelayAction = DelayAction;
+		DelayRunF = true;
+		OurHud->canPlayerClick = true;
+		DelaySlot = SlotNum;
+	}
+
 	UPROPERTY(BlueprintReadOnly, Category = "Is Scared")
 	bool isScared = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Run Interact Animation?")
+	bool isInteracting = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Mouse Position")
+	FVector2D MousePosition;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Ready to Put Item in hand")
+	bool PutInHand = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Ready to put inventoryitem in hand")
+	bool BeginInteract = false;
+
 private:
+	int DelaySlot = -1;
+
 	TArray<FString> CurrentDialogueOptions;
-
-
 
 	// This can be toggled when hovering over a UI element
 	bool CanClickRayCast = true;
@@ -173,7 +213,6 @@ private:
 	float lastDistance = 0.0f;
 	int32 lastDistanceCounter = 0;
 
-
 	bool DelayClimb = false;
 	FVector ClimbTo;
 
@@ -186,6 +225,9 @@ private:
 
 	USkeletalMesh* RadioMesh = nullptr;
 	USkeletalMeshComponent* RadioComponent = nullptr;
+
+	UStaticMesh* MeshToShowWhenInteract = nullptr;
+	UStaticMeshComponent* MeshHolderComponent = nullptr;
 
 	UStaticMesh* EyeMesh = nullptr;
 	UStaticMeshComponent* EyeComponent1 = nullptr;

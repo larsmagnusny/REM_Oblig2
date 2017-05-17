@@ -46,6 +46,7 @@ public:
 	bool MainMenu;
 	bool LoadRoom;
 	bool LoadCheckpoint;
+	bool LoadCheckpointNextLevel = false;
 
 	uint8 CurrentLevelLoaded = 0;
 

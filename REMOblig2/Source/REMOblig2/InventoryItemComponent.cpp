@@ -12,8 +12,6 @@ UInventoryItemComponent::UInventoryItemComponent()
 
 void UInventoryItemComponent::BeginPlay()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Began!"));
-
 	// Add what buttons this object has on its menu system...
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
 	Actions.Add(ActionType::INTERACT_EXAMINE);
@@ -24,32 +22,23 @@ void UInventoryItemComponent::BeginPlay()
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::USE]);
 	Actions.Add(ActionType::INTERACT_ACTIVATE);
 
-	UE_LOG(LogTemp, Warning, TEXT("Buttons Added!"));
-
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
-
-	UE_LOG(LogTemp, Warning, TEXT("References gotten..."));
 
 	if (SubMenuWidgetClassTemplate && Hud)
 	{
 
 		SubMenuWidget = Hud->HUDCreateWidget(SubMenuWidgetClassTemplate);
-		UE_LOG(LogTemp, Warning, TEXT("Widget Created"));
 
 		if (SubMenuWidget)
 		{
 			Hud->AddInteractionWidget(GetOwner(), SubMenuWidget, this);
-			UE_LOG(LogTemp, Warning, TEXT("Added Interaction Widget"));
 			SubMenuWidget->AddToViewport(11);
-			UE_LOG(LogTemp, Warning, TEXT("Added to viewport"));
 		}
 	}
 	
 
 	GameMode->AddInteractableObject(GetOwner(), this, nullptr);
-
-	UE_LOG(LogTemp, Warning, TEXT("Set Interactable!"));
 }
 void UInventoryItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -80,36 +69,25 @@ void UInventoryItemComponent::ExamineObject(AActor* Player)
 
 void UInventoryItemComponent::PickupObject(AActor* Player)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Should tell the GameMode to remove me as interactable and delete me then add me to the player inventory!"));
 	// Hent en referanse til denne itemet ifra parenten som er et objekt vi spawner inn i verden
 	InventoryItem* ThisItem = Cast<AInventoryItemObject>(GetOwner())->InvItemRef;
-
-	UE_LOG(LogTemp, Warning, TEXT("ItemRef Got"));
 
 	if (ThisItem)
 	{
 		// Fortell HovedKarakteren at han skal legge til ThisItem til inventoryen hans
 		AMainCharacter* Character = Cast<AMainCharacter>(GameMode->GetMainCharacter());
-		UE_LOG(LogTemp, Warning, TEXT("Character Found"));
 
 		bool SuccessfullyAdded = Character->AddItemToInventory(ThisItem);
-		UE_LOG(LogTemp, Warning, TEXT("Added To Inventory"));
-
 
 		if (SuccessfullyAdded)
 		{
 			// Hvis jeg ikke fjerner denne så kan spillet krashe
-			UE_LOG(LogTemp, Warning, TEXT("Checking Interactable"));
 			if(GameMode->IsInteractble(GetOwner()))
 				GameMode->RemoveInteractableObject(GetOwner());
 
-			UE_LOG(LogTemp, Warning, TEXT("Removed if found"));
-
 			if (Hud)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Trying to remove interactionWidget"));
 				Hud->RemoveInteractionWidget(this);
-				UE_LOG(LogTemp, Warning, TEXT("Should show animation backwards..."));
 			}
 
 			// Show a illustration of the item...

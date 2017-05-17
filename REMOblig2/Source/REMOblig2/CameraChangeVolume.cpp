@@ -27,7 +27,6 @@ void ACameraChangeVolume::Tick(float DeltaTime)
 	{
 		if (FrameCounter < FramesToWait)
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s"), *FString::FromInt(FrameCounter));
 			FrameCounter++;
 		}
 		else {
@@ -73,7 +72,6 @@ void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* Othe
 	// Sjekk om det er HovedKarakteren vi overlapper
 	if (OtherActor->IsA(AMainCharacter::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Camera overlapped player"));
 		// Cast til Klassen så vi kan bruke dens funksjoner
 		AMainCharacter* OurCharacter = Cast<AMainCharacter>(OtherActor);
 

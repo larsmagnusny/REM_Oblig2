@@ -116,7 +116,6 @@ void ALookAtCamera::Tick(float DeltaTime)
 			
 
 			SetActorLocation(OrigPosition + FollowVector);
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *FollowVector.ToString());
 		}
 
 		if (FollowAlongAxisX)

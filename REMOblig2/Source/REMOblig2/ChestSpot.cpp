@@ -94,7 +94,7 @@ void UChestSpot::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 						InventoryItem* Item = new InventoryItem(ItemToDrop, OPEN_ID, "Key", Mesh, Texture);
 
 						// Spawn ett objekt
-						GameMode->PutObjectInWorld(Item, GetOwner()->GetActorLocation() + GetOwner()->GetActorUpVector()*200.f + GetOwner()->GetActorForwardVector()*100.f, FVector(0, 0, 0), FVector(1, 1, 1));
+						GameMode->PutObjectInWorld(Item, GetOwner()->GetActorLocation() + GetOwner()->GetActorUpVector()*200.f + GetOwner()->GetActorRightVector()*80.f, FVector(0, 0, 0), FVector(1, 1, 1));
 						ItemDropped = true;
 					}
 				}

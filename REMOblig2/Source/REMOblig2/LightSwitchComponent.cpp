@@ -48,7 +48,6 @@ void ULightSwitchComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (On != LastState)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Should Change Intensity"));
 		for (AActor* Light : Lights)
 		{
 			if (Light->IsA(APointLight::StaticClass()))
@@ -72,7 +71,6 @@ void ULightSwitchComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 void ULightSwitchComponent::ActivateObject(AActor * Player)
 {
-	UE_LOG(LogTemp, Error, TEXT("Ran Activate!"));
 	On = !On;
 }
 

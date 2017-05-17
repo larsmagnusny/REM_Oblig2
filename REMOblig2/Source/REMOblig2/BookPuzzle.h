@@ -1,5 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
+// NOT IN USE
+
 #pragma once
 #include "REM_GameMode.h"
 #include "REM_Hud.h"

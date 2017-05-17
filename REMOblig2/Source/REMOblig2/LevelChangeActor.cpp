@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "LevelChangeActor.h"
+#include "REM_GameInstance.h"
 
 
 // Sets default values for this component's properties
@@ -39,9 +40,12 @@ void ULevelChangeActor::TickComponent( float DeltaTime, ELevelTick TickType, FAc
 void ULevelChangeActor::ActivateObject(AActor* Player)
 {
 	FLatentActionInfo info;
-	UE_LOG(LogTemp, Warning, TEXT("LoadLevel Called!"));
 	GameMode->SpawnMap(LevelName);
 	GameMode->UnloadMap(GameMode->CurrentLoadedMap);
 
 	ACharacter* OurCharacter = GameMode->GetMainCharacter();
+
+	UREM_GameInstance* GameInstance = Cast<UREM_GameInstance>(GetWorld()->GetGameInstance());
+
+	GameInstance->LoadCheckpointNextLevel = true;
 }

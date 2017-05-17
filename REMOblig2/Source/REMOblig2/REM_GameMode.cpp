@@ -36,7 +36,8 @@ void AREM_GameMode::BeginPlay()
 	// Trigger Beginplay in GameInstance...
 	GameInstance->BeginPlay();
 
-	GameInstance->LoadCheckpoint = true;
+	if(GameInstance->LoadCheckpointNextLevel)
+		GameInstance->LoadCheckpoint = true;
 
 	// Load Inventory from the GameInstance if its not empty...
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(GameInstance->PersistentInventory->Num()));
