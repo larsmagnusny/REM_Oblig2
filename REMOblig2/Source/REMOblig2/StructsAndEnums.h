@@ -27,6 +27,13 @@ enum class ItemIDs : uint8
 	ITEM_SPINNER UMETA(DisplayName = "Spinner Toy"),
 	ITEM_PLIERS UMETA(DisplayName = "Pliers that can cut things"),
 	ITEM_FEATHER UMETA(DisplayName = "A simple feather to tickle the chest."),
+	ITEM_SOUNDTOY UMETA(DisplayName = "A Toy to that plays sounds when hit."),
+	ITEM_BLUE_LEGO UMETA(DisplayName = "A lego that is blue."),
+	ITEM_YELLOW_LEGO UMETA(DisplayName = "A lego that is yellow."),
+	ITEM_PINK_LEGO UMETA(DisplayName = "A lego that is pink."),
+	ITEM_GREEN_LEGO UMETA(DisplayName = "A lego that is green."),
+	ITEM_PURPLE_LEGO UMETA(DisplayName = "A lego that is purple."),
+	ITEM_ORANGE_LEGO UMETA(DisplayName = "A lego that is organge."),
 	ITEM_CRYSTALSHARD UMETA(DisplayName = "A Crystal shard"),
 	ITEM_SCISSORS UMETA(DisplayName = "Scissors, do i have to say anything else?"),
 	ITEM_NONE UMETA(DisplayName = "Just to know in save file if it is empty")

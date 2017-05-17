@@ -61,7 +61,7 @@ void UREM_GameInstance::DeleteLevelData(uint8 LevelIndex)
 {
 	LevelData[LevelIndex]->FlushCache();
 	LevelData[LevelIndex]->Empty();
-	//delete[] LevelData[LevelIndex];
+	//delete[] LevelData[LevelIndex]; crashes game, so i trust the Garbage Collector will handle it
 
 	LevelData[LevelIndex] = new FBufferArchive();
 }
