@@ -11,8 +11,6 @@ UBookCase::UBookCase()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -120,139 +118,77 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	if (DraggingBook)
 	{
-		APlayerController* Controller = GetWorld()->GetFirstPlayerController();
-		float MouseX, MouseY;
-
-		Controller->GetMousePosition(MouseX, MouseY);
-
-		FVector2D ScreenPos = FVector2D(MouseX, MouseY);
-
-		FVector WorldPosition;
-
-		FVector WorldDirection;
-
-		UGameplayStatics::DeprojectScreenToWorld(Controller, ScreenPos, WorldPosition, WorldDirection);
-
-		FVector OrigPosition = GetBookComponentByActor(BookToDrag)->OriginalPosition;
-
-		FVector Right = BookToDrag->GetActorRightVector();
-		FVector Left = BookToDrag->GetActorRightVector() * (-1.0f);
-
-		FVector Up = BookToDrag->GetActorUpVector();
-		
-		FVector PlaneNormal = FVector::CrossProduct(Right, Up);
-
-		// ax + by + bz = 0
-
-		FVector Position = FMath::LinePlaneIntersection(WorldPosition, WorldDirection*1000.f, BookToDrag->GetActorLocation(), PlaneNormal);
-
-		Position.Z = OrigPosition.Z;
-
-		GetBookComponentByActor(BookToDrag)->CurrentPosition = Position + Left*3.5f;
-	}
-
-
-	if (StopCameraAnimation)
-	{
-		StopCameraAnimation = false;
-		RunCameraAnimation = false;
+		UpdateBookDrag();
 	}
 
 	if (RunCameraAnimation)
 	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
 		if (Forward)
 		{
-			Hud->canPlayerClick = false;
-			FVector Direction = MainCameraFinalPosition - CurrentCamera->GetActorLocation();
+			int moveSpeed = 8;
 
-			float Distance = Direction.Size();
+			FVector Add = FMath::VInterpTo(CurrentCamera->GetActorLocation(), MainCameraFinalPosition, DeltaTime, moveSpeed);
 
-			FRotator CurrentRotation = CurrentCamera->GetActorRotation();
-			
-			float CurrentPitch = CurrentRotation.Pitch;
-			float CurrentYaw = CurrentRotation.Yaw;
-			float CurrentRoll = CurrentRotation.Roll;
+			FRotator Rot = FMath::VInterpNormalRotationTo(CurrentCamera->GetActorRotation().Vector(), MainCameraFinalRotation.Vector(), DeltaTime, moveSpeed*16.3f).ToOrientationRotator();
 
-			FVector WantedRotation = FVector(MainCameraFinalRotation.Pitch, MainCameraFinalRotation.Yaw, MainCameraFinalRotation.Roll);
-			FVector CRotation = FVector(CurrentPitch, CurrentYaw, CurrentRoll);
+			CurrentCamera->SetActorLocation(Add);
+			CurrentCamera->SetActorRotation(Rot);
 
-			FVector RotDir = WantedRotation - CRotation;
+			float Dist = FVector::Dist(CurrentCamera->GetActorLocation(), MainCameraFinalPosition);
 
-			float RotMag = RotDir.Size();
-
-			if (RotMag > 0.5f)
+			if (Dist < 1.f)
 			{
-				RotDir.Normalize();
-
-				RotDir *= 0.5f;
-
-				FRotator NextRotation = FRotator(CurrentPitch + RotDir.X, CurrentYaw + RotDir.Y, CurrentRoll + RotDir.Z);
-
-				CurrentCamera->SetActorRotation(NextRotation);
-			}
-
-			if (Distance > 10)
-			{
-				Direction.Normalize();
-
-				CurrentCamera->SetActorLocation(CurrentCamera->GetActorLocation() + Direction*5.0f);
-			}
-			else {
-				while (GameMode->IsInteractble(GetOwner()))
-				{
-					GameMode->RemoveInteractableObject(GetOwner());
-				}
+				RunCameraAnimation = false;
 
 				CurrentCamera->SetActorLocation(MainCameraFinalPosition);
 				CurrentCamera->SetActorRotation(MainCameraFinalRotation);
+
 				MakeAllBooksInteractable();
-				RunCameraAnimation = false;
-				Forward = false;
+
 				Hud->canPlayerClick = true;
+				Cast<AMainCharacter>(MCharacter)->IsInPuzzleGameMode = true;
+
+				Forward = false;
 			}
 		}
-		else {
-			if (DraggingBook)
+		else 
+		{
+			// If we are dragging a book, drop it...
+			if (BookToDrag)
 			{
-				UBook* Component = GetBookComponentByActor(BookToDrag);
-				Component->CurrentPosition = GetPositionFromSlot(Component->OccupyingIndex);
 				DraggingBook = false;
 				BookToDrag = nullptr;
 			}
 
-			FVector Direction = MainCameraOrigPosition - CurrentCamera->GetActorLocation();
+			int moveSpeed = 8;
 
-			float Distance = Direction.Size();
+			FVector Add = FMath::VInterpTo(CurrentCamera->GetActorLocation(), MainCameraOrigPosition, DeltaTime, moveSpeed);
+			FRotator Rot = FMath::VInterpNormalRotationTo(CurrentCamera->GetActorRotation().Vector(), MainCameraOrigRotation.Vector(), DeltaTime, moveSpeed*16.3f).ToOrientationRotator();
 
-			if (Distance > 10)
+			CurrentCamera->SetActorLocation(Add);
+			CurrentCamera->SetActorRotation(Rot);
+
+			float Dist = FVector::Dist(CurrentCamera->GetActorLocation(), MainCameraOrigPosition);
+
+			if (Dist < 1.f)
 			{
-				Direction.Normalize();
-
-				CurrentCamera->SetActorLocation(CurrentCamera->GetActorLocation() + Direction*5.0f);
-
-				CurrentCamera->FollowCharacter = true;
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Making All books non-interactable..."));
 				MakeAllBooksNonInteractable();
-				UE_LOG(LogTemp, Warning, TEXT("Sucess..."));
 				CurrentCamera->SetActorLocation(MainCameraOrigPosition);
 				CurrentCamera->SetActorRotation(MainCameraOrigRotation);
-				UE_LOG(LogTemp, Warning, TEXT("Set Camera Back where it belongs"));
 				RunCameraAnimation = false;
+
 				Forward = true;
 
 				if (PuzzleSolved)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Puzzle has been solved"));
 					CanRunAnimation = false;
 					while (GameMode->IsInteractble(GetOwner()))
 					{
 						GameMode->RemoveInteractableObject(GetOwner());
 					}
 
-					UE_LOG(LogTemp, Warning, TEXT("Interactor Removed..."));
 
 					// Spawn an inventoryitemobject here...
 					UStaticMesh* Mesh = GameMode->MeshesAndTextures->GetStaticMeshByItemID(ItemToDrop);
@@ -261,10 +197,9 @@ void UBookCase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 					// Spawn ett objekt
 					GameMode->PutObjectInWorld(Item, PositionToDrop, FVector(0, 0, 0), FVector(1, 1, 1));
-					UE_LOG(LogTemp, Warning, TEXT("Item Spawned..."));
 				}
 				else {
-					if(!GameMode->IsInteractble(GetOwner()))
+					if (!GameMode->IsInteractble(GetOwner()))
 						GameMode->AddInteractableObject(GetOwner(), this);
 				}
 
@@ -308,14 +243,12 @@ void UBookCase::ActivateObject(AActor * Player)
 
 	if (!Forward)
 	{
-		CurrentCamera->FollowCharacter = true;
 		GameMode->AddInteractableObject(GetOwner(), this);
 		MainCharacter->IsInPuzzleGameMode = false;
 	}
 	else
 	{
 		MainCharacter->IsInPuzzleGameMode = true;
-		CurrentCamera->FollowCharacter = false;
 		GameMode->RemoveInteractableObject(GetOwner());
 	}
 	RunCameraAnimation = true;
@@ -334,7 +267,7 @@ void UBookCase::ExamineObject(AActor * Player)
 
 FVector UBookCase::GetActivatePosition(AActor * Player)
 {
-	return GetOwner()->GetActorLocation();
+	return GetOwner()->GetActorLocation() +  GetOwner()->GetActorForwardVector()*(-20) + GetOwner()->GetActorRightVector()*(50.f);
 }
 
 FBufferArchive UBookCase::GetSaveData()
@@ -344,9 +277,6 @@ FBufferArchive UBookCase::GetSaveData()
 	BinaryData << CanRunAnimation;
 	BinaryData << PuzzleSolved;
 	BinaryData << SnapPositions;
-
-	UE_LOG(LogTemp, Error, TEXT("Saved: %s"), *FString::FromInt(CanRunAnimation));
-	UE_LOG(LogTemp, Error, TEXT("Saved: %s"), *FString::FromInt(PuzzleSolved));
 
 	return BinaryData;
 }
@@ -386,6 +316,25 @@ void UBookCase::MakeAllBooksNonInteractable()
 			BookComponents[i]->UnsetInteractable();
 		}
 	}
+}
+
+void UBookCase::UpdateBookDrag()
+{
+	APlayerController* Controller = GetWorld()->GetFirstPlayerController();
+	float MouseX, MouseY;
+	Controller->GetMousePosition(MouseX, MouseY);
+	FVector2D ScreenPos = FVector2D(MouseX, MouseY);
+	FVector WorldPosition;
+	FVector WorldDirection;
+	UGameplayStatics::DeprojectScreenToWorld(Controller, ScreenPos, WorldPosition, WorldDirection);
+	FVector OrigPosition = GetBookComponentByActor(BookToDrag)->OriginalPosition;
+	FVector Right = BookToDrag->GetActorRightVector();
+	FVector Left = BookToDrag->GetActorRightVector() * (-1.0f);
+	FVector Up = BookToDrag->GetActorUpVector();
+	FVector PlaneNormal = FVector::CrossProduct(Right, Up);
+	FVector Position = FMath::LinePlaneIntersection(WorldPosition, WorldDirection*1000.f, BookToDrag->GetActorLocation(), PlaneNormal);
+	Position.Z = OrigPosition.Z;
+	GetBookComponentByActor(BookToDrag)->CurrentPosition = Position+Left*6.f;
 }
 
 FVector UBookCase::GetPositionFromSlot(int Index)
