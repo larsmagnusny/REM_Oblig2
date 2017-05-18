@@ -67,7 +67,7 @@ public:
 	bool FollowingPlayer = false; // Save this
 
 	// Er kisten låst?
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Is the chest Locked!?")
 	bool locked = true;	// Save this
 
 	// Den INTERACT_IDen eventuelt nøkkelen må ha for å åpne kisten
@@ -108,5 +108,8 @@ private:
 	// Tell hvor mange leker vi har puttet i kisten
 	int toysfilled = 0;	// Save this
 
-	
+	UClass* AnimBPClass = nullptr;
+	USkeletalMesh* LockSkeletalMesh = nullptr;
+
+	USkeletalMeshComponent* LockHolder = nullptr;
 };

@@ -12,6 +12,19 @@ UChestController::UChestController()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
+	// Lets Load a skeletalMesh to attach to our socket... Because science, also need to load in a animation blueprint for it...
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> LockLoader(TEXT("SkeletalMesh'/Game/Meshes/LockAndKey/LockAndKey.LockAndKey'"));
+
+	ConstructorHelpers::FObjectFinder<UClass> LockAnimLoader(TEXT("Class'/Game/Meshes/LockAndKey/LockAndKey_AnimBP.LockAndKey_AnimBP_C'"));
+
+	if (LockLoader.Succeeded() && LockAnimLoader.Succeeded())
+	{
+		LockSkeletalMesh = LockLoader.Object;
+		AnimBPClass = LockAnimLoader.Object;
+	}
+
+	LockHolder = CreateDefaultSubobject<USkeletalMeshComponent>(FName("LockHolderComponent"), true);
 }
 
 
@@ -19,6 +32,23 @@ UChestController::UChestController()
 void UChestController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, true);
+
+	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetOwner()->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+
+	if (ParentSkeletalMesh)
+	{
+		LockHolder->AttachToComponent(ParentSkeletalMesh, Rules, FName("LockHolder"));
+		LockHolder->RegisterComponent();
+	}
+
+	// Set Mesh to LockHolder...
+	if (AnimBPClass)
+		LockHolder->SetAnimInstanceClass(AnimBPClass);
+
+	if (LockSkeletalMesh)
+		LockHolder->SetSkeletalMesh(LockSkeletalMesh);
 
 	// Legg til Meny-valg dynamisk så vi slipper å lage en ny widget for hver eneste item
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
