@@ -105,6 +105,7 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 			GoToSlot = true;
 			FollowingPlayer = false;
 			SnappedToSlot = false;
+			RunStitdownAnimation = true;
 		}
 	}
 }

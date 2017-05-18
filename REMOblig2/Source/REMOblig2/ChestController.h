@@ -51,6 +51,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Is it open?")
 	bool isOpen = false;	// Save this
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Run Standup Animation")
+	bool RunStandupAnimation = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Run Standup Animation")
+	bool RunStitdownAnimation = false;
+
+
 	// Når vi "Aktiverer" kisten så følger den etter oss
 	UPROPERTY(EditAnywhere)
 	bool FollowWhenActivate = true; // Save this
@@ -101,5 +108,5 @@ private:
 	// Tell hvor mange leker vi har puttet i kisten
 	int toysfilled = 0;	// Save this
 
-	bool RunStandupAnimation = false;
+	
 };
