@@ -211,6 +211,18 @@ void AREM_Hud::CallActivate(ActionType Action)
 	return;
 }
 
+void AREM_Hud::ItemInteract(UInteractableComponent * Component, int SlotNum)
+{
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	InteractableObject* obj = GameMode->GetInteractableObject(Component->GetOwner());
+
+	if (Component)
+	{
+		MainCharacter->DelayCallFunctionFromWidget(Component->GetActivatePosition(MainCharacter), obj, ActionType::INTERACT_ITEM, SlotNum);
+	}
+}
+
 void AREM_Hud::AddInteractionWidget(AActor* OwnerObject, UUserWidget* Widget, UInteractableComponent* Component, AInteractableObject* Object)
 {
 	SubMenuesInUse = true;
@@ -345,8 +357,6 @@ void AREM_Hud::DropItem(int32 SlotIndex, FVector2D HitPoint)
 			else {
 				Distances[i] = 10000.f;
 			}
-
-			UE_LOG(LogTemp, Warning, TEXT("RayCastLength: %s"), *FString::SanitizeFloat(Distances[i]));
 		}
 
 		for (int i = 0; i < 4; i++)

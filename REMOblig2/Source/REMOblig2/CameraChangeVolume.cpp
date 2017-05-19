@@ -27,7 +27,6 @@ void ACameraChangeVolume::Tick(float DeltaTime)
 	{
 		if (FrameCounter < FramesToWait)
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s"), *FString::FromInt(FrameCounter));
 			FrameCounter++;
 		}
 		else {
@@ -64,10 +63,15 @@ void ACameraChangeVolume::SetMousePosition(APlayerController* Controller, float 
 
 void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* OtherActor)
 {
+	if (IgnoreNextOverlap)
+	{
+		IgnoreNextOverlap = false;
+		return;
+	}
+
 	// Sjekk om det er HovedKarakteren vi overlapper
 	if (OtherActor->IsA(AMainCharacter::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Camera overlapped player"));
 		// Cast til Klassen så vi kan bruke dens funksjoner
 		AMainCharacter* OurCharacter = Cast<AMainCharacter>(OtherActor);
 
@@ -75,6 +79,13 @@ void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* Othe
 		if (CameraToSwitchTo)
 		{
 			// Hent en posisjon litt foran kameraet...
+
+			if (IgnoreThisWhenOverlap)
+			{
+				ACameraChangeVolume* IgnoreThis = Cast<ACameraChangeVolume>(IgnoreThisWhenOverlap);
+
+				IgnoreThis->IgnoreNextOverlap = true;
+			}
 
 			APlayerController* Controller = GetWorld()->GetFirstPlayerController();
 
@@ -88,8 +99,6 @@ void ACameraChangeVolume::OnOverlapBegin(AActor* MyOverlappedActor, AActor* Othe
 
 			AActor* Target = CameraManager->GetViewTarget();
 
-			//const FVector2D viewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-			//const float viewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(viewportSize.X, viewportSize.Y));
 
 			if(OurCharacter && Target != CameraToSwitchTo)
 			{

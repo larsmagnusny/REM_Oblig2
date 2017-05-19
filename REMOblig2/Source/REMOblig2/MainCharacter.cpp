@@ -2,6 +2,7 @@
 
 #include "REMOblig2.h"
 #include "MainCharacter.h"
+#include "InventoryItemObject.h"
 
 
 // Sets default values
@@ -76,17 +77,18 @@ AMainCharacter::AMainCharacter()
 	{
 		EyeMesh = EyeMeshLoader.Object;
 	}
+
+	RadioComponent = CreateDefaultSubobject<USkeletalMeshComponent>(FName("RadioComponent"), true);
+	EyeComponent1 = CreateDefaultSubobject<UStaticMeshComponent>(FName("Eye1"), true);
+	EyeComponent2 = CreateDefaultSubobject<UStaticMeshComponent>(FName("Eye2"), true);
+
+	MeshHolderComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("MeshHolder"), true);
 }
 
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	RadioComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
-
-	EyeComponent1 = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
-	EyeComponent2 = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), this, NAME_None, RF_Transient);
 	
 	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::SnapToTarget, true);
 	
@@ -94,15 +96,17 @@ void AMainCharacter::BeginPlay()
 	EyeComponent1->AttachToComponent(SkeletalMeshComponent, Rules, FName("EyeSocket1"));
 	EyeComponent2->AttachToComponent(SkeletalMeshComponent, Rules, FName("EyeSocket2"));
 	RadioComponent->AttachToComponent(SkeletalMeshComponent, Rules, FName("Hold"));
-
+	MeshHolderComponent->AttachToComponent(SkeletalMeshComponent, Rules, FName("ItemHold"));
 
 	EyeComponent1->RegisterComponent();
 	EyeComponent2->RegisterComponent();
-
 	RadioComponent->RegisterComponent();
+	MeshHolderComponent->RegisterComponent();
 
 	EyeComponent1->SetMobility(EComponentMobility::Movable);
 	EyeComponent2->SetMobility(EComponentMobility::Movable);
+	MeshHolderComponent->SetMobility(EComponentMobility::Movable);
+	MeshHolderComponent->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
 
 	if(RadioMesh)
 		RadioComponent->SetSkeletalMesh(RadioMesh);
@@ -171,10 +175,14 @@ void AMainCharacter::Tick(float DeltaTime)
 	}
 
 	// Raycast under the mouse so we can highlight the objects
-	FHitResult Hit;
-	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 
-	if (Hit.GetActor())
+	if (!PlayerController)
+		return;
+
+	FHitResult Hit;
+
+	if (PlayerController->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, false, Hit))
 	{
 		if (GameMode->IsInteractble(Hit.GetActor()))
 		{
@@ -350,12 +358,66 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			if (DelayRunF)
 			{
-				DelayRunF = false;
-				UE_LOG(LogTemp, Warning, TEXT("Should run the switch now..."));
+				
 				UE_LOG(LogTemp, Warning, TEXT("ActivateDist: %s"), *FString::SanitizeFloat(ActivateDist));
+
+				UE_LOG(LogTemp, Error, TEXT("Interacting from slot: %s"), *FString::FromInt(DelaySlot));
 
 				if (DelayObject)
 				{
+					InventoryItem* Item = nullptr;
+
+					if (DelaySlot != -1)
+					{
+						Item = PlayerInventory->GetItem(DelaySlot);
+
+						UE_LOG(LogTemp, Error, TEXT("Testing if BeginInteract"));
+						if (BeginInteract && isInteracting)
+						{
+							UE_LOG(LogTemp, Error, TEXT("BeginInteract true"));
+							MeshToShowWhenInteract = GameMode->MeshesAndTextures->GetStaticMeshByItemID(Item->ItemID);
+
+							TArray<UMaterial*> Mats = GameMode->MeshesAndTextures->GetMaterialsByItemID(Item->ItemID);
+
+							if (MeshHolderComponent->GetStaticMesh() != MeshToShowWhenInteract)
+							{
+								// SetMesh
+								MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
+
+								for (int i = 0; i < Mats.Num(); i++)
+									MeshHolderComponent->SetMaterial(i, Mats[i]);
+							}
+
+							MouseMove = true;
+
+							return;
+						}
+						else if (isInteracting && !BeginInteract)
+						{
+							UE_LOG(LogTemp, Error, TEXT("Is Interacting false, begin interact true"));
+
+							MouseMove = true;
+							return;
+						}
+
+						if (!isInteracting && !BeginInteract && MeshToShowWhenInteract == nullptr)
+						{
+							UE_LOG(LogTemp, Error, TEXT("Both are false, mesh is null"));
+							isInteracting = true;
+
+							MouseMove = true;
+							return;
+						}
+						else {
+							MeshToShowWhenInteract = nullptr;
+							isInteracting = false;
+							BeginInteract = false;
+							MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
+						}
+					}
+
+					UE_LOG(LogTemp, Error, TEXT("Running Switch!"));
+					DelayRunF = false;
 					switch (DelayAction)
 					{
 					case ActionType::INTERACT_ACTIVATE:
@@ -407,9 +469,21 @@ void AMainCharacter::Tick(float DeltaTime)
 							UE_LOG(LogTemp, Error, TEXT("Action not implemented for this type of object, fix menu of item."));
 						}
 						break;
+					case ActionType::INTERACT_ITEM:
+						if (DelayObject->ScriptComponent)
+						{
+							DelayObject->ScriptComponent->ItemInteract(DelaySlot);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("Action not implementet for this type of object, fix menu of item."));
+						}
+						break;
 					default:
 						UE_LOG(LogTemp, Warning, TEXT("Action not implemented!"));
 					}
+
+					DelaySlot = -1;
 				}
 			}
 
@@ -418,7 +492,55 @@ void AMainCharacter::Tick(float DeltaTime)
 				if (ActivateDist > 50.f)
 					return;
 
+				UE_LOG(LogTemp, Error, TEXT("Inside..."));
+
+				if (DelayActivateObject.OwningActor->IsA(AInventoryItemObject::StaticClass()))
+				{
+					if (PutInHand)
+					{
+						AInventoryItemObject* Object = Cast<AInventoryItemObject>(DelayActivateObject.OwningActor);
+						UStaticMeshComponent* MeshComponentPickup = Object->GetStaticMeshComponent();
+						MeshToShowWhenInteract = MeshComponentPickup->StaticMesh;
+						
+						TArray<UMaterialInterface*> Mats = MeshComponentPickup->GetMaterials();
+						
+						if (MeshHolderComponent->GetStaticMesh() != MeshToShowWhenInteract)
+						{
+							// SetMesh
+							MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
+							
+							for (int i = 0; i < Mats.Num(); i++)
+								MeshHolderComponent->SetMaterial(i, Mats[i]);
+
+							Cast<AInventoryItemObject>(DelayActivateObject.OwningActor)->GetStaticMeshComponent()->SetVisibility(false, true);
+						}
+						MouseMove = true;
+
+						return;
+					}
+					else if (isInteracting && !PutInHand)
+					{
+						MouseMove = true;
+						return;
+					}
+
+					if (!isInteracting && !PutInHand && MeshToShowWhenInteract == nullptr)
+					{
+						isInteracting = true;
+
+						MouseMove = true;
+						return;
+					}
+					else {
+						MeshToShowWhenInteract = nullptr;
+						MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
+					}
+				}
+
+				UE_LOG(LogTemp, Error, TEXT("Outside..."));
+
 				DelayActivate = false;
+
 				if (DelayActivateObject.OwningActor)
 				{
 					if (DelayActivateObject.ScriptComponent)
@@ -538,9 +660,16 @@ void AMainCharacter::SaveInventory(FBufferArchive & BinaryData)
 
 void AMainCharacter::MouseLeftClick()
 {
+	if (MeshToShowWhenInteract)
+		return;
+
 	DelayActivate = false;
 	DelayRunF = false;
 	DelayClimb = false;
+	isInteracting = false;
+	PutInHand = false;
+	BeginInteract = false;
+
 	if (OurHud)
 	{
 		if (OurHud->DialogueMenuOpen)
@@ -560,7 +689,7 @@ void AMainCharacter::MouseLeftClick()
 		return;
 
 	FHitResult Hit;
-	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+	GetWorld()->GetFirstPlayerController()->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, false, Hit);
 
 	AActor* HitActor = Hit.GetActor();
 
@@ -695,7 +824,15 @@ void AMainCharacter::MouseRightClick()
 {
 	if (OurHud)
 	{
+		if (MeshToShowWhenInteract)
+			return;
 
+		DelayClimb = false;
+		DelayRunF = false;
+		DelayActivate = false;
+		isInteracting = false;
+		PutInHand = false;
+		BeginInteract = false;
 
 		if (SpaceBarDown)
 			return;
@@ -710,7 +847,7 @@ void AMainCharacter::MouseRightClick()
 			return;
 
 		FHitResult Hit;
-		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), false, Hit);
+		GetWorld()->GetFirstPlayerController()->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, false, Hit);
 
 		AActor* HitActor = Hit.GetActor();
 

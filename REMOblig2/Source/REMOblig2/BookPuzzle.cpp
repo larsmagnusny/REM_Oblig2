@@ -1,5 +1,7 @@
 // REM_Prototype Copyright (C) 2017 (Lars Magnus Nyland & Une Johnsen)
 
+// NOT IN USE
+
 #include "REMOblig2.h"
 #include "BookPuzzle.h"
 #include "MainCharacter.h"

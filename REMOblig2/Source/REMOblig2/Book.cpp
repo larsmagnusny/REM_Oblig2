@@ -21,8 +21,6 @@ void UBook::BeginPlay()
 	OriginalRotation = GetOwner()->GetActorRotation();
 
 	CurrentPosition = OriginalPosition;
-
-	//GetOwner()->OnActorBeginOverlap.AddDynamic(this, &UBook::BeginOverlap);
 }
 
 void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
@@ -60,9 +58,6 @@ void UBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 			OtherBook->Overlap(OtherActor, GetOwner());
 		else
 			Overlap(GetOwner(), OtherActor);
-
-		//Overlap(GetOwner(), OtherActor);
-		//OtherBook->Overlap(OtherActor, GetOwner());
 	}
 
 	if (!CanOverlap)
@@ -99,7 +94,6 @@ FBufferArchive UBook::GetSaveData()
 {
 	FBufferArchive BinaryData;
 	BinaryData << OccupyingIndex;
-	UE_LOG(LogTemp, Error, TEXT("Save: %s"), *FString::FromInt(OccupyingIndex));
 	return BinaryData;
 }
 
@@ -129,9 +123,6 @@ void UBook::SetParent(UInteractableComponent * Parent)
 
 void UBook::Overlap(AActor* MyOverlappedActor, AActor* OtherActor)
 {
-	//if (!OtherActor->IsA(UBook::StaticClass()))
-		//return;
-
 	if (!CanOverlap)
 	{
 		CanOverlap = true;
@@ -142,8 +133,6 @@ void UBook::Overlap(AActor* MyOverlappedActor, AActor* OtherActor)
 
 	if (Cast<UBookCase>(ParentComponent)->BookToDrag != MyOverlappedActor && Parent->GetBookComponentByActor(OtherActor) && Parent->GetBookComponentByActor(MyOverlappedActor))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Being Overlapped!"));
-
 		UBook* OtherComponent = Parent->GetBookComponentByActor(OtherActor);
 
 		int OtherIndex = OtherComponent->OccupyingIndex;

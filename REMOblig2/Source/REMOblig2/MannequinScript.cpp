@@ -125,7 +125,7 @@ void UMannequinScript::ItemInteract(int32 SlotNum)
 			// Spawn a toy...
 			InventoryItem* SpawnItem = new InventoryItem(ItemToDrop, 666, "Toy", GameMode->MeshesAndTextures->GetStaticMeshByItemID(ItemToDrop), GameMode->MeshesAndTextures->GetTextureByItemID(ItemToDrop));
 
-			FVector Position = GetActivatePosition(MainCharacter) + GetOwner()->GetActorRightVector()*20.f;
+			FVector Position = GetActivatePosition(MainCharacter) + GetOwner()->GetActorRightVector()*50.f;
 
 			GameMode->PutObjectInWorld(SpawnItem, Position, FVector(0, 0, 0), FVector(1, 1, 1));
 
