@@ -266,5 +266,7 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 		}
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("Angle: %s"), *FString::SanitizeFloat(Angle));
+
 	return ActorLocation;
 }
