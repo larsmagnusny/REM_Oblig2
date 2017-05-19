@@ -55,4 +55,6 @@ public:
 	float FlickerWait = 0.f;
 
 	float OriginalIntensity = 0.f;
+
+	bool isOn = true;
 };

@@ -35,6 +35,12 @@ void UFlickeringLights::TickComponent( float DeltaTime, ELevelTick TickType, FAc
 	if (!CanFlicker)
 		return;
 
+	if (!isOn)
+	{
+		PointLight->SetIntensity(0);
+		return;
+	}
+
 	if (FlickerOnEvent)
 	{
 

@@ -3,6 +3,7 @@
 #include "REMOblig2.h"
 #include "LightSwitchComponent.h"
 #include "MainCharacter.h"
+#include "FlickeringLights.h"
 
 ULightSwitchComponent::ULightSwitchComponent()
 {
@@ -54,13 +55,21 @@ void ULightSwitchComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			{
 				UPointLightComponent* Component = Cast<UPointLightComponent>(Light->GetComponentByClass(UPointLightComponent::StaticClass()));
 
+				UFlickeringLights* FlickerComponent = Cast<UFlickeringLights>(Light->GetComponentByClass(UFlickeringLights::StaticClass()));
+
 				if (On)
 				{
 					Component->SetIntensity(OnIntensity);
+
+					if (FlickerComponent)
+						FlickerComponent->isOn = true;
 				}
 				if(!On)
 				{
 					Component->SetIntensity(OffIntensity);
+
+					if (FlickerComponent)
+						FlickerComponent->isOn = false;
 				}
 			}
 		}

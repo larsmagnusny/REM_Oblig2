@@ -140,7 +140,6 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 			GoToSlot = true;
 			FollowingPlayer = false;
 			SnappedToSlot = false;
-			RunStitdownAnimation = true;
 		}
 	}
 }
@@ -394,4 +393,5 @@ void UChestController::SnapToSlot()
 	SlotLocation = FVector(SlotPos.X, SlotPos.Y, OurPos.Z);
 	Rotation = SlotRotation;
 	SnappedToSlot = true;
+	RunStitdownAnimation = true;
 }

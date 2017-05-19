@@ -339,7 +339,7 @@ void UBookCase::UpdateBookDrag()
 
 FVector UBookCase::GetPositionFromSlot(int Index)
 {
-	if (Index < SnapPositions.Num())
+	if (Index < SnapPositions.Num() && Index >= 0)
 		return SnapPositions[Index];
 	else
 		return FVector(0, 0, 0);
