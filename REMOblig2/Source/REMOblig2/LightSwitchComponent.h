@@ -40,8 +40,11 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	float OffIntensity = 0.f;
-private:
+
+	UPROPERTY(EditAnywhere)
 	bool On = false;
+private:
+	
 	bool LastState = true;
 
 	AREM_GameMode* GameMode = nullptr;
