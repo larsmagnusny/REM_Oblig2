@@ -50,6 +50,11 @@ void UChestController::BeginPlay()
 	if (LockSkeletalMesh)
 		LockHolder->SetSkeletalMesh(LockSkeletalMesh);
 
+	if (locked)
+	{
+
+	}
+
 	// Legg til Meny-valg dynamisk så vi slipper å lage en ny widget for hver eneste item
 	ObjectSpecificMenuButtons.Add(MenuButtons[ButtonTypes::EXAMINE]);
 	Actions.Add(ActionType::INTERACT_EXAMINE);
