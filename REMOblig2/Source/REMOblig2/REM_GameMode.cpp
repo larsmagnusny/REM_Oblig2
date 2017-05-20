@@ -198,6 +198,7 @@ void AREM_GameMode::GetRelevantSaveData(FBufferArchive &BinaryData)
 	FRotator CharacterRotation = Char->GetActorRotation();
 	BinaryData << CharacterLocation;
 	BinaryData << CharacterRotation;
+	BinaryData << Char->RadioVisible;
 
 	TArray<AInventoryItemObject*> DynamicObjects;
 	// Save all inventory items that are on the ground...
@@ -270,6 +271,12 @@ void AREM_GameMode::LoadDataFromBinary(FBufferArchive & BinaryData)
 
 	Ar << CharacterLocation;
 	Ar << CharacterRotation;
+
+	bool RadioVisible;
+
+	Ar << RadioVisible;
+
+	Char->RadioVisible = RadioVisible;
 
 	Char->SetActorLocation(CharacterLocation);
 	

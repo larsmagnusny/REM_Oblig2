@@ -93,6 +93,14 @@ MeshAndTextureLoader::MeshAndTextureLoader()
 	MaterialReference.Add(new MaterialStorage(Mats));
 	ItemIconRefString.Add("Texture2D'/Game/Textures/orange_lego.orange_lego'");
 
+	MeshRefString.Add("StaticMesh'/Game/Meshes/Radio/RadioStatic.RadioStatic'");
+	Mats.Empty();
+	Mats.Add("Material'/Game/Meshes/Radio/phongE1.phongE1'");
+	Mats.Add("Material'/Game/Meshes/Radio/lambert2.lambert2'");
+	MaterialReference.Add(new MaterialStorage(Mats));
+	ItemIconRefString.Add("Texture2D'/Game/Textures/RadioIcon.RadioIcon'");
+
+
 
 	for (uint8 i = 0; i < MeshRefString.Num(); i++)
 	{

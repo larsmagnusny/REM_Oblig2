@@ -36,7 +36,8 @@ void UInventoryItemComponent::BeginPlay()
 			SubMenuWidget->AddToViewport(11);
 		}
 	}
-	
+
+	PickupScale = GetOwner()->GetActorScale3D();
 
 	GameMode->AddInteractableObject(GetOwner(), this, nullptr);
 }
@@ -53,7 +54,34 @@ void UInventoryItemComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UInventoryItemComponent::ActivateObject(AActor* Player)
 {
-	PickupObject(Player);
+
+
+	AInventoryItemObject* Owner = Cast<AInventoryItemObject>(GetOwner());
+
+	if (Owner->ItemID == ItemIDs::ITEM_RADIO)
+	{
+		AMainCharacter* Character = Cast<AMainCharacter>(Player);
+
+		if (Character)
+			Character->RadioVisible = true;
+
+		// Hvis jeg ikke fjerner denne så kan spillet krashe
+		if (GameMode->IsInteractble(GetOwner()))
+			GameMode->RemoveInteractableObject(GetOwner());
+
+		if (Hud)
+		{
+			Hud->RemoveInteractionWidget(this);
+		}
+
+		// Show a illustration of the item...
+		ShouldDie = true;
+		Hud->HintSnapToActor = nullptr;
+	}
+	else
+	{
+		PickupObject(Player);
+	}
 }
 
 void UInventoryItemComponent::ExamineObject(AActor* Player)
@@ -102,6 +130,9 @@ void UInventoryItemComponent::PickupObject(AActor* Player)
 			Cast<AMainCharacter>(Player)->Conversation = Conversation;
 			Cast<AMainCharacter>(Player)->ShouldShowConversation = true;
 			Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
+
+			AInventoryItemObject* Owner = Cast<AInventoryItemObject>(GetOwner());
+			Owner->GetStaticMeshComponent()->SetVisibility(true, true);
 		}
 	}
 }

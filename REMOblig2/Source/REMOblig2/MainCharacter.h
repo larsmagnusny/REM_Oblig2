@@ -173,6 +173,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ready to put inventoryitem in hand")
 	bool BeginInteract = false;
 
+	bool RadioVisible = false;
+
 private:
 	int DelaySlot = -1;
 

@@ -27,6 +27,8 @@ public:
 	// The position relative to the object to move when activating the object.
 	virtual FVector GetActivatePosition(AActor* Player);
 	
+	FVector PickupScale;
+
 private:
 	AREM_Hud* Hud = nullptr;
 	AREM_GameMode* GameMode = nullptr;

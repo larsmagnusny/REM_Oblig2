@@ -165,6 +165,19 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Visibility State of radio
+	if (RadioVisible)
+	{
+		if (!RadioComponent->IsVisible())
+			RadioComponent->SetVisibility(true, true);
+	}
+	else
+	{
+		if (RadioComponent->IsVisible())
+			RadioComponent->SetVisibility(false, true);
+	}
+
+
 	// Hvis spilleren ikke kan klikke på skjermen kan vi heller ikke bevege oss
 	if (OurHud)
 	{
@@ -406,6 +419,14 @@ void AMainCharacter::Tick(float DeltaTime)
 							isInteracting = false;
 							BeginInteract = false;
 							MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
+
+							if (DelayObject->ScriptComponent)
+							{
+								if (DelayObject->ScriptComponent->IsA(UInventoryItemComponent::StaticClass()))
+								{
+									MeshHolderComponent->SetWorldScale3D(DelayObject->ScriptComponent->PickupScale);
+								}
+							}
 						}
 					}
 
@@ -527,6 +548,14 @@ void AMainCharacter::Tick(float DeltaTime)
 					else {
 						MeshToShowWhenInteract = nullptr;
 						MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
+
+						if (DelayActivateObject.ScriptComponent)
+						{
+							if (DelayActivateObject.ScriptComponent->IsA(UInventoryItemComponent::StaticClass()))
+							{
+								MeshHolderComponent->SetWorldScale3D(DelayActivateObject.ScriptComponent->PickupScale);
+							}
+						}
 					}
 				}
 				else {

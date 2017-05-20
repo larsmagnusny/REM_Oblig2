@@ -101,5 +101,7 @@ public:
 	FString ParentName = "None";
 
 	bool CanRightClick = true;
+
+	FVector PickupScale = FVector(1, 1, 1);
 private:
 };
