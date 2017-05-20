@@ -332,7 +332,7 @@ void UChestController::ItemInteract(int32 SlotNum)
 
 FVector UChestController::GetActivatePosition(AActor * Player)
 {
-	return GetOwner()->GetActorLocation();
+	return GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector()*50.f;
 }
 
 FBufferArchive UChestController::GetSaveData()

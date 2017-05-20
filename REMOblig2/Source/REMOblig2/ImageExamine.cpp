@@ -58,7 +58,7 @@ void UImageExamine::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 			float Dist = FVector::Dist(CurrentCamera->GetActorLocation(), MainCameraFinalPosition);
 
-			if (Dist < 1.f)
+			if (Dist < 0.1f)
 			{
 				RunCameraAnimation = false;
 
@@ -83,7 +83,7 @@ void UImageExamine::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 			float Dist = FVector::Dist(CurrentCamera->GetActorLocation(), MainCameraOrigPosition);
 
-			if (Dist < 1.f)
+			if (Dist < 0.1f)
 			{
 				CurrentCamera->SetActorLocation(MainCameraOrigPosition);
 				CurrentCamera->SetActorRotation(MainCameraOrigRotation);
@@ -96,6 +96,8 @@ void UImageExamine::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 					CurrentCamera->FollowCharacter = true;
 					ResetFollowCharacter = false;
 				}
+
+				OrigPositionAndRotationSet = false;
 
 				Cast<AMainCharacter>(MCharacter)->IsInPuzzleGameMode = false;
 			}

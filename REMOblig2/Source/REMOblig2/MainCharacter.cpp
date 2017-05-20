@@ -361,11 +361,6 @@ void AMainCharacter::Tick(float DeltaTime)
 
 			if (DelayRunF)
 			{
-				
-				UE_LOG(LogTemp, Warning, TEXT("ActivateDist: %s"), *FString::SanitizeFloat(ActivateDist));
-
-				UE_LOG(LogTemp, Error, TEXT("Interacting from slot: %s"), *FString::FromInt(DelaySlot));
-
 				if (DelayObject)
 				{
 					InventoryItem* Item = nullptr;
@@ -374,10 +369,8 @@ void AMainCharacter::Tick(float DeltaTime)
 					{
 						Item = PlayerInventory->GetItem(DelaySlot);
 
-						UE_LOG(LogTemp, Error, TEXT("Testing if BeginInteract"));
 						if (BeginInteract && isInteracting)
 						{
-							UE_LOG(LogTemp, Error, TEXT("BeginInteract true"));
 							MeshToShowWhenInteract = GameMode->MeshesAndTextures->GetStaticMeshByItemID(Item->ItemID);
 
 							TArray<UMaterial*> Mats = GameMode->MeshesAndTextures->GetMaterialsByItemID(Item->ItemID);
@@ -397,15 +390,12 @@ void AMainCharacter::Tick(float DeltaTime)
 						}
 						else if (isInteracting && !BeginInteract)
 						{
-							UE_LOG(LogTemp, Error, TEXT("Is Interacting false, begin interact true"));
-
 							MouseMove = true;
 							return;
 						}
 
 						if (!isInteracting && !BeginInteract && MeshToShowWhenInteract == nullptr)
 						{
-							UE_LOG(LogTemp, Error, TEXT("Both are false, mesh is null"));
 							isInteracting = true;
 
 							MouseMove = true;
@@ -538,6 +528,9 @@ void AMainCharacter::Tick(float DeltaTime)
 						MeshToShowWhenInteract = nullptr;
 						MeshHolderComponent->SetStaticMesh(MeshToShowWhenInteract);
 					}
+				}
+				else {
+					isInteracting = true;
 				}
 
 				UE_LOG(LogTemp, Error, TEXT("Outside..."));
