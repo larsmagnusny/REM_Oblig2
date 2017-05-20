@@ -216,6 +216,9 @@ void AMainCharacter::Tick(float DeltaTime)
 				TSkeletalMeshComponent = InteractableComponent->GetSkeletalMeshComponent();
 			}
 
+			if (TSkeletalMeshComponent)
+				MeshComponent = nullptr;
+
 			if (MeshComponent && !TSkeletalMeshComponent)
 			{
 				if (MeshComponent != LastComponentMousedOver)

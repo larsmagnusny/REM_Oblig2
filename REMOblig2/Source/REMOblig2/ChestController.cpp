@@ -25,6 +25,19 @@ UChestController::UChestController()
 	}
 
 	LockHolder = CreateDefaultSubobject<USkeletalMeshComponent>(FName("LockHolderComponent"), true);
+
+	for (int i = 0; i < 6; i++)
+	{
+		FString ItemName = "ItemHolder" + FString::FromInt(i);
+		ChestItemSlots.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName(*ItemName), true));
+	}
+
+	ChestSlotDelegation.Add(ItemIDs::ITEM_SPINNER);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_YELLOW_LEGO);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_BLUE_LEGO);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_PURPLE_LEGO);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_ORANGE_LEGO);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_SOUNDTOY);
 }
 
 
@@ -42,6 +55,20 @@ void UChestController::BeginPlay()
 		LockHolder->AttachToComponent(ParentSkeletalMesh, Rules, FName("LockHolder"));
 		LockHolder->RegisterComponent();
 	}
+
+	// Snap Slot Components
+	ChestItemSlots[0]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item1"));
+	ChestItemSlots[1]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item2"));
+	ChestItemSlots[2]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item3"));
+	ChestItemSlots[3]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item4"));
+	ChestItemSlots[4]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item5"));
+	ChestItemSlots[5]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item6"));
+
+	for (int i = 0; i < 6; i++)
+	{
+		ChestItemSlots[i]->RegisterComponent();
+	}
+
 
 	// Set Mesh to LockHolder...
 	if (AnimBPClass)
@@ -266,6 +293,7 @@ void UChestController::ItemInteract(int32 SlotNum)
 		if (Item->INTERACT_ID == 666 && isOpen)
 		{
 			toysfilled++;
+			ShowToy(Item->ItemID);
 			MainCharacter->DiscardItem(SlotNum);
 			return;
 		}
@@ -302,6 +330,11 @@ void UChestController::ItemInteract(int32 SlotNum)
 	}
 }
 
+FVector UChestController::GetActivatePosition(AActor * Player)
+{
+	return GetOwner()->GetActorLocation();
+}
+
 FBufferArchive UChestController::GetSaveData()
 {
 	FBufferArchive BinaryData;
@@ -335,6 +368,29 @@ void UChestController::LoadSaveData(FMemoryReader &Ar)
 	Ar << SlotLocation;
 	Ar << filled;
 	Ar << toysfilled;
+}
+
+void UChestController::ShowToy(ItemIDs ID)
+{
+	int index = -1;
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (ChestSlotDelegation[i] == ID)
+			index = i;
+	}
+
+	if (index != -1)
+	{
+		UStaticMesh* Mesh = GameMode->MeshesAndTextures->GetStaticMeshByItemID(ID);
+		TArray<UMaterial*> Materials = GameMode->MeshesAndTextures->GetMaterialsByItemID(ID);
+		ChestItemSlots[index]->SetStaticMesh(Mesh);
+
+		for (int i = 0; i < Materials.Num(); i++)
+		{
+			ChestItemSlots[index]->SetMaterial(i, Materials[i]);
+		}
+	}
 }
 
 // Dersom spilleren har valgt et dialogvalg

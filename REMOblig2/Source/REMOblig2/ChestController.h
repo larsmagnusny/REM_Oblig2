@@ -33,11 +33,15 @@ public:
 	virtual void DialogueOptionPressed(UUserWidget* Caller, int optionindex) override;
 	virtual void ItemInteract(int32 SlotNum) override;
 
+	virtual FVector GetActivatePosition(AActor* Player) override;
+
 	// Data to save about this object, can be overriden
 	virtual FBufferArchive GetSaveData() override;
 
 	// Data to load about this object, can be overriden
 	virtual void LoadSaveData(FMemoryReader &Ar) override;
+
+	void ShowToy(ItemIDs ID);
 
 	// En Funksjon som kalles ifra blueprint for å vite hvor kisten skal gå når du sier at den skal gå til et sted
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Pressed")
@@ -112,4 +116,7 @@ private:
 	USkeletalMesh* LockSkeletalMesh = nullptr;
 
 	USkeletalMeshComponent* LockHolder = nullptr;
+
+	TArray<UStaticMeshComponent*> ChestItemSlots;
+	TArray<ItemIDs> ChestSlotDelegation;
 };
