@@ -33,13 +33,25 @@ void UImageExamine::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	{
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 
+		float Dist = FVector::Dist(MainCameraFinalPosition ,MainCameraOrigPosition);
+
 		if (Forward)
 		{
-			int moveSpeed = 8;
+			float moveSpeed = Dist*(1.f/TransitionTime)*0.02f;
+
+			FVector OrigVec = MainCameraOrigRotation.Vector();
+			FVector WantedVec = MainCameraFinalRotation.Vector();
+
+			float DeltaAngle = FMath::Acos(FVector::DotProduct(OrigVec, WantedVec)) * (180.f/3.141592f);
+
+			float rotateSpeed = FMath::Abs(DeltaAngle*(1.f/TransitionTime)*1.2f);
+
+			UE_LOG(LogTemp, Warning, TEXT("MoveSpeed: %s"), *FString::SanitizeFloat(moveSpeed));
+			UE_LOG(LogTemp, Warning, TEXT("rotateSpeed: %s"), *FString::SanitizeFloat(rotateSpeed));
 
 			FVector Add = FMath::VInterpTo(CurrentCamera->GetActorLocation(), MainCameraFinalPosition, DeltaTime, moveSpeed);
 
-			FRotator Rot = FMath::VInterpNormalRotationTo(CurrentCamera->GetActorRotation().Vector(), MainCameraFinalRotation.Vector(), DeltaTime, moveSpeed*RotateMultiplier).ToOrientationRotator();
+			FRotator Rot = FMath::VInterpNormalRotationTo(CurrentCamera->GetActorRotation().Vector(), MainCameraFinalRotation.Vector(), DeltaTime, rotateSpeed).ToOrientationRotator();
 
 			CurrentCamera->SetActorLocation(Add);
 			CurrentCamera->SetActorRotation(Rot);

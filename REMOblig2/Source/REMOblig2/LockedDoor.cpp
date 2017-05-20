@@ -47,9 +47,9 @@ void ULockedDoor::BeginPlay()
 
 	// Used to check which side of the door the player is, so it doesn't slam him in the face when he tries to open it!
 	if (OpenDirection)
-		OpenDir = GetOwner()->GetActorUpVector();
+		OpenDir = -GetOwner()->GetActorRightVector();
 	else
-		OpenDir = -GetOwner()->GetActorUpVector();
+		OpenDir = GetOwner()->GetActorRightVector();
 }
 
 void ULockedDoor::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -241,32 +241,35 @@ FVector ULockedDoor::GetActivatePosition(AActor* Player)
 		if (Angle < 1.4f)
 		{
 			if (OpenDirection)
-				ActorLocation -= OpenDir*50.f;
+				ActorLocation += GetOwner()->GetActorForwardVector()*Bounds.X + GetOwner()->GetActorRightVector()*50.f;
 			else
-				ActorLocation -= OpenDir*50.f;
+				ActorLocation += GetOwner()->GetActorForwardVector()*Bounds.X - GetOwner()->GetActorRightVector()*50.f;
 		}
 		else
-			ActorLocation += OpenDir*Bounds.Y;
+		{
+			if (OpenDirection)
+				ActorLocation -= GetOwner()->GetActorForwardVector()*Bounds.X*2.5;
+			else
+				ActorLocation -= GetOwner()->GetActorForwardVector()*Bounds.X*2.5;
+		}
 	}
 	else
 	{
 		if (Angle < 1.4f)
 		{
 			if (OpenDirection)
-				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
+				ActorLocation -= GetOwner()->GetActorForwardVector()*Bounds.X - GetOwner()->GetActorRightVector()*50.f;
 			else
-				ActorLocation += Rot*Bounds.X - OpenDir*50.f;
+				ActorLocation -= GetOwner()->GetActorRightVector()*Bounds.X + GetOwner()->GetActorForwardVector()*50.f;
 		}
 		else
 		{
 			if (OpenDirection)
-				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
+				ActorLocation -= GetOwner()->GetActorRightVector()*Bounds.X*2.5;
 			else
-				ActorLocation += Rot*Bounds.X + OpenDir*100.f;
+				ActorLocation += GetOwner()->GetActorRightVector()*Bounds.X*2.5;
 		}
 	}
-
-	UE_LOG(LogTemp, Error, TEXT("Angle: %s"), *FString::SanitizeFloat(Angle));
 
 	return ActorLocation;
 }

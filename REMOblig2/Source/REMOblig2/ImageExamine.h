@@ -28,6 +28,9 @@ public:
 	virtual FVector GetActivatePosition(AActor* Player) override;
 
 	UPROPERTY(EditAnywhere)
+	float TransitionTime = 1.f;
+
+	UPROPERTY(EditAnywhere)
 	float RotateMultiplier = 16.3f;
 
 	UPROPERTY(EditAnywhere)
