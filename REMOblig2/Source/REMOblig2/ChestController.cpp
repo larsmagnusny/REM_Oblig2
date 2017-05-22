@@ -26,7 +26,7 @@ UChestController::UChestController()
 
 	LockHolder = CreateDefaultSubobject<USkeletalMeshComponent>(FName("LockHolderComponent"), true);
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		FString ItemName = "ItemHolder" + FString::FromInt(i);
 		ChestItemSlots.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName(*ItemName), true));
@@ -38,6 +38,10 @@ UChestController::UChestController()
 	ChestSlotDelegation.Add(ItemIDs::ITEM_PURPLE_LEGO);
 	ChestSlotDelegation.Add(ItemIDs::ITEM_ORANGE_LEGO);
 	ChestSlotDelegation.Add(ItemIDs::ITEM_SOUNDTOY);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_RUBIX_CUBE);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_TEDDY);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_STACKING_TOY);
+	ChestSlotDelegation.Add(ItemIDs::ITEM_DOLL);
 }
 
 
@@ -63,10 +67,15 @@ void UChestController::BeginPlay()
 	ChestItemSlots[3]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item4"));
 	ChestItemSlots[4]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item5"));
 	ChestItemSlots[5]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item6"));
+	ChestItemSlots[6]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item7"));
+	ChestItemSlots[7]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item8"));
+	ChestItemSlots[8]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item9"));
+	ChestItemSlots[9]->AttachToComponent(ParentSkeletalMesh, Rules, FName("Item10"));
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		ChestItemSlots[i]->RegisterComponent();
+		ChestItemSlots[i]->SetMobility(EComponentMobility::Movable);
 	}
 
 
@@ -145,7 +154,7 @@ void UChestController::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (!filled)
 	{
 		// Sjekk om vi har nok leker
-		if (toysfilled >= 6)
+		if (toysfilled >= 10)
 		{
 			// Lukk kisten og gjør det umulig å åpne den med en item
 			isOpen = false;
@@ -374,7 +383,7 @@ void UChestController::ShowToy(ItemIDs ID)
 {
 	int index = -1;
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		if (ChestSlotDelegation[i] == ID)
 			index = i;

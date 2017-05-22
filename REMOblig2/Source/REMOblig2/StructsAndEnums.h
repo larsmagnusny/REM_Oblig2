@@ -35,6 +35,10 @@ enum class ItemIDs : uint8
 	ITEM_PURPLE_LEGO UMETA(DisplayName = "A lego that is purple."),
 	ITEM_ORANGE_LEGO UMETA(DisplayName = "A lego that is organge."),
 	ITEM_RADIO UMETA(DisplayName = "A Radio that talks."),
+	ITEM_RUBIX_CUBE UMETA(DisplayName = "A Rubix Cube."),
+	ITEM_TEDDY UMETA(DisplayName = "A Teddybear."),
+	ITEM_STACKING_TOY UMETA(DisplayName = "A toy in which you stack rings ontop."),
+	ITEM_DOLL UMETA(DisplayName = "A Wooden doll."),
 	ITEM_CRYSTALSHARD UMETA(DisplayName = "A Crystal shard"),
 	ITEM_SCISSORS UMETA(DisplayName = "Scissors, do i have to say anything else?"),
 	ITEM_NONE UMETA(DisplayName = "Just to know in save file if it is empty")

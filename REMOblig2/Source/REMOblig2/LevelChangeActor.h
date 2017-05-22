@@ -28,5 +28,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	FName LevelName;
 
+	UPROPERTY(EditAnywhere)
+	bool LoadCheckpoint = true;
+
 	AREM_GameMode* GameMode = nullptr;
 };

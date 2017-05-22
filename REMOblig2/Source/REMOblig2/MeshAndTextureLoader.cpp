@@ -100,7 +100,40 @@ MeshAndTextureLoader::MeshAndTextureLoader()
 	MaterialReference.Add(new MaterialStorage(Mats));
 	ItemIconRefString.Add("Texture2D'/Game/Textures/RadioIcon.RadioIcon'");
 
+	// Rubix cube
+	MeshRefString.Add("StaticMesh'/Game/Meshes/Rubix/rubiks_cube.rubiks_cube'");
+	Mats.Empty();
+	Mats.Add("Material'/Game/Materials/RubixCube.RubixCube'");
+	MaterialReference.Add(new MaterialStorage(Mats));
+	ItemIconRefString.Add("Texture2D'/Game/Textures/rubix.rubix'");
 
+	// Teddy
+	MeshRefString.Add("StaticMesh'/Game/Meshes/Teddy/Teddy.Teddy'");
+	Mats.Empty();
+	Mats.Add("Material'/Game/Materials/TeddyMat2.TeddyMat2'");
+	Mats.Add("Material'/Game/Materials/TeddyMat1.TeddyMat1'");
+	Mats.Add("Material'/Game/Materials/TeddyMat3.TeddyMat3'");
+	MaterialReference.Add(new MaterialStorage(Mats));
+	ItemIconRefString.Add("Texture2D'/Game/Textures/teddy.teddy'");
+
+	// Stacking toy
+	MeshRefString.Add("StaticMesh'/Game/Meshes/StackingToy/StackingToy.StackingToy'");
+	Mats.Empty();
+	Mats.Add("Material'/Game/Materials/BaseColor.BaseColor'");
+	Mats.Add("Material'/Game/Materials/Color2.Color2'");
+	Mats.Add("Material'/Game/Materials/Color3.Color3'");
+	Mats.Add("Material'/Game/Materials/Color4.Color4'");
+	Mats.Add("Material'/Game/Materials/Color5.Color5'");
+	Mats.Add("Material'/Game/Materials/Color1.Color1'");
+	MaterialReference.Add(new MaterialStorage(Mats));
+	ItemIconRefString.Add("Texture2D'/Game/Textures/stacking.stacking'");
+
+	// Wooden doll
+	MeshRefString.Add("StaticMesh'/Game/Meshes/Thing/StaticMesh.StaticMesh'");
+	Mats.Empty();
+	Mats.Add("Material'/Game/Materials/ThingMat.ThingMat'");
+	MaterialReference.Add(new MaterialStorage(Mats));
+	ItemIconRefString.Add("Texture2D'/Game/Textures/thing.thing'");
 
 	for (uint8 i = 0; i < MeshRefString.Num(); i++)
 	{

@@ -47,5 +47,8 @@ void ULevelChangeActor::ActivateObject(AActor* Player)
 
 	UREM_GameInstance* GameInstance = Cast<UREM_GameInstance>(GetWorld()->GetGameInstance());
 
-	GameInstance->LoadCheckpointNextLevel = true;
+	if (LoadCheckpoint)
+		GameInstance->LoadCheckpointNextLevel = true;
+	else
+		GameInstance->LoadCheckpointNextLevel = false;
 }
