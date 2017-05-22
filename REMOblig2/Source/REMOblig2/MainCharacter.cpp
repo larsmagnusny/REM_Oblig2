@@ -53,7 +53,7 @@ AMainCharacter::AMainCharacter()
 			}
 
 			static ConstructorHelpers::FObjectFinder<UMaterial> Mat1(TEXT("Material'/Game/Materials/Camo_Mat.Camo_Mat'"));
-			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Meshes/MainCharacter/lambert2.lambert2'"));
+			static ConstructorHelpers::FObjectFinder<UMaterial> Mat2(TEXT("Material'/Game/Materials/CharacterSkin.CharacterSkin'"));
 
 			if (Mat1.Succeeded() && Mat2.Succeeded())
 			{

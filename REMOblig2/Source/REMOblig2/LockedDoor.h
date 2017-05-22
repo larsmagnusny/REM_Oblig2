@@ -32,6 +32,8 @@ public:
 	virtual void ActivateObject(AActor* Player) override;
 	virtual void ExamineObject(AActor* Player) override;
 
+	virtual void ItemInteract(int32 SlotNum) override;
+
 	// Data to save about this object, can be overriden
 	virtual FBufferArchive GetSaveData() override;
 
@@ -66,13 +68,12 @@ private:
 	void OpenDoor();
 	void CloseDoor();
 
-	void UnlockDoor(InventoryItem* item);
-	void LockDoor(InventoryItem* item);
-
 	bool PuzzleSolved = false; // Save this
 
 	FRotator InitialRotation; // Save this
 	float CurrentRotation = 0.f; // Save this
+
+	AREM_GameMode* GameMode = nullptr;
 
 	FVector OpenDir;
 };

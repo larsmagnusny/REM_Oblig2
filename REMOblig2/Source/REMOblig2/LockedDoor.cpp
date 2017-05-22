@@ -25,7 +25,7 @@ void ULockedDoor::BeginPlay()
 	Actions.Add(ActionType::INTERACT_EXAMINE);
 
 	// Hent peker til HUD og GameMode
-	AREM_GameMode* GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
+	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 	AREM_Hud* Hud = Cast<AREM_Hud>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
 	if (SubMenuWidgetClassTemplate)
@@ -143,6 +143,45 @@ void ULockedDoor::ExamineObject(AActor* Player)
 	Cast<AMainCharacter>(Player)->SetDialogueChoiceVisible();
 }
 
+void ULockedDoor::ItemInteract(int32 SlotNum)
+{
+	// Hent hoved karakter pekeren ifra GameMode
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(GameMode->GetMainCharacter());
+
+	// Hent itemet som er i den slotten vi slapp ifra, ( Se på blueprintet InventorySlot )
+	InventoryItem* Item = MainCharacter->GetItemBySlot(SlotNum);
+
+
+	TArray<FString> Conversation;
+
+	// Hvis pekeren ikke er NULL
+	if (Item)
+	{
+		if (Item->INTERACT_ID == OpenID)
+		{
+			Conversation.Add("The door unlocks.");
+			DoorOpenCondition = OpenCondition::OPEN_NORMAL;
+			MainCharacter->DiscardItem(SlotNum);
+
+			MainCharacter->Conversation = Conversation;
+			MainCharacter->ShouldShowConversation = true;
+			MainCharacter->SetDialogueChoiceVisible();
+		}
+		else if (Item->INTERACT_ID != OpenID && Item->ItemID == ItemIDs::ITEM_KEY)
+		{
+			Conversation.Add("The key does not fit the lock");
+
+			MainCharacter->Conversation = Conversation;
+			MainCharacter->ShouldShowConversation = true;
+			MainCharacter->SetDialogueChoiceVisible();
+		} 
+		else
+		{
+			Super::ItemInteract(SlotNum);
+		}
+	}
+}
+
 void ULockedDoor::OpenDoor()
 {
 	Open = true;
@@ -151,16 +190,6 @@ void ULockedDoor::OpenDoor()
 void ULockedDoor::CloseDoor()
 {
 	Open = false;
-}
-
-void ULockedDoor::UnlockDoor(InventoryItem* item)
-{
-
-}
-
-void ULockedDoor::LockDoor(InventoryItem* item)
-{
-
 }
 
 void ULockedDoor::SetPuzzleSolved()
@@ -181,6 +210,7 @@ FBufferArchive ULockedDoor::GetSaveData()
 	BinaryData << PSolved;
 	BinaryData << IRotation;
 	BinaryData << CRotation;
+	BinaryData << DoorOpenCondition;
 
 	return BinaryData;
 }
@@ -196,6 +226,7 @@ void ULockedDoor::LoadSaveData(FMemoryReader &Ar)
 	Ar << PSolved;
 	Ar << IRotation;
 	Ar << CRotation;
+	Ar << DoorOpenCondition;
 
 	if (Op > 0)
 		Open = true;

@@ -316,7 +316,7 @@ void UChestController::ItemInteract(int32 SlotNum)
 			MainCharacter->ShouldShowConversation = true;
 			MainCharacter->SetDialogueChoiceVisible();
 		}
-		else if(Item->INTERACT_ID == OPENID)
+		else if(Item->INTERACT_ID != OPENID && Item->ItemID == ItemIDs::ITEM_KEY)
 		{
 			Conversation.Add("The key you have doesn't fit the lock?!");
 			MainCharacter->Conversation = Conversation;
