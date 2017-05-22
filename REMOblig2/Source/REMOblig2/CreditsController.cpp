@@ -59,6 +59,19 @@ void ACreditsController::Tick( float DeltaTime )
 		WaitCounter += DeltaTime;
 		return;
 	}
+	else {
+		UChestController* ChestController = Cast<UChestController>(ChestActor->GetComponentByClass(UChestController::StaticClass()));
+
+		
+		if (CameraCounter == 6 && !ChestController->RunStandupAnimation)
+		{
+			// Make chest stand up...
+			if (ChestActor)
+			{
+				ChestController->RunStandupAnimation = true;
+			}
+		}
+	}
 
 	if (CreditsDone)
 	{
@@ -107,6 +120,8 @@ void ACreditsController::Tick( float DeltaTime )
 		{
 			CameraCounter++;
 			UE_LOG(LogTemp, Error, TEXT("%s"), *FString::FromInt(CameraCounter));
+
+			
 
 			MainCameraFinalPosition = CameraPositions[CameraCounter];
 			MainCameraFinalRotation = CameraRotations[CameraCounter];

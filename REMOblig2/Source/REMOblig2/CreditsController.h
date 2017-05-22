@@ -7,6 +7,7 @@
 #include "REM_Hud.h"
 #include "REM_GameMode.h"
 #include "LookAtCamera.h"
+#include "ChestController.h"
 #include "CreditsController.generated.h"
 
 UCLASS()
@@ -52,6 +53,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Should show next credit...")
 	bool ShouldShowNext = false;
+
+	UPROPERTY(EditAnywhere)
+	AActor* ChestActor = nullptr;
 private:
 	UREM_GameInstance* GameInstance = nullptr;
 	AREM_GameMode* GameMode = nullptr;
@@ -69,4 +73,6 @@ private:
 	bool CreditsDone = false;
 
 	int CameraCounter = 0;
+
+	
 };
