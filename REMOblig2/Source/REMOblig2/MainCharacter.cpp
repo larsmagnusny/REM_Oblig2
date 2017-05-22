@@ -165,6 +165,8 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+
 	// Visibility State of radio
 	if (RadioVisible)
 	{
@@ -177,6 +179,8 @@ void AMainCharacter::Tick(float DeltaTime)
 			RadioComponent->SetVisibility(false, true);
 	}
 
+	if (GameMode->GameInstance->CreditsLevel)
+		return;
 
 	// Hvis spilleren ikke kan klikke på skjermen kan vi heller ikke bevege oss
 	if (OurHud)
@@ -688,6 +692,9 @@ void AMainCharacter::MouseLeftClick()
 	if (MeshToShowWhenInteract)
 		return;
 
+	if (GameMode->GameInstance->CreditsLevel)
+		return;
+
 	DelayActivate = false;
 	DelayRunF = false;
 	DelayClimb = false;
@@ -849,6 +856,9 @@ void AMainCharacter::MouseRightClick()
 {
 	if (OurHud)
 	{
+		if (GameMode->GameInstance->CreditsLevel)
+			return;
+
 		if (MeshToShowWhenInteract)
 			return;
 

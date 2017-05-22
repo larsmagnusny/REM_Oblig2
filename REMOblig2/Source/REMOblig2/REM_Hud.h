@@ -150,6 +150,9 @@ public:
 		return String;
 	}
 
+	UPROPERTY(BlueprintReadWrite, Category = "Credits")
+	AActor* CreditsActor = nullptr;
+
 private:
 	bool SubMenuesInUse = false;
 
@@ -165,6 +168,9 @@ private:
 
 	UClass* UserTipsWidgetClassTemplate = nullptr;
 	UUserWidget* UserTipsWidget = nullptr;
+
+	UClass* CreditsWidgetClassTemplate = nullptr;
+	UUserWidget* CreditsWidget = nullptr;
 
 	TArray<InteractionWidget> SubMenues;
 

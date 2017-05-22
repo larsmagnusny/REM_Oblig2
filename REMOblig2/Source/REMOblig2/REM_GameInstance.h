@@ -54,6 +54,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "If we should load the savefile next time we play")
 	bool LoadCheckpointNextLevel = false;
 
+	bool CreditsLevel = false;
+
 	uint8 CurrentLevelLoaded = 0;
 
 	// Persistent player inventory...

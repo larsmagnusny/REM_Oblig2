@@ -14,6 +14,13 @@ AREM_Hud::AREM_Hud()
 	ConstructorHelpers::FClassFinder<UUserWidget> PauseMenuWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/PauseMenu.PauseMenu_C'"));
 	ConstructorHelpers::FClassFinder<UUserWidget> UserTipsWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/UserTipsWidget.UserTipsWidget_C'"));
 
+	ConstructorHelpers::FClassFinder<UUserWidget> CreditsWidgetLoader(TEXT("WidgetBlueprint'/Game/UI/Credits.Credits_C'"));
+
+	if (CreditsWidgetLoader.Succeeded())
+	{
+		CreditsWidgetClassTemplate = CreditsWidgetLoader.Class;
+	}
+
 	if (InventoryWidgetLoader.Succeeded())
 	{
 		InventoryWidgetClassTemplate = InventoryWidgetLoader.Class;
@@ -99,6 +106,17 @@ void AREM_Hud::BeginPlay()
 		//UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	if (CreditsWidgetClassTemplate)
+	{
+		CreditsWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), CreditsWidgetClassTemplate);
+
+		CreditsWidget->AddToViewport(3);
+
+		CreditsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+
+
 	// Hent en peker til GameMode
 	GameMode = Cast<AREM_GameMode>(GetWorld()->GetAuthGameMode());
 }
@@ -107,6 +125,17 @@ void AREM_Hud::DrawHUD()
 {
 	Super::DrawHUD();
 
+	if (GameInstance->CreditsLevel)
+	{
+		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+		MainMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		PauseMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		UserTipsWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		CreditsWidget->SetVisibility(ESlateVisibility::Visible);
+
+		return;
+	}
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt((int32)GameInstance->MainMenu));
 
 	if (HintSnapToActor && !MainMenuLevel)
@@ -193,8 +222,6 @@ void AREM_Hud::DrawHUD()
 
 		RightClickMenu->SetPositionInViewport(ScreenPos, true);
 	}
-
-	
 }
 
 void AREM_Hud::CallActivate(ActionType Action)

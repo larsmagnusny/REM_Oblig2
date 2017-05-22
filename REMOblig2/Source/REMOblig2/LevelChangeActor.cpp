@@ -50,5 +50,7 @@ void ULevelChangeActor::ActivateObject(AActor* Player)
 	if (LoadCheckpoint)
 		GameInstance->LoadCheckpointNextLevel = true;
 	else
+	{
 		GameInstance->LoadCheckpointNextLevel = false;
+	}
 }
