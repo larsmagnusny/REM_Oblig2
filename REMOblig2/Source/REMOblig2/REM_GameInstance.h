@@ -54,6 +54,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "If we should load the savefile next time we play")
 	bool LoadCheckpointNextLevel = false;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Are we in credits level?")
 	bool CreditsLevel = false;
 
 	uint8 CurrentLevelLoaded = 0;

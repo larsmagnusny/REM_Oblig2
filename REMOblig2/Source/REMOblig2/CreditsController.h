@@ -54,8 +54,29 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Should show next credit...")
 	bool ShouldShowNext = false;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Role")
+	FString CurrentRole;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Name")
+	FString CurrentName;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Text Position")
+	FVector2D CurrentTextPosition;
+
+
+	UPROPERTY(EditAnywhere)
+	TArray<FString> GroupRole;
+
+	TArray<FString> Names;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FVector2D> TextPosition;
+
 	UPROPERTY(EditAnywhere)
 	AActor* ChestActor = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Special Thanks!")
+	bool CreditsDone = false;
 private:
 	UREM_GameInstance* GameInstance = nullptr;
 	AREM_GameMode* GameMode = nullptr;
@@ -70,7 +91,7 @@ private:
 
 	FRotator CurrentRotationOffset;
 
-	bool CreditsDone = false;
+	
 
 	int CameraCounter = 0;
 

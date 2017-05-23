@@ -10,6 +10,16 @@ ACreditsController::ACreditsController()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	
+	Names.Add("Mathilde Kvernland\nRebecca Waagoones Losendahl"); // 0
+	Names.Add("Mathilde Kvernland"); // 1
+	Names.Add("Malin Spilde"); // 2
+	Names.Add("Rikke Loover Cedervall"); // 3
+	Names.Add("Rikke Loover Cedervall\nMalin Spilde"); // 4
+	Names.Add("Rikke Loover Cedervall\nMalin Spilde"); // 5
+	Names.Add("Rikke Loover Cedervall\nRebecca Waagoones Losendahl"); // 6
+	Names.Add("Jostein Risto"); // 7
+	Names.Add("Lars Magnus Nyland\nUne Haavik Johnsen"); // 8
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +48,9 @@ void ACreditsController::BeginPlay()
 
 	MainCameraFinalPosition = CameraPositions[0];
 	MainCameraFinalRotation = CameraRotations[0];
+
+	CurrentRole = GroupRole[0];
+	CurrentName = Names[0];
 
 	GameInstance->SFXVolume = 0.f;
 
@@ -118,10 +131,10 @@ void ACreditsController::Tick( float DeltaTime )
 
 		if (CameraCounter < CameraPositions.Num() - 1)
 		{
+			CurrentRole = GroupRole[CameraCounter-1];
+			CurrentName = Names[CameraCounter-1];
 			CameraCounter++;
 			UE_LOG(LogTemp, Error, TEXT("%s"), *FString::FromInt(CameraCounter));
-
-			
 
 			MainCameraFinalPosition = CameraPositions[CameraCounter];
 			MainCameraFinalRotation = CameraRotations[CameraCounter];
@@ -129,9 +142,13 @@ void ACreditsController::Tick( float DeltaTime )
 			ShouldShowNext = true;
 			
 		}
-		else {
+		else
+		{
 			WaitCounter = 0.f;
-			WaitTime = 30.f;
+			WaitTime = 7.0f;
+			ShouldShowNext = true;
+			CurrentRole = "Special thanks for guidance to";
+			CurrentName = "Einar Langjord (UV-mapping, and animation)\nJonas Hagemo(Animation)\nMarkus Storeide(Rigging)\nFred Froolich\nDaniel Kim\nWenche Hellekaas\nHaavard Vibeto\nOle Flaten";
 			CreditsDone = true;
 		}
 	}
