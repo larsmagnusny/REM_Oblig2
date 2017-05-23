@@ -5,7 +5,6 @@
 #include "InteractableObject.h"
 #include "InteractableComponent.h"
 #include "Inventory.h"
-#include "ClimbableObject.h"
 #include "MeshAndTextureLoader.h"
 #include "REM_GameInstance.h"
 #include "SoundLoader.h"

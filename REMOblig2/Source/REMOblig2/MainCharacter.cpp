@@ -786,67 +786,6 @@ void AMainCharacter::MouseLeftClick()
 			MoveTo = Hit.ImpactPoint;
 		}
 
-		if (HitActor->IsA(AClimbableObject::StaticClass()))
-		{
-			FVector PathStart = GetActorLocation();
-
-			FPathFindingQuery NavParams;
-			NavParams.EndLocation = Hit.ImpactPoint;
-			NavParams.StartLocation = GetActorLocation();
-			ANavigationData* navData = GetWorld()->GetNavigationSystem()->MainNavData;
-			NavParams.QueryFilter = UNavigationQueryFilter::GetQueryFilter<ANavigationData>(*navData);
-			NavParams.NavData = navData;
-
-			FPathFindingResult NavPath = NavSys->FindPathSync(NavParams);
-
-
-			// We should check if we can climb the object here!
-			UCapsuleComponent* OurCapsule = Cast<UCapsuleComponent>(GetComponentByClass(UCapsuleComponent::StaticClass()));
-			float CapsuleHeight = OurCapsule->GetScaledCapsuleHalfHeight();
-
-			if (NavPath.IsSuccessful())
-			{
-				if (NavPath.IsPartial())
-				{
-					if (!HitActor->IsA(AClimbableObject::StaticClass()))
-					{
-						FVector OurLocation = GetActorLocation();
-						FVector TeleportLocation = Hit.ImpactPoint;
-						TeleportLocation += FVector::UpVector*OurCapsule->GetScaledCapsuleHalfHeight();
-
-						FVector Direction = TeleportLocation - OurLocation;
-
-						float Zabs = FMath::Abs(Direction.Z);
-						float Z = Direction.Z;
-
-						DelayClimb = true;
-						ClimbTo = TeleportLocation;
-					}
-					else {
-						FVector Origin;
-						FVector Extents;
-
-						HitActor->GetActorBounds(false, Origin, Extents);
-
-						FVector OurLocation = GetActorLocation();
-						FVector TeleportLocation = HitActor->GetActorLocation();
-						TeleportLocation += FVector::UpVector*Extents.Z;
-						TeleportLocation += FVector::UpVector*CapsuleHeight;
-
-						FVector Direction = OurLocation - TeleportLocation;
-						Direction.Z = 0;
-						Direction.Normalize();
-
-						TeleportLocation += Direction*Extents.Z*0.7;
-
-						DelayClimb = true;
-						ClimbTo = TeleportLocation;
-					}
-				}
-			}
-			
-		}
-
 		//MoveTo = Hit.ImpactPoint;
 		MouseMove = true;
 	}
